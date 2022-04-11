@@ -135,7 +135,7 @@ var charSheetEl = $('open-character-sheet'),
   clearEl = $('clear-canvas');
 
 charSheetEl.onclick = function () {
-    window.open('charactersheets/Web_UI/5ecs.html');
+    window.open('https://main.d38el35uq1kkh7.amplifyapp.com/charactersheet/');
 }
 
 clearEl.onclick = function() { clearcan()};
@@ -465,7 +465,7 @@ canvas.on('mouse:wheel', function(opt) {
 document.onkeyup = KeyPress;
 
 dragElement(document.getElementById("dragcharsheet"));
-jQuery("#dragcharsheetheader").load("https://main.d38el35uq1kkh7.amplifyapp.com/charactersheets/5ecs.html");
+jQuery("#dragcharsheetheader").load("https://main.d38el35uq1kkh7.amplifyapp.com/charactersheets/");
 
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
