@@ -124,7 +124,8 @@ function init() {
     updateModifications();
 }
 
-var drawingModeEl = $('drawing-mode'),
+var charSheetEl = $('open-character-sheet'),
+  drawingModeEl = $('drawing-mode'),
   drawingOptionsEl = $('drawing-mode-options'),
   drawingColorEl = $('drawing-color'),
   drawingShadowColorEl = $('drawing-shadow-color'),
@@ -132,6 +133,10 @@ var drawingModeEl = $('drawing-mode'),
   drawingShadowWidth = $('drawing-shadow-width'),
   drawingShadowOffset = $('drawing-shadow-offset'),
   clearEl = $('clear-canvas');
+
+charSheetEl.onclick = function () {
+    window.open('charactersheets/Web_UI/5ecs.html');
+}
 
 clearEl.onclick = function() { clearcan()};
 
@@ -458,3 +463,49 @@ canvas.on('mouse:wheel', function(opt) {
 })
 
 document.onkeyup = KeyPress;
+
+dragElement(document.getElementById("dragcharsheet"));
+jQuery("#dragcharsheetheader").load("https://raw.githubusercontent.com/roll20plusplus/betterroll20/main/charactersheets/Web_UI/5ecs.html");
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+
+
+}
