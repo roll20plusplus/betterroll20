@@ -10,7 +10,9 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
         <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="css/styles.css" rel="stylesheet" />
+        <!--link href="css/styles.css" rel="stylesheet" / OLD VERSION, now pulling bootstrap from cdn-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link href="css/custom_style.css" rel="stylesheet" />
         <script src="js/fabric.js"></script>
     </head>
     
@@ -20,8 +22,8 @@
             <div class="border-end bg-white" id="sidebar-wrapper">
                 <div class="sidebar-heading border-bottom bg-light">Better Roll20</div>
                 <div class="list-group list-group-flush">
-                    <button id="drawing-mode" class="btn btn-info">Cancel drawing mode</button><br>
-                    <button id="clear-canvas" class="btn btn-info">Clear</button><br>
+                    <button id="drawing-mode" class="btn btn-secondary">Cancel drawing mode</button><br>
+                    <button id="clear-canvas" class="btn btn-secondary">Clear</button><br>
 
                     <div id="drawing-mode-options">
                         <label for="drawing-mode-selector">Mode:</label>
@@ -85,13 +87,16 @@
                     <canvas id="canvas" width="3710" height="3920"></canvas>
                 </div>
             </div>
+            <!-- Right bar -->
             <div class="border-end bg-white" id="rightbar-wrapper" >
-                <div class="container" >
-                    <div class="col-lg" id="chatbox">
+                <div class="container d-flex flex-column align-content-end h-100">
+                    <div>
                         <h2>Messages</h2>
-                        <ul class="chatlist flex-container column-reverse" style="height:1000px; width:100%; overflow: auto"> </ul>
                     </div>
-                    <div class="col-lg" id="chat-input">
+                    <div class="flex-grow-1" id="chatbox">
+                        <ul class="chatlist flex-container column-reverse h-100 w-100" style="overflow-y: scroll"> </ul>
+                    </div>
+                    <div class="align-self-end" id="chat-input">
                         <h4>Enter your message</h4>
                         <form id="mainform" method="post">
                             <div class="form-group">
