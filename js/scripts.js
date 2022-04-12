@@ -640,7 +640,7 @@ function getUserProfile() {
           var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
           var params = {
             TableName: 'Inara',
-            Item:{userid:id, status:'Success'}
+            Item:{userID:id, status:'Success'}
           };
           docClient.put(params, function(err, data) {
             if (err) 
