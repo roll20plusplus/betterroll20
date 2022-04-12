@@ -622,11 +622,12 @@ function getUserProfile() {
       console.log('session token: ' + session.getIdToken().getJwtToken());
 
       AWS.config.region = _config.cognito.region;
+      var loginKey = 'cognito-idp.'.concat(_config.cognito.region, '.amazonaws.com/', _config.cognito.userPoolId);
       AWS.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId : _config.cognito.identityPoolId, 
         Logins : {
           // Change the key below according to the specific region your user pool is in.
-          `cognito-idp.${AWS.config.region}.amazonaws.com/${data.UserPoolId}` : session.getIdToken().getJwtToken()
+          loginKey: session.getIdToken().getJwtToken()
         }
       });
 
