@@ -3,9 +3,11 @@
 * Copyright 2013-2022 Start Bootstrap
 * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/LICENSE)
 */
+/*global WildRydes _config AmazonCognitoIdentity AWSCognito*/
 // 
 // Scripts
 //
+
 var socket;
 
 var current;
@@ -121,6 +123,7 @@ function init() {
     drawBoard();
     action=true;
     updateModifications();
+    getUserProfile();
 }
 
 var charSheetButtonEl = $('open-character-sheet'),
@@ -596,6 +599,66 @@ function makeResizableDiv(div) {
       window.removeEventListener('mousemove', resize)
     }
   }
+}
+
+function getUserProfile() {
+
+    var data = {
+        UserPoolId: _config.cognito.userPoolId,
+        ClientId: _config.cognito.userPoolClientId,
+    };
+    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
+    var cognitoUser = userPool.getCurrentUser();
+
+    try {
+    if (cognitoUser != null) {
+    cognitoUser.getSession(function(err, session) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      console.log('session validity: ' + session.isValid());
+      console.log('session token: ' + session.getIdToken().getJwtToken());
+
+      AWS.config.region = '_config.cognito.region';
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId : '_config.cognito.identityPoolId', 
+        Logins : {
+          // Change the key below according to the specific region your user pool is in.
+          'cognito-idp.${AWS.config.region}.amazonaws.com/${data.UserPoolId}' : session.getIdToken().getJwtToken()
+        }
+      });
+
+      AWS.config.credentials.get(function(err) {
+        if (!err) {
+          var id = AWS.config.credentials.identityId;
+          console.log('Cognito Identity ID '+ id);
+
+          // Instantiate aws sdk service objects now that the credentials have been updated
+          var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+          var params = {
+            TableName: 'Inara',
+            Item:{userid:id, status:'Success'}
+          };
+          docClient.put(params, function(err, data) {
+            if (err) 
+              console.error(err);
+            else 
+              console.log(data);
+          });
+        }
+      });
+    });
+    } else {
+    console.log(err);
+    return;
+    }
+    } catch (e) {
+    console.log(e);
+    return;
+    }
+
 }
 
 makeResizableDiv('.resizable')
