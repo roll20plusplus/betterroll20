@@ -626,7 +626,7 @@ function getUserProfile() {
         IdentityPoolId : _config.cognito.identityPoolId, 
         Logins : {
           // Change the key below according to the specific region your user pool is in.
-          'cognito-idp.${AWS.config.region}.amazonaws.com/${data.UserPoolId}' : session.getIdToken().getJwtToken()
+          `cognito-idp.${AWS.config.region}.amazonaws.com/${data.UserPoolId}` : session.getIdToken().getJwtToken()
         }
       });
 
