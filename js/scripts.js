@@ -6,7 +6,6 @@
 // 
 // Scripts
 //
-
 var socket;
 
 var current;
