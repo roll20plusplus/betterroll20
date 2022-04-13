@@ -18,6 +18,8 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
+var s3;
+
 window.addEventListener('DOMContentLoaded', event => {
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.onmessage = function(event) {
@@ -394,12 +396,11 @@ function drop_handler(ev) {
 
 function s3Upload(file) {
     var fileName = file.name;
-    var filePath = '/' + fileName;
+    var filePath = 'img/' + fileName;
     //var fileUrl = 'https://' + _config.s3.region + '.amazonaws.com/my-    first-bucket/' +  filePath;
     s3.upload({
         Key: filePath,
         Body: file,
-        ACL: 'public-read'
         }, function(err, data) {
         if(err) {
             console.log('error uploading file to s3');
@@ -633,7 +634,6 @@ function onMessage(event) {
     }
 }
 
-var s3;
 
 function initS3() {
 
