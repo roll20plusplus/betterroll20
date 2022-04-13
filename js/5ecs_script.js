@@ -133,7 +133,7 @@ function load_cloud() {
     }, "*");  type = 'application/json'
 }
 
-function load_character_json(savedData) {
+function load_character_json(contents) {
 
     // Set size of dynamic tables
     var savedData = JSON.parse(contents);
