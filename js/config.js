@@ -9,7 +9,7 @@ window._config = {
         invokeUrl: 'https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod' // e.g. https://rc7nyt4tql.execute-api.us-west-2.amazonaws.com/prod',
     },
     s3: {
-      bucketName : "betterroll20canvasobjects",
+      bucketName : "betterroll20canvasimages",
       region: 'us-west-1'
     }
 };
