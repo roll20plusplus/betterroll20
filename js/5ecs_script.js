@@ -133,7 +133,7 @@ function load_cloud() {
     }, "*");  type = 'application/json'
 }
 
-function load_character_json(savedData) {
+function load_character_json(saveData) {
 
     while (rows_attacks > parseInt(savedData.rows_attacks)) {
       remove_last_row('attacktable');
@@ -162,26 +162,6 @@ function load_character_json(savedData) {
     while (rows_spells < parseInt(savedData.rows_spells)) {
       add_spell();
     }
-
-    // Prepare form data for JSON format
-    const formId = "charsheet";
-    var url = location.href;
-    const formIdentifier = `${url} ${formId}`;
-    let form = document.querySelector(`#${formId}`);
-    let formElements = form.elements;
-
-    // Display file content
-    savedData = JSON.parse(contents); // get and parse the saved data from localStorage
-    for (const element of formElements) {
-      if (element.name in savedData) {
-        if (element.type == 'checkbox') {
-          var checked = (savedData[element.name] == 'checked');
-          $("[name='" + element.name + "']").prop("checked", checked)
-        } else {
-          element.value = savedData[element.name];
-        }
-      }
-    }
 }
 // Functions for reading character from disk
 function load_character(e) {
@@ -203,6 +183,26 @@ function load_character(e) {
     var savedData = JSON.parse(contents);
 
     load_character_json(savedData);
+
+    // Prepare form data for JSON format
+    const formId = "charsheet";
+    var url = location.href;
+    const formIdentifier = `${url} ${formId}`;
+    let form = document.querySelector(`#${formId}`);
+    let formElements = form.elements;
+
+    // Display file content
+    savedData = JSON.parse(contents); // get and parse the saved data from localStorage
+    for (const element of formElements) {
+      if (element.name in savedData) {
+        if (element.type == 'checkbox') {
+          var checked = (savedData[element.name] == 'checked');
+          $("[name='" + element.name + "']").prop("checked", checked)
+        } else {
+          element.value = savedData[element.name];
+        }
+      }
+    }
   };
   reader.readAsText(file);
 }
