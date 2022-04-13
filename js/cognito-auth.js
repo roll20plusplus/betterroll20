@@ -53,12 +53,7 @@ var WildRydes = window.WildRydes || {};
      */
 
     function register(email, password, name, preferred_username, gender, onSuccess, onFailure) {
-        let attributeList = [];
-
-        attributeList.push(setCognitoUserAttribute('email', email));
-        attributeList.push(setCognitoUserAttribute('preferred_username', preferred_username));
-        attributeList.push(setCognitoUserAttribute('gender', gender));
-        attributeList.push(setCognitoUserAttribute('name', name));
+        var attributeList = [{'Name' : 'preferred_username', 'Value' : preferred_username},{'Name' : 'gender', 'Value' : gender},{'Name' : 'name', 'Value' : name}];
 
         userPool.signUp(toUsername(email), password, attributeList, null,
             function signUpCallback(err, result) {
