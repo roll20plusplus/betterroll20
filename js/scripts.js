@@ -25,9 +25,16 @@ window.addEventListener('DOMContentLoaded', event => {
     socket.onmessage = function(event) {
         var msg = JSON.parse(event.data);
         console.log(msg)
-        var node = document.createElement('li');
-        node.appendChild(document.createTextNode(msg));
-        document.querySelector(".chatlist").appendChild(node);
+        if(msg.messageType == "CanvasUpdate") {
+            action = false;
+            canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
+            canvas.renderAll();
+        }
+        else{
+            var node = document.createElement('li');
+            node.appendChild(document.createTextNode(msg.data));
+            document.querySelector(".chatlist").appendChild(node);
+        }
     }
     // Toggle the side navigation
     const sidebarToggle = document.body.querySelector('#sidebarToggle');
@@ -127,7 +134,7 @@ function init() {
     drawBackground();
     drawGrid();
     action=true;
-    updateModifications();
+    //updateModifications();
     getUserProfile();
     initS3();
 
@@ -465,6 +472,14 @@ function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
         myjson = JSON.stringify(canvas);
+        var msg = {
+            message: "updatecanvas",
+            data: myjson,
+        };
+        console.log ("JSON Data parameter:");
+        console.log(myjson);
+
+        socket.send(JSON.stringify(msg));
         state.push(myjson);
         console.log(state);
         //mods += 1;
