@@ -639,13 +639,13 @@ function initS3() {
 
     var bucketName = _config.s3.bucketName;
     var bucketRegion = _config.s3.region;
-    var IdentityPoolId = _config.cognito.identityPoolId;
-     AWS.config.update({
-                region: bucketRegion,
-                credentials: new AWS.CognitoIdentityCredentials({
-                    IdentityPoolId: IdentityPoolId
-                })
-            });
+    // var IdentityPoolId = _config.cognito.identityPoolId;
+    //  AWS.config.update({
+    //             region: bucketRegion,
+    //             credentials: new AWS.CognitoIdentityCredentials({
+    //                 IdentityPoolId: IdentityPoolId
+    //             })
+    //         });
 
             s3 = new AWS.S3({
                 apiVersion: '2006-03-01',
