@@ -533,7 +533,7 @@ function getUserProfile() {
           'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
         }
       });
-      saveCharToDB(null);
+      //saveCharToDB(null);
     });
     } else {
     console.log(err);
