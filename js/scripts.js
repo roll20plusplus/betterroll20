@@ -394,7 +394,7 @@ function drop_handler(ev) {
 
 function s3Upload(file) {
     var fileName = file.name;
-    var filePath = 'img/' + fileName;
+    var filePath = '/' + fileName;
     //var fileUrl = 'https://' + _config.s3.region + '.amazonaws.com/my-    first-bucket/' +  filePath;
     s3.upload({
         Key: filePath,
