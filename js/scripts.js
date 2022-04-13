@@ -559,7 +559,7 @@ function loadCharFromDB() {
         Key:{'KEY_NAME': {S: id}},
         ProjectionExpression: 'character'
       };
-    docClient.getItem(params, function(err, data) {
+    docClient.get(params, function(err, data) {
         if (err) {
             console.log("Error", err);
         } else {
