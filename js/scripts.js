@@ -564,8 +564,8 @@ function loadCharFromDB() {
         } else {
             console.log("Success");
             console.log(data.Item);
-            var dataFile = {target:{files:[data.Item]}}
-            document.getElementById('serviceFrameSend').contentWindow.loadCharacter(dataFile);
+            var dataFile = {target:{files:[data.Item.character]}}
+            document.getElementById('serviceFrameSend').contentWindow.load_character(dataFile);
 data.Item
         }
     });
