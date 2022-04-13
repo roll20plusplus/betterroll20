@@ -116,7 +116,7 @@ function drawGrid() {
           strokeWidth: 1,
           selectable: false,
           evented: false,
-          excludeExport: true
+          excludeFromExport: true
         }));
     }
 }
