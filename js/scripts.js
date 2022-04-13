@@ -125,6 +125,7 @@ function init() {
     action=true;
     updateModifications();
     getUserProfile();
+    initS3();
 
     document.onkeyup = KeyPress;
     $('.draggable-handler').mousedown(function(e){
@@ -378,7 +379,8 @@ function drop_handler(ev) {
             // Drag data item is an image file
             var f = data[i].getAsFile();
             var base_image = new Image();
-            let reader = new FileReader()
+            let reader = new FileReader();
+            s3Upload(f);
             reader.onload = function(event) {
                 var img = new Image();
                 var truePos = getMousePos(canvas, ev);
@@ -388,6 +390,25 @@ function drop_handler(ev) {
             console.log("... Drop: File ");
         }
     }
+}
+
+function s3Upload(file) {
+    var fileName = file.name;
+    var filePath = 'img/' + fileName;
+    //var fileUrl = 'https://' + _config.s3.region + '.amazonaws.com/my-    first-bucket/' +  filePath;
+    s3.upload({
+        Key: filePath,
+        Body: file,
+        ACL: 'public-read'
+        }, function(err, data) {
+        if(err) {
+            console.log('error uploading file to s3');
+        }
+        alert('Successfully Uploaded!');
+        }).on('httpUploadProgress', function (progress) {
+        var uploaded = parseInt((progress.loaded * 100) / progress.total);
+        $("progress").attr('value', uploaded);
+    });
 }
 
 function placeImage(base_image, imageX, imageY) {
@@ -610,4 +631,24 @@ function onMessage(event) {
     if (typeof(window[data.func]) == "function") {
         window[data.func].call(null, data.message);
     }
+}
+
+var s3;
+
+function initS3() {
+
+    var bucketName = _config.s3.bucketName;
+    var bucketRegion = _config.s3.region;
+    var IdentityPoolId = _config.cognito.identityPoolId;
+     AWS.config.update({
+                region: bucketRegion,
+                credentials: new AWS.CognitoIdentityCredentials({
+                    IdentityPoolId: IdentityPoolId
+                })
+            });
+
+            s3 = new AWS.S3({
+                apiVersion: '2006-03-01',
+                params: {Bucket: bucketName}
+        });
 }
