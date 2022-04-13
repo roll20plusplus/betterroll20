@@ -653,7 +653,7 @@ function saveCharToDB(charToSave) {
       var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
       var params = {
         TableName: 'Inara',
-        Item:{userID:id, status:'Success'}
+        Item:{userID:id, character:charToSave}
       };
       docClient.put(params, function(err, data) {
         if (err)

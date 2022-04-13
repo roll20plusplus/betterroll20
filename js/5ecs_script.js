@@ -93,6 +93,7 @@ function save_character()
     }
   }
   data = JSON.stringify(data[formIdentifier], null, 2)
+  saveCharToDB(data);
   type = 'application/json'
 
   // Save JSON to file
