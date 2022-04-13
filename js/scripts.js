@@ -556,14 +556,14 @@ function loadCharFromDB() {
       var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
       var params = {
         TableName: 'Inara',
-        Key:{'KEY_NAME': {S: id}},
-        ProjectionExpression: 'character'
+        Key:{'userID': id}
       };
     docClient.get(params, function(err, data) {
         if (err) {
             console.log("Error", err);
         } else {
             console.log("Success");
+            console.log(data.Item);
             var dataFile = {target:{files:[data.Item]}}
             document.getElementById('serviceFrameSend').contentWindow.loadCharacter(datafile);
 data.Item
