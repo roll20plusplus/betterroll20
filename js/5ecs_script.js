@@ -93,8 +93,10 @@ function save_character()
     }
   }
   data = JSON.stringify(data[formIdentifier], null, 2)
-  saveCharToDB(data);
-  type = 'application/json'
+    window.parent.postMessage({
+        'func': 'saveCharToDB',
+        'message': data
+    }, "*");  type = 'application/json'
 
   // Save JSON to file
   var file = new Blob([data], {type: type});
@@ -123,7 +125,6 @@ window.onbeforeunload = function(){
 
 // Functions for reading character from disk
 function load_character(e) {
-
   // Autosave character
   if ($("[name='autosave']").prop("checked") == true) {
     save_character();

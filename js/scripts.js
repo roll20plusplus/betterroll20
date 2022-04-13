@@ -118,6 +118,7 @@ function drawBoard() {
 }
 
 function init() {
+    console.log("Initializing the app");
     action=false;
     drawBackground();
     drawBoard();
@@ -503,3 +504,84 @@ canvas.on('mouse:wheel', function(opt) {
   opt.e.stopPropagation();
 })
 
+function getUserProfile() {
+
+    var data = {
+        UserPoolId: _config.cognito.userPoolId,
+        ClientId: _config.cognito.userPoolClientId,
+    };
+    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
+    var cognitoUser = userPool.getCurrentUser();
+
+    try {
+    if (cognitoUser != null) {
+    cognitoUser.getSession(function(err, session) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      console.log('session validity: ' + session.isValid());
+      console.log('session token: ' + session.getIdToken().getJwtToken());
+
+      AWS.config.region = _config.cognito.region;
+      //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId : _config.cognito.identityPoolId,
+        Logins : {
+          // Change the key below according to the specific region your user pool is in.
+          'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
+        }
+      });
+      saveCharToDB(null);
+    });
+    } else {
+    console.log(err);
+    return;
+    }
+    } catch (e) {
+    console.log(e);
+    return;
+    }
+
+}
+
+function saveCharToDB(charToSave) {
+  AWS.config.credentials.get(function(err) {
+    if (!err) {
+      var id = AWS.config.credentials.identityId;
+      console.log('Cognito Identity ID '+ id);
+
+      // Instantiate aws sdk service objects now that the credentials have been updated
+      var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+      var params = {
+        TableName: 'Inara',
+        Item:{userID:id, character:charToSave}
+      };
+      docClient.put(params, function(err, data) {
+        if (err)
+          console.error(err);
+        else
+          console.log(data);
+      });
+    }
+  });
+}
+
+if (window.addEventListener) {
+    window.addEventListener("message", onMessage, false);
+}
+else if (window.attachEvent) {
+    window.attachEvent("onmessage", onMessage, false);
+}
+
+function onMessage(event) {
+    // Check sender origin to be trusted
+    //if (event.origin !== "http://example.com") return;
+
+    var data = event.data;
+
+    if (typeof(window[data.func]) == "function") {
+        window[data.func].call(null, data.message);
+    }
+}
