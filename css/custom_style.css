@@ -105,7 +105,7 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   height: 93vh;
 }
 
-#dragcharsheet {
+/*#dragcharsheet {
   position: absolute;
   z-index: 9;
   background-color: #f1f1f1;
@@ -119,50 +119,36 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   z-index: 10;
   background-color: #2196F3;
   color: #fff;
+}*/
+
+.panel{
+  width: 200px;
+  height: 200px;
+  background-color: #ffffff;
 }
 
-.resizable {
-  background: white;
-  width: 300px;
-  height: 300px;
+.panel-heading{
+  height: 25px;
+  background-color: #f1f1f1;
+}
+
+.resizable{
+  overflow: hidden;
+  resize: both
+}
+
+.draggable{
   position: absolute;
-  top: 300px;
-  left: 300px;
+  z-index: 10
+}
+.draggable-handler{
+  cursor: pointer
+}
+.dragging{
+  cursor: move;
+  z-index: 200 !important
 }
 
-.resizable .resizers{
+iframe {
   width: 100%;
-  height: 100%;
-  border: 3px solid #4286f4;
-  box-sizing: border-box;
-}
-
-.resizable .resizers .resizer{
-  width: 10px;
-  height: 10px;
-  border-radius: 50%; /*magic to turn square into circle*/
-  background: white;
-  border: 3px solid #4286f4;
-  position: absolute;
-}
-
-.resizable .resizers .resizer.top-left {
-  left: -5px;
-  top: -5px;
-  cursor: nwse-resize; /*resizer cursor*/
-}
-.resizable .resizers .resizer.top-right {
-  right: -5px;
-  top: -5px;
-  cursor: nesw-resize;
-}
-.resizable .resizers .resizer.bottom-left {
-  left: -5px;
-  bottom: -5px;
-  cursor: nesw-resize;
-}
-.resizable .resizers .resizer.bottom-right {
-  right: -3px;
-  bottom: -45px;
-  cursor: nwse-resize;
 }
