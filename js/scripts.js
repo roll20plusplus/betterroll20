@@ -91,7 +91,7 @@ function drawBackground() {
     canvas.setBackgroundImage(backgroundURL, canvas.renderAll.bind(canvas));
 }
 
-function drawBoard() {
+function drawGrid() {
     console.log('Drawing grid');
     canvasEl = document.getElementById("canvas");
     bw = canvasEl.width;
@@ -106,6 +106,7 @@ function drawBoard() {
           strokeWidth: 1,
           selectable: false,
           evented: false,
+          excludeExport: true
         }));
     }
     for (y = 0; y <= bh; y+= grid) {
@@ -115,6 +116,7 @@ function drawBoard() {
           strokeWidth: 1,
           selectable: false,
           evented: false,
+          excludeExport: true
         }));
     }
 }
@@ -123,7 +125,7 @@ function init() {
     console.log("Initializing the app");
     action=false;
     drawBackground();
-    drawBoard();
+    drawGrid();
     action=true;
     updateModifications();
     getUserProfile();
