@@ -133,7 +133,7 @@ function load_cloud() {
     }, "*");  type = 'application/json'
 }
 
-function load_character_json(data) {
+function load_character_json(savedData) {
 
     while (rows_attacks > parseInt(savedData.rows_attacks)) {
       remove_last_row('attacktable');
