@@ -191,6 +191,7 @@ function load_character(e) {
   };
   reader.readAsText(file);
 }
+
 document.getElementById('buttonload').addEventListener('change', load_character, false);
 
 function long_rest()
@@ -254,9 +255,9 @@ function add_attack()
 
 function add_spell()
 {
-  var tableRef = document.getElementById('spelltable')
+  var tableRef = document.getElementById('spelltable');
 
-  var row = tableRef.insertRow(tableRef.rows.length)
+  var row = tableRef.insertRow(tableRef.rows.length);
 
   var cell0 = row.insertCell(0);
   var cell1 = row.insertCell(1);
@@ -378,4 +379,8 @@ function calc_carry_weight()
       total += count * weight;
   }
   document.getElementById("weightcarried").value = parseInt(total + 0.5);
+}
+
+function charSheetInit() {
+    getUserProfile();
 }
