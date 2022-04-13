@@ -191,7 +191,6 @@ function load_character(e) {
     load_character_json(savedData);
 
     // Display file content
-    savedData = JSON.parse(contents); // get and parse the saved data from localStorage
     for (const element of formElements) {
       if (element.name in savedData) {
         if (element.type == 'checkbox') {
