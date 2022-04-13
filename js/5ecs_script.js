@@ -135,6 +135,10 @@ function load_cloud() {
 
 function load_character_json(savedData) {
 
+    // Set size of dynamic tables
+    var savedData = JSON.parse(contents);
+
+    load_character_json(savedData);
     while (rows_attacks > parseInt(savedData.rows_attacks)) {
       remove_last_row('attacktable');
     }
@@ -162,6 +166,7 @@ function load_character_json(savedData) {
     while (rows_spells < parseInt(savedData.rows_spells)) {
       add_spell();
     }
+
     // Prepare form data for JSON format
     const formId = "charsheet";
     var url = location.href;
@@ -169,8 +174,8 @@ function load_character_json(savedData) {
     let form = document.querySelector(`#${formId}`);
     let formElements = form.elements;
 
-
     // Display file content
+    savedData = JSON.parse(contents); // get and parse the saved data from localStorage
     for (const element of formElements) {
       if (element.name in savedData) {
         if (element.type == 'checkbox') {
@@ -197,11 +202,8 @@ function load_character(e) {
   var reader = new FileReader();
   reader.onload = function(e) {
     var contents = e.target.result;
-
+    load_character_json(contents);
     // Set size of dynamic tables
-    var savedData = JSON.parse(contents);
-
-    load_character_json(savedData);
   };
   reader.readAsText(file);
 }
