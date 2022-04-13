@@ -138,7 +138,6 @@ function load_character_json(contents) {
     // Set size of dynamic tables
     var savedData = JSON.parse(contents);
 
-    load_character_json(savedData);
     while (rows_attacks > parseInt(savedData.rows_attacks)) {
       remove_last_row('attacktable');
     }
