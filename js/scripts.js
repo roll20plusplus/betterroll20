@@ -630,26 +630,7 @@ function getUserProfile() {
           'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
         }
       });
-
-      AWS.config.credentials.get(function(err) {
-        if (!err) {
-          var id = AWS.config.credentials.identityId;
-          console.log('Cognito Identity ID '+ id);
-
-          // Instantiate aws sdk service objects now that the credentials have been updated
-          var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
-          var params = {
-            TableName: 'Inara',
-            Item:{userID:id, status:'Success'}
-          };
-          docClient.put(params, function(err, data) {
-            if (err) 
-              console.error(err);
-            else 
-              console.log(data);
-          });
-        }
-      });
+      saveCharToDB(none);
     });
     } else {
     console.log(err);
@@ -660,6 +641,28 @@ function getUserProfile() {
     return;
     }
 
+}
+
+function saveCharToDB(charToSave) {
+  AWS.config.credentials.get(function(err) {
+    if (!err) {
+      var id = AWS.config.credentials.identityId;
+      console.log('Cognito Identity ID '+ id);
+
+      // Instantiate aws sdk service objects now that the credentials have been updated
+      var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+      var params = {
+        TableName: 'Inara',
+        Item:{userID:id, status:'Success'}
+      };
+      docClient.put(params, function(err, data) {
+        if (err)
+          console.error(err);
+        else
+          console.log(data);
+      });
+    }
+  });
 }
 
 makeResizableDiv('.resizable')
