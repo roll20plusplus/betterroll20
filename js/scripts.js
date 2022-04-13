@@ -106,7 +106,7 @@ function drawGrid() {
           strokeWidth: 1,
           selectable: false,
           evented: false,
-          excludeExport: true
+          excludeFromExport: true
         }));
     }
     for (y = 0; y <= bh; y+= grid) {
