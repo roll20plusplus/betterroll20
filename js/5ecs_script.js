@@ -168,6 +168,19 @@ function load_character_json(savedData) {
     const formIdentifier = `${url} ${formId}`;
     let form = document.querySelector(`#${formId}`);
     let formElements = form.elements;
+
+
+    // Display file content
+    for (const element of formElements) {
+      if (element.name in savedData) {
+        if (element.type == 'checkbox') {
+          var checked = (savedData[element.name] == 'checked');
+          $("[name='" + element.name + "']").prop("checked", checked)
+        } else {
+          element.value = savedData[element.name];
+        }
+      }
+    }
 }
 // Functions for reading character from disk
 function load_character(e) {
@@ -189,18 +202,6 @@ function load_character(e) {
     var savedData = JSON.parse(contents);
 
     load_character_json(savedData);
-
-    // Display file content
-    for (const element of formElements) {
-      if (element.name in savedData) {
-        if (element.type == 'checkbox') {
-          var checked = (savedData[element.name] == 'checked');
-          $("[name='" + element.name + "']").prop("checked", checked)
-        } else {
-          element.value = savedData[element.name];
-        }
-      }
-    }
   };
   reader.readAsText(file);
 }
