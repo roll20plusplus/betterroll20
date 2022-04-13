@@ -93,26 +93,29 @@ function save_character()
     }
   }
   data = JSON.stringify(data[formIdentifier], null, 2)
-    window.parent.postMessage({
-        'func': 'saveCharToDB',
-        'message': data
-    }, "*");  type = 'application/json'
-
-  // Save JSON to file
-  var file = new Blob([data], {type: type});
-  if (window.navigator.msSaveOrOpenBlob) // IE10+
-      window.navigator.msSaveOrOpenBlob(file, filename);
-  else { // Others
-      var a = document.createElement("a"),
-              url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);  
-      }, 0); 
+    if(document.getElementById("savecloud").checked = true) {
+        window.parent.postMessage({
+            'func': 'saveCharToDB',
+            'message': data
+        }, "*");  type = 'application/json'
+    }
+    if(document.getElementById("savelocal").checked = true) {
+      // Save JSON to file
+      var file = new Blob([data], {type: type});
+      if (window.navigator.msSaveOrOpenBlob) // IE10+
+          window.navigator.msSaveOrOpenBlob(file, filename);
+      else { // Others
+          var a = document.createElement("a"),
+                  url = URL.createObjectURL(file);
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function() {
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+          }, 0);
+      }
   }
 }
 
@@ -121,6 +124,13 @@ window.onbeforeunload = function(){
   if ($("[name='autosave']").prop("checked") == true) {
     save_character();
   }
+}
+
+function load_cloud() {
+    window.parent.postMessage({
+        'func': 'loadCharFromDB',
+        'message': ''
+    }, "*");  type = 'application/json'
 }
 
 // Functions for reading character from disk

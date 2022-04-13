@@ -546,6 +546,33 @@ function getUserProfile() {
 
 }
 
+function loadCharFromDB() {
+    AWS.config.credentials.get(function(err) {
+    if (!err) {
+      var id = AWS.config.credentials.identityId;
+      console.log('Cognito Identity ID '+ id);
+
+      // Instantiate aws sdk service objects now that the credentials have been updated
+      var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+      var params = {
+        TableName: 'Inara',
+        Key:{'KEY_NAME': {S: id}},
+        ProjectionExpression: 'character'
+      };
+    ddb.getItem(params, function(err, data) {
+        if (err) {
+            console.log("Error", err);
+        } else {
+            console.log("Success");
+            var dataFile = {target:{files:[data.Item]}}
+            document.getElementById('serviceFrameSend').contentWindow.loadCharacter(datafile);
+data.Item
+        }
+    });
+    }
+  });
+}
+
 function saveCharToDB(charToSave) {
   AWS.config.credentials.get(function(err) {
     if (!err) {
