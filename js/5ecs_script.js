@@ -133,32 +133,15 @@ function load_cloud() {
     }, "*");  type = 'application/json'
 }
 
-// Functions for reading character from disk
-function load_character(e) {
-  // Autosave character
-  if ($("[name='autosave']").prop("checked") == true) {
-    save_character();
-  }
+function load_character_json(data) {
 
-  // Load character
-  var file = e.target.files[0];
-  if (!file) {
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var contents = e.target.result;
-
-    // Set size of dynamic tables
-    var savedData = JSON.parse(contents);
-    
     while (rows_attacks > parseInt(savedData.rows_attacks)) {
       remove_last_row('attacktable');
     }
     while (rows_attacks < parseInt(savedData.rows_attacks)) {
       add_attack();
     }
-    
+
     while (rows_attunements > parseInt(savedData.rows_attunements)) {
       remove_last_row('attunementtable');
     }
@@ -179,7 +162,7 @@ function load_character(e) {
     while (rows_spells < parseInt(savedData.rows_spells)) {
       add_spell();
     }
-    
+
     // Prepare form data for JSON format
     const formId = "charsheet";
     var url = location.href;
@@ -195,10 +178,31 @@ function load_character(e) {
           var checked = (savedData[element.name] == 'checked');
           $("[name='" + element.name + "']").prop("checked", checked)
         } else {
-          element.value = savedData[element.name]; 
+          element.value = savedData[element.name];
         }
       }
     }
+}
+// Functions for reading character from disk
+function load_character(e) {
+  // Autosave character
+  if ($("[name='autosave']").prop("checked") == true) {
+    save_character();
+  }
+
+  // Load character
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+
+    // Set size of dynamic tables
+    var savedData = JSON.parse(contents);
+
+    load_character_json(savedData);
   };
   reader.readAsText(file);
 }
