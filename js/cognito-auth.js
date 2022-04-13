@@ -55,8 +55,6 @@ var WildRydes = window.WildRydes || {};
     function register(email, password, name, preferred_username, gender, onSuccess, onFailure) {
         let attributeList = [];
 
-        const userPool = cognitoUserPool();
-
         attributeList.push(setCognitoUserAttribute('email', email));
         attributeList.push(setCognitoUserAttribute('preferred_username', preferred_username));
         attributeList.push(setCognitoUserAttribute('gender', gender));
