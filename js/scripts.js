@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', event => {
             canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
             canvas.renderAll();
         }
-        else if (msg.message != 'Internal Server Error') {
+        else if (msg.message != 'Internal Server Error' && typeof(msg.data) != 'undefined') {
             var node = document.createElement('li');
             node.appendChild(document.createTextNode(msg.data));
             document.querySelector(".chatlist").appendChild(node);
