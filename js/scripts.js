@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', event => {
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.onmessage = function(event) {
         var msg = JSON.parse(event.data);
-        console.log(msg)
+        console.log(msg);
         if(msg.messageType == "CanvasUpdate") {
             action = false;
             canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
