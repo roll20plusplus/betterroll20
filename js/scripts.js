@@ -142,6 +142,8 @@ function init() {
     fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod/inara', {
     method: 'GET',
     headers: {
+        "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+        "Access-Control-Allow-Credentials" : true, // Required for cookies, authorization headers with HTTPS 
       'Content-Type': 'application/json',
       'Authorization': sessionToken
     }}).then(response => response.json()).then(json => console.log(json));
