@@ -134,12 +134,12 @@ function init() {
     action=false;
     drawBackground();
     drawGrid();
-    action=true;
     //updateModifications();
     getUserProfile();
     initS3();
     console.log("Fetching current canvas state");
     loadCanvasState();
+    action=true;
 
     document.onkeyup = KeyPress;
     $('.draggable-handler').mousedown(function(e){
@@ -480,7 +480,7 @@ function updateModifications() {
             data: myjson,
         };
         console.log ("JSON Data parameter:");
-        console.log(myjson);
+        //console.log(myjson);
 
         socket.send(JSON.stringify(msg));
         state.push(myjson);
@@ -605,6 +605,7 @@ function loadCanvasState() {
             if (err) {
                 console.log("Error", err);
             } else {
+                action = false;
                 console.log("Success");
                 console.log(data.Item);
                 canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;}); 
