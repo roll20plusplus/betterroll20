@@ -139,17 +139,7 @@ function init() {
     getUserProfile();
     initS3();
     console.log("Fetching current canvas state");
-    fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod/inara', {
-    method: 'GET',
-    headers: {
-        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,X-Amz-Security-Token,Authorization,X-Api-Key,X-Requested-With,Accept,Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Allow-Headers",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT",
-        "X-Requested-With": "*",
-        "Access-Control-Allow-Credentials" : true, // Required for cookies, authorization headers with HTTPS 
-      'Content-Type': 'application/json',
-      'Authorization': sessionToken
-    }}).then(response => response.json()).then(json => console.log(json));
+    loadCanvasState();
 
     document.onkeyup = KeyPress;
     $('.draggable-handler').mousedown(function(e){
@@ -597,6 +587,31 @@ function getUserProfile() {
     return;
     }
 
+}
+
+function loadCanvasState() {
+    AWS.config.credentials.get(function(err) {
+        if (!err) {
+          var id = AWS.config.credentials.identityId;
+          console.log('Cognito Identity ID '+ id);
+
+          // Instantiate aws sdk service objects now that the credentials have been updated
+          var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+          var params = {
+            TableName: 'Archive',
+            Key:{'messageID': 'Canvas', 'date': 'current'}
+          };
+        docClient.get(params, function(err, data) {
+            if (err) {
+                console.log("Error", err);
+            } else {
+                console.log("Success");
+                console.log(data.Item);
+                canvas.loadFromJSON(JSON.parse(msg.contents), function() {drawBackground(); action = true;}); 
+            }
+        });
+        }
+      });
 }
 
 function loadCharFromDB() {
