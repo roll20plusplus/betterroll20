@@ -25,17 +25,22 @@ window.addEventListener('DOMContentLoaded', event => {
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.onmessage = function(event) {
         var msg = JSON.parse(event.data);
-        console.log(msg);
+        if (typeof(msg) == 'string') {
+            msg = JSON.parse(msg);
+        }
         if(msg.messageType == "CanvasUpdate") {
             action = false;
             canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
             canvas.renderAll();
         }
-        else if (msg.message != 'Internal Server Error' && typeof(msg.data) != 'undefined') {
+        else if (msg.messageType == "ChatMessage") {
             console.log("Got a chat message");
             var node = document.createElement('li');
             node.appendChild(document.createTextNode(msg.data));
             document.querySelector(".chatlist").appendChild(node);
+        }
+        else {
+            console.log("Encountered a problem");
         }
     }
     // Toggle the side navigation
