@@ -32,8 +32,9 @@ window.addEventListener('DOMContentLoaded', event => {
             canvas.renderAll();
         }
         else if (msg.message != 'Internal Server Error' && typeof(msg.Data) != 'undefined') {
+            console.log("Got a chat message");
             var node = document.createElement('li');
-            node.appendChild(document.createTextNode(msg.Data));
+            node.appendChild(document.createTextNode(msg.data));
             document.querySelector(".chatlist").appendChild(node);
         }
     }
