@@ -137,6 +137,10 @@ function init() {
     //updateModifications();
     getUserProfile();
     initS3();
+    console.log("Fetching current canvas state");
+    fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod')
+      .then(response => response.json())
+      .then(json => console.log(json));
 
     document.onkeyup = KeyPress;
     $('.draggable-handler').mousedown(function(e){
