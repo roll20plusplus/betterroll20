@@ -19,6 +19,7 @@ var action = false;
 var refresh = true;
 
 var s3;
+var sessionToken;
 
 window.addEventListener('DOMContentLoaded', event => {
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
@@ -138,9 +139,12 @@ function init() {
     getUserProfile();
     initS3();
     console.log("Fetching current canvas state");
-    fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod')
-      .then(response => response.json())
-      .then(json => console.log(json));
+    fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': sessionToken
+    }}).then(response => response.json()).then(json => console.log(json));
 
     document.onkeyup = KeyPress;
     $('.draggable-handler').mousedown(function(e){
@@ -566,6 +570,7 @@ function getUserProfile() {
 
       console.log('session validity: ' + session.isValid());
       console.log('session token: ' + session.getIdToken().getJwtToken());
+      sessionToken = session.getIdToken().getJwtToken();
 
       AWS.config.region = _config.cognito.region;
       //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
