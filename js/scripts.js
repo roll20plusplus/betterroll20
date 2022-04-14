@@ -599,7 +599,7 @@ function loadCanvasState() {
           var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
           var params = {
             TableName: 'Archive',
-            Key:{'messageID': 'Canvas', 'date': 'current'}
+            Key:{'messageID': 'Canvas', 'date': 'Current'}
           };
         var msg = docClient.get(params, function(err, data) {
             if (err) {
