@@ -601,13 +601,13 @@ function loadCanvasState() {
             TableName: 'Archive',
             Key:{'messageID': 'Canvas', 'date': 'Current'}
           };
-        var msg = docClient.get(params, function(err, data) {
+        docClient.get(params, function(err, data) {
             if (err) {
                 console.log("Error", err);
             } else {
                 console.log("Success");
                 console.log(data.Item);
-                canvas.loadFromJSON(JSON.parse(msg.contents), function() {drawBackground(); action = true;}); 
+                canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;}); 
             }
         });
         }
