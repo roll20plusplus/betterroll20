@@ -139,7 +139,7 @@ function init() {
     getUserProfile();
     initS3();
     console.log("Fetching current canvas state");
-    fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod', {
+    fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod/inara', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
