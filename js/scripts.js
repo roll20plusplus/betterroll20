@@ -66,7 +66,7 @@ function sendSocketMessage(type, contents) {
             };
             socket.send(JSON.stringify(msg));
             break;
-        case MessageType.sendChatMessage:
+        case MessageType.ChatMessage:
             console.log("Sending a chat message to the socket");
             var msg = {
                 message: MessageType.ChatMessage.name,
