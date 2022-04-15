@@ -141,3 +141,18 @@
         <script src="js/vendor/jquery-3.1.0.js"></script>
     </body>
 </html>
+
+<template id="chatMessageTemplate">
+<div class="messageItem" data-messageid="" border-style: solid border-width: 4px height: 100px width=w-100 padding: 10px>
+    <label class="messageSender" height=h-50 width=w-100>Message Sender</label>
+    <div class="messageContents" heigh=h-50 width=w-100>This was a message that got sent</div>
+</div>
+</template>
+
+<template id="rollMessageTemplate">
+    <div class="messageItem" data-messageid="" border-style: solid border-width: 4px height: 100px width=w-100 padding: 10px>
+        <label class="messageSender" height=h-50 width=w-100>Message Sender</label>
+        <div class="diceRoll" heigh=h-50 width=w-50>Rolled 5d6+2</div>
+        <div class="diceResult" heigh=h-50 width=w-50>Result: 100</div>
+    </div>
+</template>
