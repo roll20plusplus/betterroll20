@@ -770,8 +770,8 @@ function initS3() {
 }
 
 function rolld20(dieRoll) {
-    var toRoll = dieRoll.toRoll;
-    var rollBonus = dieRoll.rollBonus;
+    var toRoll = dieRoll.attribute;
+    var rollBonus = dieRoll.rollbonus;
 
-
+    sendSocketMessage(MessageType.ChatMessage, rollBonus);
 }

@@ -396,8 +396,9 @@ function calc_carry_weight()
 }
 
 function rollLabel(toRoll) {
-  inputEl = $("input.name="+toRoll+"]");
-  rollBonus = inputEl.value;
+  console.log(document.getElementsByName(toRoll)[0])
+  rollBonus = "/r 1d20" + document.getElementsByName(toRoll)[0].value;
+  console.log("Rolling off charactersheet:" + toRoll + " " + rollBonus);
   window.parent.postMessage({
             'func': 'rolld20',
             'message': {'attribute' : toRoll, 'rollbonus' : rollBonus}
@@ -407,9 +408,3 @@ function rollLabel(toRoll) {
 function charSheetInit() {
     getUserProfile();
 }
-
-// $(document).ready(function() {
-//     .('rollable').click(function() {
-//         alert('ho ho ho');
-//     });
-// });
