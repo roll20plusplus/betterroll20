@@ -61,7 +61,7 @@ function sendSocketMessage(type, contents) {
         case MessageType.CanvasUpdate:
             console.log("Canvas update going out to socket");
             var msg = {
-                message: MessageType.CanvasUpdate.name,
+                action: MessageType.CanvasUpdate.name,
                 data: contents
             };
             socket.send(JSON.stringify(msg));
@@ -69,7 +69,7 @@ function sendSocketMessage(type, contents) {
         case MessageType.ChatMessage:
             console.log("Sending a chat message to the socket");
             var msg = {
-                message: MessageType.ChatMessage.name,
+                action: MessageType.ChatMessage.name,
                 data: contents
             };
             socket.send(JSON.stringify(msg));
@@ -106,7 +106,7 @@ function receiveSocketMessage(socketMessage) {
 }
 
 function sendChatMessage() {
-    console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
+    //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
     sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
 
     // Blank the text input element, ready to receive the next line of text from the user.
