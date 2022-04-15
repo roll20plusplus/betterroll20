@@ -163,6 +163,7 @@ function init() {
     });
 }
 
+
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
   drawingOptionsEl = $('drawing-mode-options'),
