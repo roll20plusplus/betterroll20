@@ -61,7 +61,7 @@ function sendSocketMessage(type, contents) {
         case MessageType.CanvasUpdate:
             console.log("Canvas update going out to socket");
             var msg = {
-                action: MessageType.CanvasUpdate.name,
+                action: MessageType.CanvasUpdate,
                 data: contents
             };
             socket.send(JSON.stringify(msg));
@@ -69,7 +69,7 @@ function sendSocketMessage(type, contents) {
         case MessageType.ChatMessage:
             console.log("Sending a chat message to the socket");
             var msg = {
-                action : MessageType.ChatMessage.name,
+                action : MessageType.ChatMessage,
                 data : contents
             };
             socket.send(JSON.stringify(msg));
