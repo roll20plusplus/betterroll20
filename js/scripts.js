@@ -82,7 +82,7 @@ function sendSocketMessage(type, contents) {
 function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
     console.log(socketMessage);
-    var msg = JSON.parse(socketMessage);
+    //var msg = JSON.parse(socketMessage);
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
     }
