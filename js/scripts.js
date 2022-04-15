@@ -81,10 +81,10 @@ function sendSocketMessage(type, contents) {
     }
 }
 
-function receiveSocketMessage(event) {
+function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
-    console.log(event);
-    var msg = JSON.parse(event.data);
+    console.log(socketMessage);
+    var msg = JSON.parse(socketMessage);
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
     }
@@ -109,7 +109,7 @@ function receiveSocketMessage(event) {
 
 window.addEventListener('DOMContentLoaded', event => {
     init();
-    socket.onmessage = receiveSocketMessage(event);
+    //socket.onmessage = receiveSocketMessage(event);
 });
 
 
