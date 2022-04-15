@@ -18,6 +18,8 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
+var username = 
+
 var s3;
 var sessionToken;
 
@@ -98,11 +100,13 @@ function receiveSocketMessage(socketMessage) {
         // jsonData = JSON.parse(msg.data);
         // msgSender = jsonData.sender;
         console.log(msg);
-        msgContents = msg.data;
         console.log("Got a chat message");
-        var node = document.createElement('li');
-        node.appendChild(document.createTextNode(msgContents));
-        document.querySelector(".chatlist").appendChild(node);
+        msgContents = msg.data;
+        var chatMessageList = document.querySelector(".chatlist");
+        var template = document.querySelector('#chatMessageTemplate');
+        var clone = template.content.cloneNode(true);
+        clone.querySelector('.messageContents').textContent = msgContents;
+        chatMessageList.appendChild(clone);
     }
     else {
         console.log("Encountered a problem retrieving a message from the websocket");
@@ -627,7 +631,8 @@ function getUserProfile() {
     };
     var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
-
+    console.log('cognito user');
+    console.log(cognitoUser);
     try {
         if (cognitoUser != null) {
         cognitoUser.getSession(function(err, session) {

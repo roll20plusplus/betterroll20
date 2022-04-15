@@ -164,3 +164,9 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
 iframe {
   width: 100%;
 }
+
+.messageItem {
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+}
