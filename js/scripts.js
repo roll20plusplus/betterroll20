@@ -115,13 +115,13 @@ function sendChatMessage() {
 
 window.addEventListener('DOMContentLoaded', event => {
     init();
-    //socket.onmessage = receiveSocketMessage(event);
 });
 
 
 function init() {
     console.log("Initializing the app");
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
+    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     action=false;
     drawBackground();
     drawGrid();
