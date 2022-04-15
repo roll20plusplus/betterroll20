@@ -50,14 +50,10 @@ fabric.Object.prototype.transparentCorners = false;
 var state = [];
 var mods = 0;
 
-class MessageType {
-    static ChatMessage = new MessageType("chatmessage")
-    static CharSheetRoll = new MessageType("charsheetroll")
-    static CanvasUpdate = new MessageType("canvasupdate")
-
-    constructor(name) {
-        this.name = name;
-    }
+const MessageType = {
+    ChatMessage: "chatmessage",
+    CharSheetRoll: "charsheetroll",
+    CanvasUpdate:"canvasupdate",
 }
 
 function sendSocketMessage(type, contents) {
