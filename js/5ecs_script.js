@@ -23,7 +23,6 @@ $('.statmod').bind('change', function()
 {
   var name = $(this).attr('name')
   name = "uses" + name.slice(0, name.indexOf('mod'))
-  
 })
 
 $("[name='classlevel']").bind('input', function()
@@ -396,6 +395,21 @@ function calc_carry_weight()
   document.getElementById("weightcarried").value = parseInt(total + 0.5);
 }
 
+function rollLabel(toRoll) {
+  inputEl = $("input.name="+toRoll+"]");
+  rollBonus = inputEl.value;
+  window.parent.postMessage({
+            'func': 'rolld20',
+            'message': {'attribute' : toRoll, 'rollbonus' : rollBonus}
+        }, "*");  type = 'application/json'
+}
+
 function charSheetInit() {
     getUserProfile();
 }
+
+// $(document).ready(function() {
+//     .('rollable').click(function() {
+//         alert('ho ho ho');
+//     });
+// });

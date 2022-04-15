@@ -842,3 +842,7 @@ textarea {
   padding: 5px;
   font-weight: bold;
 }
+
+#rollable:hover {
+  color: grey;
+}

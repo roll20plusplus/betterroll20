@@ -19,57 +19,17 @@ var action = false;
 var refresh = true;
 
 var s3;
+var sessionToken;
 
-window.addEventListener('DOMContentLoaded', event => {
-    socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
-    socket.onmessage = function(event) {
-        var msg = JSON.parse(event.data);
-        console.log(msg)
-        var node = document.createElement('li');
-        node.appendChild(document.createTextNode(msg));
-        document.querySelector(".chatlist").appendChild(node);
-    }
-    // Toggle the side navigation
-    const sidebarToggle = document.body.querySelector('#sidebarToggle');
-    if (sidebarToggle) {
-        // Uncomment Below to persist sidebar toggle between refreshes
-        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        //     document.body.classList.toggle('sb-sidenav-toggled');
-        // }
-        sidebarToggle.addEventListener('click', event => {
-            event.preventDefault();
-            document.body.classList.toggle('sb-sidenav-toggled');
-            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-        });
-    }
-});
-
-function sendMessage() {
-  var msg = {
-    message: "sendmessage",
-    data: document.getElementById("message").value,
-  };
-
-  // Send the msg object as a JSON-formatted string.
-  socket.send(JSON.stringify(msg));
-
-  // Blank the text input element, ready to receive the next line of text from the user.
-  document.getElementById("message").value = "";
-}
-
-// Get the input field
-var messageinput = document.getElementById("message");
-
-// Execute a function when the user releases a key on the keyboard
-messageinput.addEventListener("keyup", function(event) {
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    // Cancel the default action, if needed
-    event.preventDefault();
-    // Trigger the button element with a click
-    document.getElementById("messagebutton").click();
-  }
-});
+var charSheetButtonEl = $('open-character-sheet'),
+  drawingModeEl = $('drawing-mode'),
+  drawingOptionsEl = $('drawing-mode-options'),
+  drawingColorEl = $('drawing-color'),
+  drawingShadowColorEl = $('drawing-shadow-color'),
+  drawingLineWidthEl = $('drawing-line-width'),
+  drawingShadowWidth = $('drawing-shadow-width'),
+  drawingShadowOffset = $('drawing-shadow-offset'),
+  clearEl = $('clear-canvas');
 
 var grid = 70;
 
@@ -86,6 +46,134 @@ canvas.selection = false;
 var backgroundURL = 'img/background_53x56.png';
 
 fabric.Object.prototype.transparentCorners = false;
+
+var state = [];
+var mods = 0;
+
+const MessageType = {
+    ChatMessage: "chatmessage",
+    CharSheetRoll: "charsheetroll",
+    CanvasUpdate:"canvasupdate",
+}
+
+function sendSocketMessage(type, contents) {
+    switch (type) {
+        case MessageType.CanvasUpdate:
+            console.log("Canvas update going out to socket");
+            var msg = {
+                action: MessageType.CanvasUpdate,
+                data: contents
+            };
+            socket.send(JSON.stringify(msg));
+            break;
+        case MessageType.ChatMessage:
+            console.log("Sending a chat message to the socket");
+            var msg = {
+                action : MessageType.ChatMessage,
+                data : contents
+            };
+            socket.send(JSON.stringify(msg));
+            break;
+        default:
+            console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
+    }
+}
+
+function receiveSocketMessage(socketMessage) {
+    console.log("Receiving a message from the websocket");
+    console.log(socketMessage);
+    //var msg = JSON.parse(socketMessage);
+    var msg = JSON.parse(socketMessage['data']);
+    if (typeof(msg) == 'string') {
+        msg = JSON.parse(msg);
+    }
+    if(msg.messageType == MessageType.CanvasUpdate) {
+        action = false;
+        console.log("Got a canvas update message");
+        console.log(msg.data);
+        canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
+        canvas.renderAll();
+    }
+    else if (msg.messageType == MessageType.ChatMessage) {
+        // jsonData = JSON.parse(msg.data);
+        // msgSender = jsonData.sender;
+        console.log(msg);
+        msgContents = msg.data;
+        console.log("Got a chat message");
+        var node = document.createElement('li');
+        node.appendChild(document.createTextNode(msgContents));
+        document.querySelector(".chatlist").appendChild(node);
+    }
+    else {
+        console.log("Encountered a problem retrieving a message from the websocket");
+    }
+}
+
+function sendChatMessage() {
+    //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
+    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
+
+    // Blank the text input element, ready to receive the next line of text from the user.
+    document.getElementById("message").value = "";
+}
+
+window.addEventListener('DOMContentLoaded', event => {
+    init();
+});
+
+
+function init() {
+    console.log("Initializing the app");
+    socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
+    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
+    action=false;
+    drawBackground();
+    drawGrid();
+    sidebarToggleConfig();
+    //updateModifications();
+    popUpDragConfig();
+    chatInputConfig();
+    drawingOptionsInit();
+    drawModeSelectorConfig();
+    getUserProfile();
+    initS3();
+    console.log("Fetching current canvas state");
+    loadCanvasState();
+    action=true;
+}
+
+function sidebarToggleConfig() {
+    // Toggle the side navigation
+    const sidebarToggle = document.body.querySelector('#sidebarToggle');
+    if (sidebarToggle) {
+        // Uncomment Below to persist sidebar toggle between refreshes
+        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+        //     document.body.classList.toggle('sb-sidenav-toggled');
+        // }
+        sidebarToggle.addEventListener('click', event => {
+            event.preventDefault();
+            document.body.classList.toggle('sb-sidenav-toggled');
+            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+        });
+    }
+}
+
+
+function chatInputConfig() {
+    // Get the input field
+    var messageinput = document.getElementById("message");
+
+    // Execute a function when the user releases a key on the keyboard
+    messageinput.addEventListener("keyup", function(event) {
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("messagebutton").click();
+      }
+    });
+}
 
 function drawBackground() {
     canvas.setBackgroundImage(backgroundURL, canvas.renderAll.bind(canvas));
@@ -121,16 +209,7 @@ function drawGrid() {
     }
 }
 
-function init() {
-    console.log("Initializing the app");
-    action=false;
-    drawBackground();
-    drawGrid();
-    action=true;
-    updateModifications();
-    getUserProfile();
-    initS3();
-
+function popUpDragConfig() {
     document.onkeyup = KeyPress;
     $('.draggable-handler').mousedown(function(e){
       drag = $(this).closest('.draggable')
@@ -163,6 +242,7 @@ function init() {
     });
 }
 
+<<<<<<< HEAD
 
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
@@ -197,164 +277,179 @@ drawingModeEl.onclick = function() {
     else {
       drawingModeEl.innerHTML = 'Enter drawing mode';
       drawingOptionsEl.style.display = 'none';
+
+    clearEl.onclick = function() { clearcan()};
+
+    drawingModeEl.onclick = function() {
+        canvas.isDrawingMode = !canvas.isDrawingMode;
+        if (canvas.isDrawingMode) {
+          drawingModeEl.innerHTML = 'Cancel drawing mode';
+          drawingOptionsEl.style.display = '';
+        }
+        else {
+          drawingModeEl.innerHTML = 'Enter drawing mode';
+          drawingOptionsEl.style.display = 'none';
+        }
+    };
+
+    if (fabric.PatternBrush) {
+        var vLinePatternBrush = new fabric.PatternBrush(canvas);
+        vLinePatternBrush.getPatternSrc = function() {
+
+          var patternCanvas = fabric.document.createElement('canvas');
+          patternCanvas.width = patternCanvas.height = 10;
+          var ctx = patternCanvas.getContext('2d');
+
+          ctx.strokeStyle = this.color;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(0, 5);
+          ctx.lineTo(10, 5);
+          ctx.closePath();
+          ctx.stroke();
+
+          return patternCanvas;
+        };
+
+        var hLinePatternBrush = new fabric.PatternBrush(canvas);
+        hLinePatternBrush.getPatternSrc = function() {
+
+        var patternCanvas = fabric.document.createElement('canvas');
+        patternCanvas.width = patternCanvas.height = 10;
+        var ctx = patternCanvas.getContext('2d');
+
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(5, 0);
+        ctx.lineTo(5, 10);
+        ctx.closePath();
+        ctx.stroke();
+
+        return patternCanvas;
+    };
+
+        var squarePatternBrush = new fabric.PatternBrush(canvas);
+        squarePatternBrush.getPatternSrc = function() {
+
+          var squareWidth = 10, squareDistance = 2;
+
+          var patternCanvas = fabric.document.createElement('canvas');
+          patternCanvas.width = patternCanvas.height = squareWidth + squareDistance;
+          var ctx = patternCanvas.getContext('2d');
+
+          ctx.fillStyle = this.color;
+          ctx.fillRect(0, 0, squareWidth, squareWidth);
+
+          return patternCanvas;
+        };
+
+        var diamondPatternBrush = new fabric.PatternBrush(canvas);
+        diamondPatternBrush.getPatternSrc = function() {
+
+          var squareWidth = 10, squareDistance = 5;
+          var patternCanvas = fabric.document.createElement('canvas');
+          var rect = new fabric.Rect({
+            width: squareWidth,
+            height: squareWidth,
+            angle: 45,
+            fill: this.color
+          });
+
+          var canvasWidth = rect.getBoundingRect().width;
+
+          patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
+          rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
+
+          var ctx = patternCanvas.getContext('2d');
+          rect.render(ctx);
+
+          return patternCanvas;
+        };
+
+        var img = new Image();
+        img.src = 'img/70x70-0000ffff.png';
+
+        var texturePatternBrush = new fabric.PatternBrush(canvas);
+        texturePatternBrush.source = img;
     }
-};
+}
 
-if (fabric.PatternBrush) {
-    var vLinePatternBrush = new fabric.PatternBrush(canvas);
-    vLinePatternBrush.getPatternSrc = function() {
+function drawModeSelectorConfig() {
+    $('drawing-mode-selector').onchange = function() {
 
-      var patternCanvas = fabric.document.createElement('canvas');
-      patternCanvas.width = patternCanvas.height = 10;
-      var ctx = patternCanvas.getContext('2d');
+    if (this.value === 'hline') {
+      canvas.freeDrawingBrush = vLinePatternBrush;
+    }
+    else if (this.value === 'vline') {
+      canvas.freeDrawingBrush = hLinePatternBrush;
+    }
+    else if (this.value === 'square') {
+      canvas.freeDrawingBrush = squarePatternBrush;
+    }
+    else if (this.value === 'diamond') {
+      canvas.freeDrawingBrush = diamondPatternBrush;
+    }
+    else if (this.value === 'texture') {
+      canvas.freeDrawingBrush = texturePatternBrush;
+    }
+    else {
+      canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
+    }
 
-      ctx.strokeStyle = this.color;
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(0, 5);
-      ctx.lineTo(10, 5);
-      ctx.closePath();
-      ctx.stroke();
-
-      return patternCanvas;
-    };
-
-    var hLinePatternBrush = new fabric.PatternBrush(canvas);
-    hLinePatternBrush.getPatternSrc = function() {
-
-    var patternCanvas = fabric.document.createElement('canvas');
-    patternCanvas.width = patternCanvas.height = 10;
-    var ctx = patternCanvas.getContext('2d');
-
-    ctx.strokeStyle = this.color;
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(5, 0);
-    ctx.lineTo(5, 10);
-    ctx.closePath();
-    ctx.stroke();
-
-    return patternCanvas;
-};
-
-    var squarePatternBrush = new fabric.PatternBrush(canvas);
-    squarePatternBrush.getPatternSrc = function() {
-
-      var squareWidth = 10, squareDistance = 2;
-
-      var patternCanvas = fabric.document.createElement('canvas');
-      patternCanvas.width = patternCanvas.height = squareWidth + squareDistance;
-      var ctx = patternCanvas.getContext('2d');
-
-      ctx.fillStyle = this.color;
-      ctx.fillRect(0, 0, squareWidth, squareWidth);
-
-      return patternCanvas;
-    };
-
-    var diamondPatternBrush = new fabric.PatternBrush(canvas);
-    diamondPatternBrush.getPatternSrc = function() {
-
-      var squareWidth = 10, squareDistance = 5;
-      var patternCanvas = fabric.document.createElement('canvas');
-      var rect = new fabric.Rect({
-        width: squareWidth,
-        height: squareWidth,
-        angle: 45,
-        fill: this.color
+    if (canvas.freeDrawingBrush) {
+      var brush = canvas.freeDrawingBrush;
+      brush.color = drawingColorEl.value;
+      if (brush.getPatternSrc) {
+        brush.source = brush.getPatternSrc.call(brush);
+      }
+      brush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
+      brush.shadow = new fabric.Shadow({
+        blur: parseInt(drawingShadowWidth.value, 10) || 0,
+        offsetX: 0,
+        offsetY: 0,
+        affectStroke: true,
+        color: drawingShadowColorEl.value,
       });
-
-      var canvasWidth = rect.getBoundingRect().width;
-
-      patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
-      rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
-
-      var ctx = patternCanvas.getContext('2d');
-      rect.render(ctx);
-
-      return patternCanvas;
+    }
     };
 
-    var img = new Image();
-    img.src = 'img/70x70-0000ffff.png';
+    drawingColorEl.onchange = function() {
+        var brush = canvas.freeDrawingBrush;
+        brush.color = this.value;
+        if (brush.getPatternSrc) {
+          brush.source = brush.getPatternSrc.call(brush);
+        }
+    };
+    drawingShadowColorEl.onchange = function() {
+        canvas.freeDrawingBrush.shadow.color = this.value;
+    };
+    drawingLineWidthEl.onchange = function() {
+        canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
+        this.previousSibling.innerHTML = this.value;
+    };
+    drawingShadowWidth.onchange = function() {
+        canvas.freeDrawingBrush.shadow.blur = parseInt(this.value, 10) || 0;
+        this.previousSibling.innerHTML = this.value;
+    };
+    drawingShadowOffset.onchange = function() {
+        canvas.freeDrawingBrush.shadow.offsetX = parseInt(this.value, 10) || 0;
+        canvas.freeDrawingBrush.shadow.offsetY = parseInt(this.value, 10) || 0;
+        this.previousSibling.innerHTML = this.value;
+    };
 
-    var texturePatternBrush = new fabric.PatternBrush(canvas);
-    texturePatternBrush.source = img;
-}
-
-$('drawing-mode-selector').onchange = function() {
-
-if (this.value === 'hline') {
-  canvas.freeDrawingBrush = vLinePatternBrush;
-}
-else if (this.value === 'vline') {
-  canvas.freeDrawingBrush = hLinePatternBrush;
-}
-else if (this.value === 'square') {
-  canvas.freeDrawingBrush = squarePatternBrush;
-}
-else if (this.value === 'diamond') {
-  canvas.freeDrawingBrush = diamondPatternBrush;
-}
-else if (this.value === 'texture') {
-  canvas.freeDrawingBrush = texturePatternBrush;
-}
-else {
-  canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
-}
-
-if (canvas.freeDrawingBrush) {
-  var brush = canvas.freeDrawingBrush;
-  brush.color = drawingColorEl.value;
-  if (brush.getPatternSrc) {
-    brush.source = brush.getPatternSrc.call(brush);
-  }
-  brush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
-  brush.shadow = new fabric.Shadow({
-    blur: parseInt(drawingShadowWidth.value, 10) || 0,
-    offsetX: 0,
-    offsetY: 0,
-    affectStroke: true,
-    color: drawingShadowColorEl.value,
-  });
-}
-};
-
-drawingColorEl.onchange = function() {
-    var brush = canvas.freeDrawingBrush;
-    brush.color = this.value;
-    if (brush.getPatternSrc) {
-      brush.source = brush.getPatternSrc.call(brush);
+    if (canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.color = drawingColorEl.value;
+        //canvas.freeDrawingBrush.source = canvas.freeDrawingBrush.getPatternSrc.call(this);
+        canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
+        canvas.freeDrawingBrush.shadow = new fabric.Shadow({
+          blur: parseInt(drawingShadowWidth.value, 10) || 0,
+          offsetX: 0,
+          offsetY: 0,
+          affectStroke: true,
+          color: drawingShadowColorEl.value,
+        });
     }
-};
-drawingShadowColorEl.onchange = function() {
-    canvas.freeDrawingBrush.shadow.color = this.value;
-};
-drawingLineWidthEl.onchange = function() {
-    canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
-    this.previousSibling.innerHTML = this.value;
-};
-drawingShadowWidth.onchange = function() {
-    canvas.freeDrawingBrush.shadow.blur = parseInt(this.value, 10) || 0;
-    this.previousSibling.innerHTML = this.value;
-};
-drawingShadowOffset.onchange = function() {
-    canvas.freeDrawingBrush.shadow.offsetX = parseInt(this.value, 10) || 0;
-    canvas.freeDrawingBrush.shadow.offsetY = parseInt(this.value, 10) || 0;
-    this.previousSibling.innerHTML = this.value;
-};
-
-if (canvas.freeDrawingBrush) {
-    canvas.freeDrawingBrush.color = drawingColorEl.value;
-    //canvas.freeDrawingBrush.source = canvas.freeDrawingBrush.getPatternSrc.call(this);
-    canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
-    canvas.freeDrawingBrush.shadow = new fabric.Shadow({
-      blur: parseInt(drawingShadowWidth.value, 10) || 0,
-      offsetX: 0,
-      offsetY: 0,
-      affectStroke: true,
-      color: drawingShadowColorEl.value,
-    });
 }
 
 //Image Drag and Drop Functions
@@ -367,9 +462,9 @@ function drop_handler(ev) {
     for (var i = 0; i < data.length; i += 1) {
         if ((data[i].kind == 'string') &&
            (data[i].type.match('^text/plain'))) {
-         // This item is the target node
-         data[i].getAsString(function (s){
-           ev.target.appendChild(document.getElementById(s));
+            // This item is the target node
+            data[i].getAsString(function (s){
+            ev.target.appendChild(document.getElementById(s));
          });
     } else if ((data[i].kind == 'string') &&
         (data[i].type.match('^text/html'))) {
@@ -442,8 +537,6 @@ function getMousePos(canvas, evt) {
   };
 }
 
-var state = [];
-var mods = 0;
 canvas.on(
     'object:modified', function () {
         console.log('Object Modified');
@@ -455,7 +548,7 @@ canvas.on(
         console.log('Object added');
         updateModifications();
 });
-//
+
 //canvas.on(
 //    'path:created', function(e) {
 //        console.log('Path Created');
@@ -466,6 +559,7 @@ function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
         myjson = JSON.stringify(canvas);
+        sendSocketMessage(MessageType.CanvasUpdate, myjson);
         state.push(myjson);
         console.log(state);
         //mods += 1;
@@ -513,20 +607,20 @@ clearcan = function clearcan() {
 }
 
 function KeyPress(e) {
-      var evtobj = window.event? event : e
-      if (evtobj.keyCode == 90 && evtobj.ctrlKey) undo();
-      if (evtobj.keyCode == 89 && evtobj.ctrlKey) redo();
+    var evtobj = window.event? event : e
+    if (evtobj.keyCode == 90 && evtobj.ctrlKey) undo();
+    if (evtobj.keyCode == 89 && evtobj.ctrlKey) redo();
 }
 
 canvas.on('mouse:wheel', function(opt) {
-  var delta = opt.e.deltaY;
-  var zoom = canvas.getZoom();
-  zoom *= 0.999 ** delta;
-  if (zoom > 20) zoom = 20;
-  if (zoom < 0.01) zoom = 0.01;
-  canvas.setZoom(zoom);
-  opt.e.preventDefault();
-  opt.e.stopPropagation();
+    var delta = opt.e.deltaY;
+    var zoom = canvas.getZoom();
+    zoom *= 0.999 ** delta;
+    if (zoom > 20) zoom = 20;
+    if (zoom < 0.01) zoom = 0.01;
+    canvas.setZoom(zoom);
+    opt.e.preventDefault();
+    opt.e.stopPropagation();
 })
 
 function getUserProfile() {
@@ -539,36 +633,62 @@ function getUserProfile() {
     var cognitoUser = userPool.getCurrentUser();
 
     try {
-    if (cognitoUser != null) {
-    cognitoUser.getSession(function(err, session) {
-      if (err) {
+        if (cognitoUser != null) {
+        cognitoUser.getSession(function(err, session) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            console.log('session validity: ' + session.isValid());
+            console.log('session token: ' + session.getIdToken().getJwtToken());
+            sessionToken = session.getIdToken().getJwtToken();
+
+            AWS.config.region = _config.cognito.region;
+            //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId : _config.cognito.identityPoolId,
+                Logins : {
+                  // Change the key below according to the specific region your user pool is in.
+                  'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
+                }
+            });
+          //saveCharToDB(null);
+        });
+        } else {
         console.log(err);
         return;
-      }
-
-      console.log('session validity: ' + session.isValid());
-      console.log('session token: ' + session.getIdToken().getJwtToken());
-
-      AWS.config.region = _config.cognito.region;
-      //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
-      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-        IdentityPoolId : _config.cognito.identityPoolId,
-        Logins : {
-          // Change the key below according to the specific region your user pool is in.
-          'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
         }
-      });
-      //saveCharToDB(null);
-    });
-    } else {
-    console.log(err);
-    return;
-    }
     } catch (e) {
-    console.log(e);
-    return;
+        console.log(e);
+        return;
     }
 
+}
+
+function loadCanvasState() {
+    AWS.config.credentials.get(function(err) {
+        if (!err) {
+            var id = AWS.config.credentials.identityId;
+            console.log('Cognito Identity ID '+ id);
+
+            // Instantiate aws sdk service objects now that the credentials have been updated
+            var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+            var params = {
+            TableName: 'Archive',
+            Key:{'messageID': 'Canvas', 'date': 'Current'}
+            };
+            docClient.get(params, function(err, data) {
+                if (err) {
+                    console.log("Error", err);
+                } else {
+                    action = false;
+                    console.log("Success");
+                    console.log(data.Item);
+                    canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;}); 
+                }
+            });
+        }
+    });
 }
 
 function loadCharFromDB() {
@@ -620,13 +740,13 @@ function saveCharToDB(charToSave) {
 }
 
 if (window.addEventListener) {
-    window.addEventListener("message", onMessage, false);
+    window.addEventListener("message", onCharSheetMessage, false);
 }
 else if (window.attachEvent) {
-    window.attachEvent("onmessage", onMessage, false);
+    window.attachEvent("onmessage", onCharSheetMessage, false);
 }
 
-function onMessage(event) {
+function onCharSheetMessage(event) {
     // Check sender origin to be trusted
     //if (event.origin !== "http://example.com") return;
 
@@ -642,16 +762,15 @@ function initS3() {
 
     var bucketName = _config.s3.bucketName;
     var bucketRegion = _config.s3.region;
-    // var IdentityPoolId = _config.cognito.identityPoolId;
-    //  AWS.config.update({
-    //             region: bucketRegion,
-    //             credentials: new AWS.CognitoIdentityCredentials({
-    //                 IdentityPoolId: IdentityPoolId
-    //             })
-    //         });
+    s3 = new AWS.S3({
+        apiVersion: '2006-03-01',
+        params: {Bucket: bucketName}
+    });
+}
 
-            s3 = new AWS.S3({
-                apiVersion: '2006-03-01',
-                params: {Bucket: bucketName}
-        });
+function rolld20(dieRoll) {
+    var toRoll = dieRoll.toRoll;
+    var rollBonus = dieRoll.rollBonus;
+
+
 }
