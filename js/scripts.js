@@ -110,6 +110,7 @@ function receiveSocketMessage(socketMessage) {
 }
 
 function sendChatMessage() {
+    console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
     sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
 
     // Blank the text input element, ready to receive the next line of text from the user.
