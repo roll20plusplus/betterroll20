@@ -133,8 +133,6 @@ function init() {
     //updateModifications();
     popUpDragConfig();
     chatInputConfig();
-    drawingOptionsInit();
-    drawModeSelectorConfig();
     getUserProfile();
     initS3();
     console.log("Fetching current canvas state");
@@ -242,8 +240,6 @@ function popUpDragConfig() {
     });
 }
 
-<<<<<<< HEAD
-
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
   drawingOptionsEl = $('drawing-mode-options'),
@@ -275,59 +271,59 @@ drawingModeEl.onclick = function() {
       drawingOptionsEl.style.display = '';
     }
     else {
-      drawingModeEl.innerHTML = 'Enter drawing mode';
-      drawingOptionsEl.style.display = 'none';
+        drawingModeEl.innerHTML = 'Enter drawing mode';
+        drawingOptionsEl.style.display = 'none';
 
-    clearEl.onclick = function() { clearcan()};
+        clearEl.onclick = function() { clearcan()};
 
-    drawingModeEl.onclick = function() {
-        canvas.isDrawingMode = !canvas.isDrawingMode;
-        if (canvas.isDrawingMode) {
-          drawingModeEl.innerHTML = 'Cancel drawing mode';
-          drawingOptionsEl.style.display = '';
-        }
-        else {
-          drawingModeEl.innerHTML = 'Enter drawing mode';
-          drawingOptionsEl.style.display = 'none';
-        }
-    };
-
-    if (fabric.PatternBrush) {
-        var vLinePatternBrush = new fabric.PatternBrush(canvas);
-        vLinePatternBrush.getPatternSrc = function() {
-
-          var patternCanvas = fabric.document.createElement('canvas');
-          patternCanvas.width = patternCanvas.height = 10;
-          var ctx = patternCanvas.getContext('2d');
-
-          ctx.strokeStyle = this.color;
-          ctx.lineWidth = 5;
-          ctx.beginPath();
-          ctx.moveTo(0, 5);
-          ctx.lineTo(10, 5);
-          ctx.closePath();
-          ctx.stroke();
-
-          return patternCanvas;
+        drawingModeEl.onclick = function() {
+            canvas.isDrawingMode = !canvas.isDrawingMode;
+            if (canvas.isDrawingMode) {
+              drawingModeEl.innerHTML = 'Cancel drawing mode';
+              drawingOptionsEl.style.display = '';
+            }
+            else {
+              drawingModeEl.innerHTML = 'Enter drawing mode';
+              drawingOptionsEl.style.display = 'none';
+            }
         };
 
-        var hLinePatternBrush = new fabric.PatternBrush(canvas);
-        hLinePatternBrush.getPatternSrc = function() {
+        if (fabric.PatternBrush) {
+            var vLinePatternBrush = new fabric.PatternBrush(canvas);
+            vLinePatternBrush.getPatternSrc = function() {
 
-        var patternCanvas = fabric.document.createElement('canvas');
-        patternCanvas.width = patternCanvas.height = 10;
-        var ctx = patternCanvas.getContext('2d');
+              var patternCanvas = fabric.document.createElement('canvas');
+              patternCanvas.width = patternCanvas.height = 10;
+              var ctx = patternCanvas.getContext('2d');
 
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(5, 0);
-        ctx.lineTo(5, 10);
-        ctx.closePath();
-        ctx.stroke();
+              ctx.strokeStyle = this.color;
+              ctx.lineWidth = 5;
+              ctx.beginPath();
+              ctx.moveTo(0, 5);
+              ctx.lineTo(10, 5);
+              ctx.closePath();
+              ctx.stroke();
 
-        return patternCanvas;
-    };
+              return patternCanvas;
+            };
+
+            var hLinePatternBrush = new fabric.PatternBrush(canvas);
+            hLinePatternBrush.getPatternSrc = function() {
+
+            var patternCanvas = fabric.document.createElement('canvas');
+            patternCanvas.width = patternCanvas.height = 10;
+            var ctx = patternCanvas.getContext('2d');
+
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(5, 0);
+            ctx.lineTo(5, 10);
+            ctx.closePath();
+            ctx.stroke();
+
+            return patternCanvas;
+        };
 
         var squarePatternBrush = new fabric.PatternBrush(canvas);
         squarePatternBrush.getPatternSrc = function() {
@@ -347,24 +343,24 @@ drawingModeEl.onclick = function() {
         var diamondPatternBrush = new fabric.PatternBrush(canvas);
         diamondPatternBrush.getPatternSrc = function() {
 
-          var squareWidth = 10, squareDistance = 5;
-          var patternCanvas = fabric.document.createElement('canvas');
-          var rect = new fabric.Rect({
-            width: squareWidth,
-            height: squareWidth,
-            angle: 45,
-            fill: this.color
-          });
+            var squareWidth = 10, squareDistance = 5;
+            var patternCanvas = fabric.document.createElement('canvas');
+            var rect = new fabric.Rect({
+                width: squareWidth,
+                height: squareWidth,
+                angle: 45,
+                fill: this.color
+            });
 
-          var canvasWidth = rect.getBoundingRect().width;
+            var canvasWidth = rect.getBoundingRect().width;
 
-          patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
-          rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
+            patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
+            rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
 
-          var ctx = patternCanvas.getContext('2d');
-          rect.render(ctx);
+            var ctx = patternCanvas.getContext('2d');
+            rect.render(ctx);
 
-          return patternCanvas;
+            return patternCanvas;
         };
 
         var img = new Image();
@@ -372,85 +368,85 @@ drawingModeEl.onclick = function() {
 
         var texturePatternBrush = new fabric.PatternBrush(canvas);
         texturePatternBrush.source = img;
-    }
-}
-
-function drawModeSelectorConfig() {
-    $('drawing-mode-selector').onchange = function() {
-
-    if (this.value === 'hline') {
-      canvas.freeDrawingBrush = vLinePatternBrush;
-    }
-    else if (this.value === 'vline') {
-      canvas.freeDrawingBrush = hLinePatternBrush;
-    }
-    else if (this.value === 'square') {
-      canvas.freeDrawingBrush = squarePatternBrush;
-    }
-    else if (this.value === 'diamond') {
-      canvas.freeDrawingBrush = diamondPatternBrush;
-    }
-    else if (this.value === 'texture') {
-      canvas.freeDrawingBrush = texturePatternBrush;
-    }
-    else {
-      canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
-    }
-
-    if (canvas.freeDrawingBrush) {
-      var brush = canvas.freeDrawingBrush;
-      brush.color = drawingColorEl.value;
-      if (brush.getPatternSrc) {
-        brush.source = brush.getPatternSrc.call(brush);
-      }
-      brush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
-      brush.shadow = new fabric.Shadow({
-        blur: parseInt(drawingShadowWidth.value, 10) || 0,
-        offsetX: 0,
-        offsetY: 0,
-        affectStroke: true,
-        color: drawingShadowColorEl.value,
-      });
-    }
-    };
-
-    drawingColorEl.onchange = function() {
-        var brush = canvas.freeDrawingBrush;
-        brush.color = this.value;
-        if (brush.getPatternSrc) {
-          brush.source = brush.getPatternSrc.call(brush);
         }
-    };
-    drawingShadowColorEl.onchange = function() {
-        canvas.freeDrawingBrush.shadow.color = this.value;
-    };
-    drawingLineWidthEl.onchange = function() {
-        canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
-        this.previousSibling.innerHTML = this.value;
-    };
-    drawingShadowWidth.onchange = function() {
-        canvas.freeDrawingBrush.shadow.blur = parseInt(this.value, 10) || 0;
-        this.previousSibling.innerHTML = this.value;
-    };
-    drawingShadowOffset.onchange = function() {
-        canvas.freeDrawingBrush.shadow.offsetX = parseInt(this.value, 10) || 0;
-        canvas.freeDrawingBrush.shadow.offsetY = parseInt(this.value, 10) || 0;
-        this.previousSibling.innerHTML = this.value;
-    };
-
-    if (canvas.freeDrawingBrush) {
-        canvas.freeDrawingBrush.color = drawingColorEl.value;
-        //canvas.freeDrawingBrush.source = canvas.freeDrawingBrush.getPatternSrc.call(this);
-        canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
-        canvas.freeDrawingBrush.shadow = new fabric.Shadow({
-          blur: parseInt(drawingShadowWidth.value, 10) || 0,
-          offsetX: 0,
-          offsetY: 0,
-          affectStroke: true,
-          color: drawingShadowColorEl.value,
-        });
     }
 }
+
+$('drawing-mode-selector').onchange = function() {
+
+if (this.value === 'hline') {
+  canvas.freeDrawingBrush = vLinePatternBrush;
+}
+else if (this.value === 'vline') {
+  canvas.freeDrawingBrush = hLinePatternBrush;
+}
+else if (this.value === 'square') {
+  canvas.freeDrawingBrush = squarePatternBrush;
+}
+else if (this.value === 'diamond') {
+  canvas.freeDrawingBrush = diamondPatternBrush;
+}
+else if (this.value === 'texture') {
+  canvas.freeDrawingBrush = texturePatternBrush;
+}
+else {
+  canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
+}
+
+if (canvas.freeDrawingBrush) {
+  var brush = canvas.freeDrawingBrush;
+  brush.color = drawingColorEl.value;
+  if (brush.getPatternSrc) {
+    brush.source = brush.getPatternSrc.call(brush);
+  }
+  brush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
+  brush.shadow = new fabric.Shadow({
+    blur: parseInt(drawingShadowWidth.value, 10) || 0,
+    offsetX: 0,
+    offsetY: 0,
+    affectStroke: true,
+    color: drawingShadowColorEl.value,
+  });
+}
+};
+
+drawingColorEl.onchange = function() {
+    var brush = canvas.freeDrawingBrush;
+    brush.color = this.value;
+    if (brush.getPatternSrc) {
+      brush.source = brush.getPatternSrc.call(brush);
+    }
+};
+drawingShadowColorEl.onchange = function() {
+    canvas.freeDrawingBrush.shadow.color = this.value;
+};
+drawingLineWidthEl.onchange = function() {
+    canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
+    this.previousSibling.innerHTML = this.value;
+};
+drawingShadowWidth.onchange = function() {
+    canvas.freeDrawingBrush.shadow.blur = parseInt(this.value, 10) || 0;
+    this.previousSibling.innerHTML = this.value;
+};
+drawingShadowOffset.onchange = function() {
+    canvas.freeDrawingBrush.shadow.offsetX = parseInt(this.value, 10) || 0;
+    canvas.freeDrawingBrush.shadow.offsetY = parseInt(this.value, 10) || 0;
+    this.previousSibling.innerHTML = this.value;
+};
+
+if (canvas.freeDrawingBrush) {
+    canvas.freeDrawingBrush.color = drawingColorEl.value;
+    //canvas.freeDrawingBrush.source = canvas.freeDrawingBrush.getPatternSrc.call(this);
+    canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
+    canvas.freeDrawingBrush.shadow = new fabric.Shadow({
+      blur: parseInt(drawingShadowWidth.value, 10) || 0,
+      offsetX: 0,
+      offsetY: 0,
+      affectStroke: true,
+      color: drawingShadowColorEl.value,
+    });
+}
+
 
 //Image Drag and Drop Functions
 
@@ -666,29 +662,34 @@ function getUserProfile() {
 }
 
 function loadCanvasState() {
-    AWS.config.credentials.get(function(err) {
-        if (!err) {
-            var id = AWS.config.credentials.identityId;
-            console.log('Cognito Identity ID '+ id);
+    if (AWS.config.credentials != null) {
+        AWS.config.credentials.get(function(err) {
+            if (!err) {
+                var id = AWS.config.credentials.identityId;
+                console.log('Cognito Identity ID '+ id);
 
-            // Instantiate aws sdk service objects now that the credentials have been updated
-            var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
-            var params = {
-            TableName: 'Archive',
-            Key:{'messageID': 'Canvas', 'date': 'Current'}
-            };
-            docClient.get(params, function(err, data) {
-                if (err) {
-                    console.log("Error", err);
-                } else {
-                    action = false;
-                    console.log("Success");
-                    console.log(data.Item);
-                    canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;}); 
-                }
-            });
-        }
-    });
+                // Instantiate aws sdk service objects now that the credentials have been updated
+                var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+                var params = {
+                TableName: 'Archive',
+                Key:{'messageID': 'Canvas', 'date': 'Current'}
+                };
+                docClient.get(params, function(err, data) {
+                    if (err) {
+                        console.log("Error", err);
+                    } else {
+                        action = false;
+                        console.log("Success");
+                        console.log(data.Item);
+                        canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;}); 
+                    }
+                });
+            }
+        });
+    }
+    else {
+        console.log('No credentials to load');
+    }
 }
 
 function loadCharFromDB() {
