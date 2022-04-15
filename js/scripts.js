@@ -78,6 +78,8 @@ function sendSocketMessage(type, contents) {
             };
             socket.send(JSON.stringify(msg));
             break;
+        default:
+            console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
     }
 }
 
@@ -105,6 +107,13 @@ function receiveSocketMessage(socketMessage) {
     else {
         console.log("Encountered a problem retrieving a message from the websocket");
     }
+}
+
+function sendChatMessage() {
+    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
+
+    // Blank the text input element, ready to receive the next line of text from the user.
+    document.getElementById("message").value = "";
 }
 
 window.addEventListener('DOMContentLoaded', event => {
@@ -148,12 +157,6 @@ function sidebarToggleConfig() {
     }
 }
 
-function sendChatMessage() {
-    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
-
-    // Blank the text input element, ready to receive the next line of text from the user.
-    document.getElementById("message").value = "";
-}
 
 function chatInputConfig() {
     // Get the input field

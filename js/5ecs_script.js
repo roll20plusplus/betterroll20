@@ -23,7 +23,6 @@ $('.statmod').bind('change', function()
 {
   var name = $(this).attr('name')
   name = "uses" + name.slice(0, name.indexOf('mod'))
-  
 })
 
 $("[name='classlevel']").bind('input', function()
