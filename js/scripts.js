@@ -83,6 +83,7 @@ function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
     console.log(socketMessage);
     //var msg = JSON.parse(socketMessage);
+    var msg = JSON.parse(socketMessage['data']);
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
     }
@@ -92,9 +93,10 @@ function receiveSocketMessage(socketMessage) {
         canvas.renderAll();
     }
     else if (msg.messageType == MessageType.ChatMessage) {
-        jsonData = JSON.parse(msg.data);
-        msgSender = jsonData.sender;
-        msgContents = json.contents;
+        // jsonData = JSON.parse(msg.data);
+        // msgSender = jsonData.sender;
+        console.log(msg);
+        msgContents = msg.data;
         console.log("Got a chat message");
         var node = document.createElement('li');
         node.appendChild(document.createTextNode(msgContents));
