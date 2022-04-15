@@ -89,6 +89,8 @@ function receiveSocketMessage(socketMessage) {
     }
     if(msg.messageType == MessageType.CanvasUpdate) {
         action = false;
+        console.log("Got a canvas update message");
+        console.log(msg.data);
         canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
         canvas.renderAll();
     }
