@@ -22,7 +22,7 @@
             <iframe id="serviceFrameSend" src="5ecs.html" width="1000" height="1000"  frameborder="0"></iframe>
         </div>
     </div>
-    <body onload="init()">
+    <body>
         <div class="d-flex" id="wrapper">
             <!-- Draggable DIV -->
 <!--            <div class='resizable'>-->
@@ -118,7 +118,7 @@
                                 <label for="message" style="font-size: 12px">Send a message or roll a die "/r 1d6+2"</label>
                                 <input id="message" class="form-control" name="message" placeholder="Your message here" required>
                             </div>
-                            <input class="btn btn-default" value="Submit" id="messagebutton" onclick="sendMessage()">
+                            <input class="btn btn-default" value="Submit" id="messagebutton" onclick="sendChatMessage()">
                         </form>
                     </div>
                 </div>

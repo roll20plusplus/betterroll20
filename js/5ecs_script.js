@@ -397,7 +397,7 @@ function calc_carry_weight()
 }
 
 function rollLabel(toRoll) {
-  inputEl = ${("input[name="+toRoll+"]")};
+  inputEl = $("input.name="+toRoll+"]");
   rollBonus = inputEl.value;
   window.parent.postMessage({
             'func': 'rolld20',
@@ -409,8 +409,8 @@ function charSheetInit() {
     getUserProfile();
 }
 
-$(document).ready(function() {
-    .('rollable').click(function() {
-        alert('ho ho ho');
-    });
-});
+// $(document).ready(function() {
+//     .('rollable').click(function() {
+//         alert('ho ho ho');
+//     });
+// });
