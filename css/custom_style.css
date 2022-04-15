@@ -136,7 +136,7 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
 }
 
 .panel-heading{
-  height: 25px;
+  min-height: 25px;
   background-color: #f1f1f1;
 }
 
