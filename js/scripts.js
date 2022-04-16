@@ -117,7 +117,8 @@ function receiveSocketMessage(socketMessage) {
         var chatMessageList = document.querySelector(".chatlist");
         var template = document.querySelector('#chatMessageTemplate');
         var clone = template.content.cloneNode(true);
-        clone.querySelector('.messageContents').textContent = msgContents;
+        clone.querySelector('.messageContents').textContent = msgContents.contents;
+        clone.querySelector('.messageSender').textContent = msgContents.sender;
         chatMessageList.appendChild(clone);
     }
     else {
