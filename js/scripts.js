@@ -123,6 +123,7 @@ function receiveSocketMessage(socketMessage) {
             clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
             clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
             chatMessageList.appendChild(clone);
+            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
         }
         else {
             var template = document.querySelector('#chatMessageTemplate');
@@ -130,6 +131,7 @@ function receiveSocketMessage(socketMessage) {
             clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
             clone.querySelector('.messageContents').textContent = msgContents.contents.S;
             chatMessageList.appendChild(clone);
+            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
         }
     }
     else {
@@ -199,6 +201,13 @@ function chatInputConfig() {
         document.getElementById("messagebutton").click();
       }
     });
+
+    var _chatMessageList = document.querySelector(".chatlist");
+    var _template = document.querySelector('#chatMessageTemplate');
+    var _clone = _template.content.cloneNode(true);
+    _clone.querySelector('.messageSender').textContent = 'Tom from Myspace:';
+    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
+    _chatMessageList.appendChild(_clone);
 }
 
 function drawBackground() {

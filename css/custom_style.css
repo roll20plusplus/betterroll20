@@ -10,7 +10,7 @@
 }
 
 #sidebar-wrapper .sidebar-heading {
-  padding: 0.875rem 1.25rem;
+  /*padding: 0.875rem 1.25rem;*/
   font-size: 1.2rem;
 }
 
@@ -48,12 +48,17 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   list-style-type: none;
   position: relative;
   flex-direction: column-reverse;
+  overflow-y: scroll;
+  /*height: 100vh;*/
 }
 
 .chatlist {
   list-style-type: none;
   position: relative;
-  flex-direction: column-reverse;
+  padding-left: 0px;
+  padding-inline-start: 0px;
+  /*flex-direction: column-reverse;*/
+  /*overflow-y: scroll;*/
 }
 
 
@@ -96,7 +101,7 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   background: deepskyblue;
 }
 .flex-item {
-  padding: 2px;
+  /*padding: 2px;*/
   width: 25px;
   height: 25px;
   margin: 5px;
@@ -166,8 +171,11 @@ iframe {
   height:100%;
 }
 
-.messageItem {
+li.messageItem {
+  padding-left: 0px;
+  padding-inline-start: 0px;
   border-width: 1px;
   border-color: black;
   border-style: solid;
 }
+
