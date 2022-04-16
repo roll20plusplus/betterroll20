@@ -288,6 +288,7 @@ charSheetButtonEl.onclick = function () {
         charSheetEl.style.visibility = 'hidden';
     }
 }
+charSheetButtonEl.click();
 
 clearEl.onclick = function() { clearcan()};
 
