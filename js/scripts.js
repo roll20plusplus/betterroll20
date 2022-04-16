@@ -18,7 +18,11 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
+var userFullName = '';
 var username = '';
+var userEmail = '';
+var userEmailVerified = '';
+var userGender = '';
 
 var s3;
 var sessionToken;
@@ -56,6 +60,14 @@ const MessageType = {
     ChatMessage: "chatmessage",
     CharSheetRoll: "charsheetroll",
     CanvasUpdate:"canvasupdate",
+}
+
+const UserProfileAttributes = {
+    Gender: "gender",
+    UserName: "preferred_username",
+    Email: "email",
+    EmailVerified: "email_verified",
+    FullName: "name"
 }
 
 function sendSocketMessage(type, contents) {
@@ -658,13 +670,27 @@ function getUserProfile() {
                     return;
                 }
                 for (i = 0; i < result.length; i++) {
-                    console.log(
-                        'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
-                    );
+                    switch(result[i].getName()) {
+                        UserProfileAttributes.Email:
+                            userEmail = result[i].getValue();
+                            break;
+                        UserProfileAttributes.FullName:
+                            userFullName = result[i].getValue();
+                            break;
+                        UserProfileAttributes.UserName:
+                            username = result[i].getValue();
+                            break;
+                        UserProfileAttributes.Gender:
+                            userGender = result[i].getValue();
+                            break;
+                        UserProfileAttributes.EmailVerified:
+                            userEmailVerified = result[i].getValue();
+                            break;
+                        }
+                    }
                 }
+                console.log('Loggedin username = ' + userEmail);
             });
-          //saveCharToDB(null);
-        });
         } else {
         console.log(err);
         return;
