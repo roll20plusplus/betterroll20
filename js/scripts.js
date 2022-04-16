@@ -84,7 +84,7 @@ function sendSocketMessage(type, contents) {
             console.log("Sending a chat message to the socket");
             var msg = {
                 action : MessageType.ChatMessage,
-                data : contents
+                data : {'sender': username, 'contents': contents}
             };
             socket.send(JSON.stringify(msg));
             break;
@@ -688,7 +688,7 @@ function getUserProfile() {
                                 break;
                         }
                     }
-                    console.log('Loggedin username = ' + userEmail);
+                    console.log('Loggedin username = ' + username);
                 });
             return;
             });
