@@ -101,6 +101,7 @@ function receiveSocketMessage(socketMessage) {
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
     }
+
     if(msg.messageType == MessageType.CanvasUpdate) {
         action = false;
         console.log("Got a canvas update message");
@@ -117,8 +118,8 @@ function receiveSocketMessage(socketMessage) {
         var chatMessageList = document.querySelector(".chatlist");
         var template = document.querySelector('#chatMessageTemplate');
         var clone = template.content.cloneNode(true);
-        clone.querySelector('.messageContents').textContent = msgContents.contents;
-        clone.querySelector('.messageSender').textContent = msgContents.sender;
+        clone.querySelector('.messageContents').textContent = msgContents.contents.S;
+        clone.querySelector('.messageSender').textContent = msgContents.sender.S;
         chatMessageList.appendChild(clone);
     }
     else {
