@@ -70,7 +70,6 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
-var space = false;
 
 function sendSocketMessage(type, contents) {
     switch (type) {
@@ -653,7 +652,7 @@ canvas.on('mouse:wheel', function(opt) {
 
 canvas.on('mouse:down', function(opt) {
   var evt = opt.e;
-  if (space) {
+  if (evt.altKey === true) {
     this.isDragging = true;
     this.selection = false;
     this.lastPosX = evt.clientX;
@@ -859,15 +858,22 @@ function rolld20(dieRoll) {
     sendSocketMessage(MessageType.ChatMessage, rollBonus);
 }
 
-document.addEventListener('keydown', event => {
-  if (event.code === 'Space') {
-    space = false;
-    event.preventDefault();
-  }
-})
-document.addEventListener('keydown', event => {
-  if (event.code === 'Space') {
-    space = true;
-    event.preventDefault();
-  }
-})
+// document.addEventListener('keydown', event => {
+//   if (event.code === 'Space') {
+//     space = false;
+//     var elem = event.target.nodename;
+//     if( elem != 'TEXTAREA' && elem != 'INPUT' ) {
+//         event.preventDefault();
+//     }
+//   }
+// })
+
+// document.addEventListener('keydown', event => {
+//   if (event.code === 'Space') {
+//     space = true;
+//     var elem = event.target.nodename;
+//     if( elem != 'TEXTAREA' && elem != 'INPUT' ) {
+//         event.preventDefault();
+//     }
+//   }
+// })
