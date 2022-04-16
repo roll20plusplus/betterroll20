@@ -119,6 +119,7 @@ function receiveSocketMessage(socketMessage) {
             var template = document.querySelector('#rollMessageTemplate');
             var clone = template.content.cloneNode(true);
             clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
+            clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
             clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
             clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
             chatMessageList.appendChild(clone);
@@ -138,7 +139,7 @@ function receiveSocketMessage(socketMessage) {
 
 function sendChatMessage() {
     //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
-    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
+    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value+':ChatMessage');
 
     // Blank the text input element, ready to receive the next line of text from the user.
     document.getElementById("message").value = "";
@@ -854,7 +855,7 @@ function rolld20(dieRoll) {
     var toRoll = dieRoll.attribute;
     var rollBonus = dieRoll.rollbonus;
 
-    sendSocketMessage(MessageType.ChatMessage, rollBonus);
+    sendSocketMessage(MessageType.ChatMessage, rollBonus+':'+toRoll);
 }
 
 // document.addEventListener('keydown', event => {
