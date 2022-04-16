@@ -18,7 +18,7 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
-var username = 
+var username = '';
 
 var s3;
 var sessionToken;
