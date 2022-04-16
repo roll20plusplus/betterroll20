@@ -70,6 +70,8 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
+var space = false;
+
 function sendSocketMessage(type, contents) {
     switch (type) {
         case MessageType.CanvasUpdate:
@@ -288,6 +290,8 @@ charSheetButtonEl.onclick = function () {
         charSheetEl.style.visibility = 'hidden';
     }
 }
+
+drawingModeEl.click();
 charSheetButtonEl.click();
 
 clearEl.onclick = function() { clearcan()};
@@ -647,6 +651,33 @@ canvas.on('mouse:wheel', function(opt) {
   opt.e.stopPropagation();
 });
 
+canvas.on('mouse:down', function(opt) {
+  var evt = opt.e;
+  if (space) {
+    this.isDragging = true;
+    this.selection = false;
+    this.lastPosX = evt.clientX;
+    this.lastPosY = evt.clientY;
+  }
+});
+canvas.on('mouse:move', function(opt) {
+  if (this.isDragging) {
+    var e = opt.e;
+    var vpt = this.viewportTransform;
+    vpt[4] += e.clientX - this.lastPosX;
+    vpt[5] += e.clientY - this.lastPosY;
+    this.requestRenderAll();
+    this.lastPosX = e.clientX;
+    this.lastPosY = e.clientY;
+  }
+});
+canvas.on('mouse:up', function(opt) {
+  // on mouse up we want to recalculate new interaction
+  // for all objects, so we call setViewportTransform
+  this.setViewportTransform(this.viewportTransform);
+  this.isDragging = false;
+  this.selection = true;
+});
 
 function getUserProfile() {
 
@@ -827,3 +858,16 @@ function rolld20(dieRoll) {
 
     sendSocketMessage(MessageType.ChatMessage, rollBonus);
 }
+
+document.addEventListener('keydown', event => {
+  if (event.code === 'Space') {
+    space = false;
+    event.preventDefault();
+  }
+})
+document.addEventListener('keydown', event => {
+  if (event.code === 'Space') {
+    space = true;
+    event.preventDefault();
+  }
+})
