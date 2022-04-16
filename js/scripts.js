@@ -70,7 +70,6 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
-
 function sendSocketMessage(type, contents) {
     switch (type) {
         case MessageType.CanvasUpdate:
@@ -119,7 +118,7 @@ function receiveSocketMessage(socketMessage) {
         if(msgContents.diceroll != '') {
             var template = document.querySelector('#rollMessageTemplate');
             var clone = template.content.cloneNode(true);
-            clone.querySelector('.messageSender').textContent = msgContents.sender.S;
+            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
             clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
             clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
             chatMessageList.appendChild(clone);
@@ -127,7 +126,7 @@ function receiveSocketMessage(socketMessage) {
         else {
             var template = document.querySelector('#chatMessageTemplate');
             var clone = template.content.cloneNode(true);
-            clone.querySelector('.messageSender').textContent = msgContents.sender.S;
+            clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
             clone.querySelector('.messageContents').textContent = msgContents.contents.S;
             chatMessageList.appendChild(clone);
         }
