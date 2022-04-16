@@ -632,17 +632,6 @@ function getUserProfile() {
     var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
     console.log('cognito user');
-    cognitoUser.getUserAttributes(function(err, result) {
-        if (err) {
-            alert(err.message || JSON.stringify(err));
-            return;
-        }
-        for (i = 0; i < result.length; i++) {
-            console.log(
-                'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
-            );
-        }
-    });
     try {
         if (cognitoUser != null) {
         cognitoUser.getSession(function(err, session) {
@@ -661,6 +650,17 @@ function getUserProfile() {
                 Logins : {
                   // Change the key below according to the specific region your user pool is in.
                   'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
+                }
+            });
+            cognitoUser.getUserAttributes(function(err, result) {
+                if (err) {
+                    alert(err.message || JSON.stringify(err));
+                    return;
+                }
+                for (i = 0; i < result.length; i++) {
+                    console.log(
+                        'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
+                    );
                 }
             });
           //saveCharToDB(null);
