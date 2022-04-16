@@ -632,7 +632,17 @@ function getUserProfile() {
     var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
     console.log('cognito user');
-    console.log(cognitoUser);
+    cognitoUser.getUserAttributes(function(err, result) {
+        if (err) {
+            alert(err.message || JSON.stringify(err));
+            return;
+        }
+        for (i = 0; i < result.length; i++) {
+            console.log(
+                'attribute ' + result[i].getName() + ' has value ' + result[i].getValue()
+            );
+        }
+    });
     try {
         if (cognitoUser != null) {
         cognitoUser.getSession(function(err, session) {
