@@ -671,19 +671,19 @@ function getUserProfile() {
                 }
                 for (i = 0; i < result.length; i++) {
                     switch(result[i].getName()) {
-                        UserProfileAttributes.Email:
+                        case UserProfileAttributes.Email:
                             userEmail = result[i].getValue();
                             break;
-                        UserProfileAttributes.FullName:
+                        case UserProfileAttributes.FullName:
                             userFullName = result[i].getValue();
                             break;
-                        UserProfileAttributes.UserName:
+                        case UserProfileAttributes.UserName:
                             username = result[i].getValue();
                             break;
-                        UserProfileAttributes.Gender:
+                        case UserProfileAttributes.Gender:
                             userGender = result[i].getValue();
                             break;
-                        UserProfileAttributes.EmailVerified:
+                        case UserProfileAttributes.EmailVerified:
                             userEmailVerified = result[i].getValue();
                             break;
                         }
