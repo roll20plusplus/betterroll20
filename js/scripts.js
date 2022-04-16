@@ -110,17 +110,26 @@ function receiveSocketMessage(socketMessage) {
         canvas.renderAll();
     }
     else if (msg.messageType == MessageType.ChatMessage) {
-        // jsonData = JSON.parse(msg.data);
-        // msgSender = jsonData.sender;
         console.log(msg);
         console.log("Got a chat message");
         msgContents = msg.data;
         var chatMessageList = document.querySelector(".chatlist");
-        var template = document.querySelector('#chatMessageTemplate');
-        var clone = template.content.cloneNode(true);
-        clone.querySelector('.messageContents').textContent = msgContents.contents.S;
-        clone.querySelector('.messageSender').textContent = msgContents.sender.S;
-        chatMessageList.appendChild(clone);
+
+        if(msgContents.diceroll != '') {
+            var template = document.querySelector('#rollMessageTemplate');
+            var clone = template.content.cloneNode(true);
+            clone.querySelector('.messageSender').textContent = msgContents.sender.S;
+            clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
+            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
+            chatMessageList.appendChild(clone);
+        }
+        else {
+            var template = document.querySelector('#chatMessageTemplate');
+            var clone = template.content.cloneNode(true);
+            clone.querySelector('.messageSender').textContent = msgContents.sender.S;
+            clone.querySelector('.messageContents').textContent = msgContents.contents.S;
+            chatMessageList.appendChild(clone);
+        }
     }
     else {
         console.log("Encountered a problem retrieving a message from the websocket");
