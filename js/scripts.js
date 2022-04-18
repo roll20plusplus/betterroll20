@@ -123,10 +123,9 @@ window.addEventListener('DOMContentLoaded', event => {
 
 
 function init() {
-    console.log("Initializing the app");
-    socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
-    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     action=false;
+    console.log("Initializing the app");
+    initSocket();
     drawBackground();
     drawGrid();
     sidebarToggleConfig();
@@ -138,6 +137,12 @@ function init() {
     console.log("Fetching current canvas state");
     loadCanvasState();
     action=true;
+}
+
+function initSocket() {
+    socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
+    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
+    return socket;
 }
 
 function sidebarToggleConfig() {
