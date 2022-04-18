@@ -70,6 +70,74 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
+// Create a SharedWorker Instance using the worker.js file. 
+// You need this to be present in all JS files that want access to the socket
+const worker = new SharedWorker("worker.js");
+
+// Create a unique identifier using the uuid lib. This will help us
+// in identifying the tab from which a message was sent. And if a 
+// response is sent from server for this tab, we can redirect it using
+// this id.
+const id = uuid.v4();
+
+// Set initial web socket state to connecting. We'll modify this based
+// on events.
+let  webSocketState  =  WebSocket.CONNECTING;
+console.log(`Initializing the web worker for user: ${id}`);
+
+// Connect to the shared worker
+worker.port.start();
+
+// Set an event listener that either sets state of the web socket
+// Or handles data coming in for ONLY this tab.
+worker.port.onmessage = event => {
+  switch (event.data.type) {
+    case "WSState":
+      webSocketState = event.data.state;
+      break;
+    case "message":
+      receiveSocketMessage(event.data);
+      break;
+  }
+};
+
+// Set up the broadcast channel to listen to web socket events.
+// This is also similar to above handler. But the handler here is
+// for events being broadcasted to all the tabs.
+const broadcastChannel = new BroadcastChannel("WebSocketChannel");
+broadcastChannel.addEventListener("message", event => {
+  switch (event.data.type) {
+    case  "WSState":
+      webSocketState  =  event.data.state;
+      break;
+    case  "message":
+      receiveSocketMessage(event.data);
+      break;
+  }
+});
+
+// Use this method to send data to the server.
+function  postMessageToWSServer(input) {
+  if (webSocketState  ===  WebSocket.CONNECTING) {
+    console.log("Still connecting to the server, try again later!");
+  } else  if (
+    webSocketState  ===  WebSocket.CLOSING  ||
+    webSocketState  ===  WebSocket.CLOSED
+  ) {
+    console.log("Connection Closed!");
+  } else {
+    worker.port.postMessage({
+      // Include the sender information as a uuid to get back the response
+      from:  id,
+      data:  input
+    });
+  }
+}
+
+// Sent a message to server after approx 2.5 sec. This will 
+// give enough time to web socket connection to be created.
+setTimeout(() =>  postMessageToWSServer("Initial message"), 2500);
+
 function sendSocketMessage(type, contents) {
     switch (type) {
         case MessageType.CanvasUpdate:
@@ -78,7 +146,7 @@ function sendSocketMessage(type, contents) {
                 action: MessageType.CanvasUpdate,
                 data: contents
             };
-            socket.send(JSON.stringify(msg));
+            worker.port.postMessage(JSON.stringify(msg));
             break;
         case MessageType.ChatMessage:
             console.log("Sending a chat message to the socket");
@@ -86,7 +154,7 @@ function sendSocketMessage(type, contents) {
                 action : MessageType.ChatMessage,
                 data : {'sender': username, 'contents': contents}
             };
-            socket.send(JSON.stringify(msg));
+            worker.port.postMessage(JSON.stringify(msg));
             break;
         default:
             console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
@@ -170,6 +238,7 @@ function init() {
 }
 
 function initSocket() {
+
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     return socket;
