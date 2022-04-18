@@ -145,6 +145,7 @@ function  postMessageToWSServer(input) {
 setTimeout(() =>  postMessageToWSServer("Initial message"), 2500);
 
 function sendSocketMessage(type, contents) {
+    console.log("Sending a socket message, contents are :" + contents)
     switch (type) {
         case MessageType.CanvasUpdate:
             console.log("Canvas update going out to socket");
