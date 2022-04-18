@@ -18,6 +18,12 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
+var userFullName = '';
+var username = '';
+var userEmail = '';
+var userEmailVerified = '';
+var userGender = '';
+
 var s3;
 var sessionToken;
 
@@ -56,6 +62,14 @@ const MessageType = {
     CanvasUpdate:"canvasupdate",
 }
 
+const UserProfileAttributes = {
+    Gender: "gender",
+    UserName: "preferred_username",
+    Email: "email",
+    EmailVerified: "email_verified",
+    FullName: "name"
+}
+
 function sendSocketMessage(type, contents) {
     switch (type) {
         case MessageType.CanvasUpdate:
@@ -70,7 +84,7 @@ function sendSocketMessage(type, contents) {
             console.log("Sending a chat message to the socket");
             var msg = {
                 action : MessageType.ChatMessage,
-                data : contents
+                data : {'sender': username, 'contents': contents}
             };
             socket.send(JSON.stringify(msg));
             break;
@@ -87,6 +101,7 @@ function receiveSocketMessage(socketMessage) {
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
     }
+
     if(msg.messageType == MessageType.CanvasUpdate) {
         action = false;
         console.log("Got a canvas update message");
@@ -95,14 +110,29 @@ function receiveSocketMessage(socketMessage) {
         canvas.renderAll();
     }
     else if (msg.messageType == MessageType.ChatMessage) {
-        // jsonData = JSON.parse(msg.data);
-        // msgSender = jsonData.sender;
         console.log(msg);
-        msgContents = msg.data;
         console.log("Got a chat message");
-        var node = document.createElement('li');
-        node.appendChild(document.createTextNode(msgContents));
-        document.querySelector(".chatlist").appendChild(node);
+        msgContents = msg.data;
+        var chatMessageList = document.querySelector(".chatlist");
+
+        if(msgContents.diceroll != '') {
+            var template = document.querySelector('#rollMessageTemplate');
+            var clone = template.content.cloneNode(true);
+            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
+            clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
+            clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
+            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
+            chatMessageList.appendChild(clone);
+            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
+        }
+        else {
+            var template = document.querySelector('#chatMessageTemplate');
+            var clone = template.content.cloneNode(true);
+            clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
+            clone.querySelector('.messageContents').textContent = msgContents.contents.S;
+            chatMessageList.appendChild(clone);
+            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
+        }
     }
     else {
         console.log("Encountered a problem retrieving a message from the websocket");
@@ -111,7 +141,7 @@ function receiveSocketMessage(socketMessage) {
 
 function sendChatMessage() {
     //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
-    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
+    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value+':ChatMessage');
 
     // Blank the text input element, ready to receive the next line of text from the user.
     document.getElementById("message").value = "";
@@ -176,6 +206,13 @@ function chatInputConfig() {
         document.getElementById("messagebutton").click();
       }
     });
+
+    var _chatMessageList = document.querySelector(".chatlist");
+    var _template = document.querySelector('#chatMessageTemplate');
+    var _clone = _template.content.cloneNode(true);
+    _clone.querySelector('.messageSender').textContent = 'Tom from Myspace:';
+    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
+    _chatMessageList.appendChild(_clone);
 }
 
 function drawBackground() {
@@ -266,6 +303,9 @@ charSheetButtonEl.onclick = function () {
         charSheetEl.style.visibility = 'hidden';
     }
 }
+
+drawingModeEl.click();
+charSheetButtonEl.click();
 
 clearEl.onclick = function() { clearcan()};
 
@@ -614,15 +654,43 @@ function KeyPress(e) {
 }
 
 canvas.on('mouse:wheel', function(opt) {
-    var delta = opt.e.deltaY;
-    var zoom = canvas.getZoom();
-    zoom *= 0.999 ** delta;
-    if (zoom > 20) zoom = 20;
-    if (zoom < 0.01) zoom = 0.01;
-    canvas.setZoom(zoom);
-    opt.e.preventDefault();
-    opt.e.stopPropagation();
-})
+  var delta = opt.e.deltaY;
+  var zoom = canvas.getZoom();
+  zoom *= 0.999 ** delta;
+  if (zoom > 20) zoom = 20;
+  if (zoom < 0.01) zoom = 0.01;
+  canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+  opt.e.preventDefault();
+  opt.e.stopPropagation();
+});
+
+canvas.on('mouse:down', function(opt) {
+  var evt = opt.e;
+  if (evt.altKey === true) {
+    this.isDragging = true;
+    this.selection = false;
+    this.lastPosX = evt.clientX;
+    this.lastPosY = evt.clientY;
+  }
+});
+canvas.on('mouse:move', function(opt) {
+  if (this.isDragging) {
+    var e = opt.e;
+    var vpt = this.viewportTransform;
+    vpt[4] += e.clientX - this.lastPosX;
+    vpt[5] += e.clientY - this.lastPosY;
+    this.requestRenderAll();
+    this.lastPosX = e.clientX;
+    this.lastPosY = e.clientY;
+  }
+});
+canvas.on('mouse:up', function(opt) {
+  // on mouse up we want to recalculate new interaction
+  // for all objects, so we call setViewportTransform
+  this.setViewportTransform(this.viewportTransform);
+  this.isDragging = false;
+  this.selection = true;
+});
 
 function getUserProfile() {
 
@@ -632,33 +700,56 @@ function getUserProfile() {
     };
     var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
-
+    console.log('Loading Cognito User');
     try {
         if (cognitoUser != null) {
-        cognitoUser.getSession(function(err, session) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            console.log('session validity: ' + session.isValid());
-            console.log('session token: ' + session.getIdToken().getJwtToken());
-            sessionToken = session.getIdToken().getJwtToken();
-
-            AWS.config.region = _config.cognito.region;
-            //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId : _config.cognito.identityPoolId,
-                Logins : {
-                  // Change the key below according to the specific region your user pool is in.
-                  'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
+            cognitoUser.getSession(function(err, session) {
+                if (err) {
+                    console.log(err);
+                    return;
                 }
+                console.log('session validity: ' + session.isValid());
+                console.log('session token: ' + session.getIdToken().getJwtToken());
+                sessionToken = session.getIdToken().getJwtToken();
+
+                AWS.config.region = _config.cognito.region;
+                //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
+                AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                    IdentityPoolId : _config.cognito.identityPoolId,
+                    Logins : {
+                      // Change the key below according to the specific region your user pool is in.
+                      'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
+                    }
+                });
+                cognitoUser.getUserAttributes(function(err, result) {
+                    if (err) {
+                        alert(err.message || JSON.stringify(err));
+                        return;
+                    }
+                    for (i = 0; i < result.length; i++) {
+                        switch(result[i].getName()) {
+                            case UserProfileAttributes.Email:
+                                userEmail = result[i].getValue();
+                                break;
+                            case UserProfileAttributes.FullName:
+                                userFullName = result[i].getValue();
+                                break;
+                            case UserProfileAttributes.UserName:
+                                username = result[i].getValue();
+                                break;
+                            case UserProfileAttributes.Gender:
+                                userGender = result[i].getValue();
+                                break;
+                            case UserProfileAttributes.EmailVerified:
+                                userEmailVerified = result[i].getValue();
+                                break;
+                        }
+                    }
+                    console.log('Loggedin username = ' + username);
+                });
+            return;
             });
-          //saveCharToDB(null);
-        });
-        } else {
-        console.log(err);
-        return;
-        }
+        } else {console.log("error loading credentials")}  
     } catch (e) {
         console.log(e);
         return;
@@ -778,5 +869,25 @@ function rolld20(dieRoll) {
     var toRoll = dieRoll.attribute;
     var rollBonus = dieRoll.rollbonus;
 
-    sendSocketMessage(MessageType.ChatMessage, rollBonus);
+    sendSocketMessage(MessageType.ChatMessage, rollBonus+':'+toRoll);
 }
+
+// document.addEventListener('keydown', event => {
+//   if (event.code === 'Space') {
+//     space = false;
+//     var elem = event.target.nodename;
+//     if( elem != 'TEXTAREA' && elem != 'INPUT' ) {
+//         event.preventDefault();
+//     }
+//   }
+// })
+
+// document.addEventListener('keydown', event => {
+//   if (event.code === 'Space') {
+//     space = true;
+//     var elem = event.target.nodename;
+//     if( elem != 'TEXTAREA' && elem != 'INPUT' ) {
+//         event.preventDefault();
+//     }
+//   }
+// })
