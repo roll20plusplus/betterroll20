@@ -72,7 +72,7 @@ const UserProfileAttributes = {
 
 // Create a SharedWorker Instance using the worker.js file. 
 // You need this to be present in all JS files that want access to the socket
-const worker = new SharedWorker("worker.js");
+const worker = new SharedWorker("sharedWorker.js");
 
 // Create a unique identifier using the uuid lib. This will help us
 // in identifying the tab from which a message was sent. And if a 
