@@ -78,7 +78,13 @@ const worker = new SharedWorker("worker.js");
 // in identifying the tab from which a message was sent. And if a 
 // response is sent from server for this tab, we can redirect it using
 // this id.
-const id = uuid.v4();
+const id = uuidv4();
+
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
 
 // Set initial web socket state to connecting. We'll modify this based
 // on events.
