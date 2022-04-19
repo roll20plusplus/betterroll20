@@ -18,12 +18,6 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
-var userFullName = '';
-var username = '';
-var userEmail = '';
-var userEmailVerified = '';
-var userGender = '';
-
 var s3;
 var sessionToken;
 
@@ -62,90 +56,7 @@ const MessageType = {
     CanvasUpdate:"canvasupdate",
 }
 
-const UserProfileAttributes = {
-    Gender: "gender",
-    UserName: "preferred_username",
-    Email: "email",
-    EmailVerified: "email_verified",
-    FullName: "name"
-}
-
-// Create a SharedWorker Instance using the worker.js file. 
-// You need this to be present in all JS files that want access to the socket
-const worker = new SharedWorker("js/sharedWorker.js");
-
-// Create a unique identifier using the uuid lib. This will help us
-// in identifying the tab from which a message was sent. And if a 
-// response is sent from server for this tab, we can redirect it using
-// this id.
-const id = uuidv4();
-
-function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  );
-}
-
-// Set initial web socket state to connecting. We'll modify this based
-// on events.
-let  webSocketState  =  WebSocket.CONNECTING;
-console.log(`Initializing the web worker for user: ${id}`);
-
-// Connect to the shared worker
-worker.port.start();
-
-// Set an event listener that either sets state of the web socket
-// Or handles data coming in for ONLY this tab.
-worker.port.onmessage = event => {
-  switch (event.data.type) {
-    case "WSState":
-      webSocketState = event.data.state;
-      break;
-    case "message":
-      receiveSocketMessage(event.data);
-      break;
-  }
-};
-
-// Set up the broadcast channel to listen to web socket events.
-// This is also similar to above handler. But the handler here is
-// for events being broadcasted to all the tabs.
-const broadcastChannel = new BroadcastChannel("WebSocketChannel");
-broadcastChannel.addEventListener("message", event => {
-  switch (event.data.type) {
-    case  "WSState":
-      webSocketState  =  event.data.state;
-      break;
-    case  "message":
-      receiveSocketMessage(event.data);
-      break;
-  }
-});
-
-// Use this method to send data to the server.
-function  postMessageToWSServer(input) {
-  if (webSocketState  ===  WebSocket.CONNECTING) {
-    console.log("Still connecting to the server, try again later!");
-  } else  if (
-    webSocketState  ===  WebSocket.CLOSING  ||
-    webSocketState  ===  WebSocket.CLOSED
-  ) {
-    console.log("Connection Closed!");
-  } else {
-    worker.port.postMessage({
-      // Include the sender information as a uuid to get back the response
-      from:  id,
-      data:  input
-    });
-  }
-}
-
-// Sent a message to server after approx 2.5 sec. This will 
-// give enough time to web socket connection to be created.
-setTimeout(() =>  postMessageToWSServer("Initial message"), 2500);
-
 function sendSocketMessage(type, contents) {
-    console.log("Sending a socket message, contents are :" + contents)
     switch (type) {
         case MessageType.CanvasUpdate:
             console.log("Canvas update going out to socket");
@@ -153,21 +64,20 @@ function sendSocketMessage(type, contents) {
                 action: MessageType.CanvasUpdate,
                 data: contents
             };
-            worker.port.postMessage(JSON.stringify(msg));
+            socket.send(JSON.stringify(msg));
             break;
         case MessageType.ChatMessage:
             console.log("Sending a chat message to the socket");
             var msg = {
                 action : MessageType.ChatMessage,
-                data : {'sender': username, 'contents': contents}
+                data : contents
             };
-            worker.port.postMessage(msg);
+            socket.send(JSON.stringify(msg));
             break;
         default:
             console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
     }
 }
-
 
 function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
@@ -177,7 +87,6 @@ function receiveSocketMessage(socketMessage) {
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
     }
-
     if(msg.messageType == MessageType.CanvasUpdate) {
         action = false;
         console.log("Got a canvas update message");
@@ -186,29 +95,14 @@ function receiveSocketMessage(socketMessage) {
         canvas.renderAll();
     }
     else if (msg.messageType == MessageType.ChatMessage) {
+        // jsonData = JSON.parse(msg.data);
+        // msgSender = jsonData.sender;
         console.log(msg);
-        console.log("Got a chat message");
         msgContents = msg.data;
-        var chatMessageList = document.querySelector(".chatlist");
-
-        if(msgContents.diceroll != '') {
-            var template = document.querySelector('#rollMessageTemplate');
-            var clone = template.content.cloneNode(true);
-            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
-            clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
-            clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
-            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
-            chatMessageList.appendChild(clone);
-            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-        }
-        else {
-            var template = document.querySelector('#chatMessageTemplate');
-            var clone = template.content.cloneNode(true);
-            clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
-            clone.querySelector('.messageContents').textContent = msgContents.contents.S;
-            chatMessageList.appendChild(clone);
-            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-        }
+        console.log("Got a chat message");
+        var node = document.createElement('li');
+        node.appendChild(document.createTextNode(msgContents));
+        document.querySelector(".chatlist").appendChild(node);
     }
     else {
         console.log("Encountered a problem retrieving a message from the websocket");
@@ -229,10 +123,9 @@ window.addEventListener('DOMContentLoaded', event => {
 
 
 function init() {
-    console.log("Initializing the app");
-    socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
-    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     action=false;
+    console.log("Initializing the app");
+    initSocket();
     drawBackground();
     drawGrid();
     sidebarToggleConfig();
@@ -247,7 +140,6 @@ function init() {
 }
 
 function initSocket() {
-
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     return socket;
@@ -284,13 +176,6 @@ function chatInputConfig() {
         document.getElementById("messagebutton").click();
       }
     });
-
-    var _chatMessageList = document.querySelector(".chatlist");
-    var _template = document.querySelector('#chatMessageTemplate');
-    var _clone = _template.content.cloneNode(true);
-    _clone.querySelector('.messageSender').textContent = 'Tom from Myspace:';
-    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
-    _chatMessageList.appendChild(_clone);
 }
 
 function drawBackground() {
@@ -381,9 +266,6 @@ charSheetButtonEl.onclick = function () {
         charSheetEl.style.visibility = 'hidden';
     }
 }
-
-drawingModeEl.click();
-charSheetButtonEl.click();
 
 clearEl.onclick = function() { clearcan()};
 
@@ -732,43 +614,16 @@ function KeyPress(e) {
 }
 
 canvas.on('mouse:wheel', function(opt) {
-  var delta = opt.e.deltaY;
-  var zoom = canvas.getZoom();
-  zoom *= 0.999 ** delta;
-  if (zoom > 20) zoom = 20;
-  if (zoom < 0.01) zoom = 0.01;
-  canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
-  opt.e.preventDefault();
-  opt.e.stopPropagation();
-});
+    var delta = opt.e.deltaY;
+    var zoom = canvas.getZoom();
+    zoom *= 0.999 ** delta;
+    if (zoom > 20) zoom = 20;
+    if (zoom < 0.01) zoom = 0.01;
+    canvas.setZoom(zoom);
+    opt.e.preventDefault();
+    opt.e.stopPropagation();
+})
 
-canvas.on('mouse:down', function(opt) {
-  var evt = opt.e;
-  if (evt.altKey === true) {
-    this.isDragging = true;
-    this.selection = false;
-    this.lastPosX = evt.clientX;
-    this.lastPosY = evt.clientY;
-  }
-});
-canvas.on('mouse:move', function(opt) {
-  if (this.isDragging) {
-    var e = opt.e;
-    var vpt = this.viewportTransform;
-    vpt[4] += e.clientX - this.lastPosX;
-    vpt[5] += e.clientY - this.lastPosY;
-    this.requestRenderAll();
-    this.lastPosX = e.clientX;
-    this.lastPosY = e.clientY;
-  }
-});
-canvas.on('mouse:up', function(opt) {
-  // on mouse up we want to recalculate new interaction
-  // for all objects, so we call setViewportTransform
-  this.setViewportTransform(this.viewportTransform);
-  this.isDragging = false;
-  this.selection = true;
-});
 function getUserProfile() {
 
     var data = {
@@ -777,56 +632,33 @@ function getUserProfile() {
     };
     var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
-    console.log('Loading Cognito User');
+
     try {
         if (cognitoUser != null) {
-            cognitoUser.getSession(function(err, session) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                console.log('session validity: ' + session.isValid());
-                console.log('session token: ' + session.getIdToken().getJwtToken());
-                sessionToken = session.getIdToken().getJwtToken();
+        cognitoUser.getSession(function(err, session) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            console.log('session validity: ' + session.isValid());
+            console.log('session token: ' + session.getIdToken().getJwtToken());
+            sessionToken = session.getIdToken().getJwtToken();
 
-                AWS.config.region = _config.cognito.region;
-                //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
-                AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                    IdentityPoolId : _config.cognito.identityPoolId,
-                    Logins : {
-                      // Change the key below according to the specific region your user pool is in.
-                      'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
-                    }
-                });
-                cognitoUser.getUserAttributes(function(err, result) {
-                    if (err) {
-                        alert(err.message || JSON.stringify(err));
-                        return;
-                    }
-                    for (i = 0; i < result.length; i++) {
-                        switch(result[i].getName()) {
-                            case UserProfileAttributes.Email:
-                                userEmail = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.FullName:
-                                userFullName = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.UserName:
-                                username = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.Gender:
-                                userGender = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.EmailVerified:
-                                userEmailVerified = result[i].getValue();
-                                break;
-                        }
-                    }
-                    console.log('Loggedin username = ' + username);
-                });
-            return;
+            AWS.config.region = _config.cognito.region;
+            //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId : _config.cognito.identityPoolId,
+                Logins : {
+                  // Change the key below according to the specific region your user pool is in.
+                  'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
+                }
             });
-        } else {console.log("error loading credentials")}  
+          //saveCharToDB(null);
+        });
+        } else {
+        console.log(err);
+        return;
+        }
     } catch (e) {
         console.log(e);
         return;
@@ -946,25 +778,5 @@ function rolld20(dieRoll) {
     var toRoll = dieRoll.attribute;
     var rollBonus = dieRoll.rollbonus;
 
-    sendSocketMessage(MessageType.ChatMessage, rollBonus+':'+toRoll);
+    sendSocketMessage(MessageType.ChatMessage, rollBonus);
 }
-
-// document.addEventListener('keydown', event => {
-//   if (event.code === 'Space') {
-//     space = false;
-//     var elem = event.target.nodename;
-//     if( elem != 'TEXTAREA' && elem != 'INPUT' ) {
-//         event.preventDefault();
-//     }
-//   }
-// })
-
-// document.addEventListener('keydown', event => {
-//   if (event.code === 'Space') {
-//     space = true;
-//     var elem = event.target.nodename;
-//     if( elem != 'TEXTAREA' && elem != 'INPUT' ) {
-//         event.preventDefault();
-//     }
-//   }
-// })
