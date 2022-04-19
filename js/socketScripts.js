@@ -10,7 +10,7 @@ function initSocket() {
     return socket;
 }
 
-function sendSocketMessage(type, contents) {
+function sendSocketMessage(type, username, contents) {
     switch (type) {
         case MessageType.CanvasUpdate:
             console.log("Canvas update going out to socket");
@@ -46,33 +46,35 @@ function receiveSocketMessage(socketMessage) {
         action = false;
         console.log("Got a canvas update message");
         console.log(msg.data);
-        canvas.loadFromJSON(JSON.parse(msg.data), function() {drawBackground(); action = true;});
-        canvas.renderAll();
+        updateCanvas(msg.data);
     }
     else if (msg.messageType == MessageType.ChatMessage) {
         console.log(msg);
         console.log("Got a chat message");
-        msgContents = msg.data;
-        var chatMessageList = document.querySelector(".chatlist");
 
-        if(msgContents.diceroll.S != '') {
-            var template = document.querySelector('#rollMessageTemplate');
-            var clone = template.content.cloneNode(true);
-            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
-            clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
-            clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
-            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
-            chatMessageList.appendChild(clone);
-            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-        }
-        else {
-            var template = document.querySelector('#chatMessageTemplate');
-            var clone = template.content.cloneNode(true);
-            clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
-            clone.querySelector('.messageContents').textContent = msgContents.contents.S;
-            chatMessageList.appendChild(clone);
-            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-        }
+        msgContents = msg.data;
+        addMessageToChat(msgContents);
+//
+//        var chatMessageList = document.querySelector(".chatlist");
+//
+//        if(msgContents.diceroll.S != '') {
+//            var template = document.querySelector('#rollMessageTemplate');
+//            var clone = template.content.cloneNode(true);
+//            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
+//            clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
+//            clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
+//            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
+//            chatMessageList.appendChild(clone);
+//            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
+//        }
+//        else {
+//            var template = document.querySelector('#chatMessageTemplate');
+//            var clone = template.content.cloneNode(true);
+//            clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
+//            clone.querySelector('.messageContents').textContent = msgContents.contents.S;
+//            chatMessageList.appendChild(clone);
+//            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
+//        }
     }
     else {
         console.log("Encountered a problem retrieving a message from the websocket");

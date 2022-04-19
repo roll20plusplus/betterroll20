@@ -141,7 +141,7 @@ const UserProfileAttributes = {
 
 function sendChatMessage() {
     //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
-    sendSocketMessage(MessageType.ChatMessage, document.getElementById("message").value);
+    sendSocketMessage(MessageType.ChatMessage, username, document.getElementById("message").value);
 
     // Blank the text input element, ready to receive the next line of text from the user.
     document.getElementById("message").value = "";
@@ -151,6 +151,33 @@ window.addEventListener('DOMContentLoaded', event => {
     init();
 });
 
+var updateCanvas = function (canvasState) {
+    canvas.loadFromJSON(JSON.parse(canvasState), function() {drawBackground(); action = true;});
+    canvas.renderAll();
+}
+
+var addMessageToChat = function (msgContents){
+    var chatMessageList = document.querySelector(".chatlist");
+
+    if(msgContents.diceroll.S != '') {
+        var template = document.querySelector('#rollMessageTemplate');
+        var clone = template.content.cloneNode(true);
+        clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
+        clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
+        clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
+        clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
+        chatMessageList.appendChild(clone);
+        // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
+    }
+    else {
+        var template = document.querySelector('#chatMessageTemplate');
+        var clone = template.content.cloneNode(true);
+        clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
+        clone.querySelector('.messageContents').textContent = msgContents.contents.S;
+        chatMessageList.appendChild(clone);
+        // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
+    }
+}
 
 function init() {
     action=false;
@@ -598,7 +625,7 @@ function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
         myjson = JSON.stringify(canvas);
-        sendSocketMessage(MessageType.CanvasUpdate, myjson);
+        sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
         state.push(myjson);
         console.log(state);
         //mods += 1;

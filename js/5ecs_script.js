@@ -406,8 +406,9 @@ function calc_carry_weight()
 function rollLabel(toRoll) {
     console.log(document.getElementsByName(toRoll)[0])
     rollBonus = "/r 1d20" + document.getElementsByName(toRoll)[0].value;
-    console.log("Rolling off charactersheet:" + toRoll + " " + rollBonus);
-    sendSocketMessage(MessageType.ChatMessage, rollBonus+':'+toRoll);
+    sender =  document.getElementById('playername').value;
+    console.log("Rolling off charactersheet:" + toRoll + " " + rollBonus + " by " + sender);
+    sendSocketMessage(MessageType.ChatMessage, sender, rollBonus+':'+toRoll);
 }
 
 function charSheetInit() {
