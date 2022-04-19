@@ -6,7 +6,7 @@ const MessageType = {
 
 function initSocket() {
     var socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
-    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
+    // socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     return socket;
 }
 
@@ -33,53 +33,6 @@ function sendSocketMessage(type, username, contents) {
     }
 }
 
-function receiveSocketMessage(socketMessage) {
-    console.log("Receiving a message from the websocket");
-    console.log(socketMessage);
-    //var msg = JSON.parse(socketMessage);
-    var msg = JSON.parse(socketMessage['data']);
-    if (typeof(msg) == 'string') {
-        msg = JSON.parse(msg);
-    }
-
-    if(msg.messageType == MessageType.CanvasUpdate) {
-        action = false;
-        console.log("Got a canvas update message");
-        console.log(msg.data);
-       updateCanvas(msg.data);
-    }
-    else if (msg.messageType == MessageType.ChatMessage) {
-        console.log(msg);
-        console.log("Got a chat message");
-
-        msgContents = msg.data;
-       addMessageToChat(msgContents);
-//
-//        var chatMessageList = document.querySelector(".chatlist");
-//
-//        if(msgContents.diceroll.S != '') {
-//            var template = document.querySelector('#rollMessageTemplate');
-//            var clone = template.content.cloneNode(true);
-//            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
-//            clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
-//            clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
-//            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
-//            chatMessageList.appendChild(clone);
-//            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-//        }
-//        else {
-//            var template = document.querySelector('#chatMessageTemplate');
-//            var clone = template.content.cloneNode(true);
-//            clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
-//            clone.querySelector('.messageContents').textContent = msgContents.contents.S;
-//            chatMessageList.appendChild(clone);
-//            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-//        }
-    }
-    else {
-        console.log("Encountered a problem retrieving a message from the websocket");
-    }
-}
 
 function rolld20(dieRoll) {
     var toRoll = dieRoll.attribute;
