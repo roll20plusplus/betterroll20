@@ -51,6 +51,14 @@ $("[name='classlevel']").bind('input', function()
     $("[name='proficiencybonus']").val(prof)
   })
 
+var socket;
+
+window.onload = function() {
+  socket = initSocket();
+};
+
+
+
 function totalhd_clicked()
 {
   $("[name='remaininghd']").val($("[name='totalhd']").val())
@@ -396,13 +404,10 @@ function calc_carry_weight()
 }
 
 function rollLabel(toRoll) {
-  console.log(document.getElementsByName(toRoll)[0])
-  rollBonus = "/r 1d20" + document.getElementsByName(toRoll)[0].value;
-  console.log("Rolling off charactersheet:" + toRoll + " " + rollBonus);
-  window.parent.postMessage({
-            'func': 'rolld20',
-            'message': {'attribute' : toRoll, 'rollbonus' : rollBonus}
-        }, "*");  type = 'application/json'
+    console.log(document.getElementsByName(toRoll)[0])
+    rollBonus = "/r 1d20" + document.getElementsByName(toRoll)[0].value;
+    console.log("Rolling off charactersheet:" + toRoll + " " + rollBonus);
+    sendSocketMessage(MessageType.ChatMessage, rollBonus+':'+toRoll);
 }
 
 function charSheetInit() {
