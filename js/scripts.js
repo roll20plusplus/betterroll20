@@ -93,6 +93,7 @@ function sendSocketMessage(type, contents) {
     }
 }
 
+
 function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
     console.log(socketMessage);
