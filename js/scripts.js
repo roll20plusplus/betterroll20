@@ -56,11 +56,11 @@ fabric.Object.prototype.transparentCorners = false;
 var state = [];
 var mods = 0;
 
-const MessageType = {
-    ChatMessage: "chatmessage",
-    CharSheetRoll: "charsheetroll",
-    CanvasUpdate:"canvasupdate",
-}
+//const MessageType = {
+//    ChatMessage: "chatmessage",
+//    CharSheetRoll: "charsheetroll",
+//    CanvasUpdate:"canvasupdate",
+//}
 
 const UserProfileAttributes = {
     Gender: "gender",

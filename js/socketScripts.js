@@ -1,3 +1,9 @@
+const MessageType = {
+    ChatMessage: "chatmessage",
+    CharSheetRoll: "charsheetroll",
+    CanvasUpdate:"canvasupdate",
+}
+
 function initSocket() {
     var socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
