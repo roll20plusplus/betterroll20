@@ -46,14 +46,14 @@ function receiveSocketMessage(socketMessage) {
         action = false;
         console.log("Got a canvas update message");
         console.log(msg.data);
-        updateCanvas(msg.data);
+//        updateCanvas(msg.data);
     }
     else if (msg.messageType == MessageType.ChatMessage) {
         console.log(msg);
         console.log("Got a chat message");
 
         msgContents = msg.data;
-        addMessageToChat(msgContents);
+//        addMessageToChat(msgContents);
 //
 //        var chatMessageList = document.querySelector(".chatlist");
 //
