@@ -161,7 +161,7 @@ function sendSocketMessage(type, contents) {
                 action : MessageType.ChatMessage,
                 data : {'sender': username, 'contents': contents}
             };
-            worker.port.postMessage(JSON.stringify(msg));
+            worker.port.postMessage(msg);
             break;
         default:
             console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
