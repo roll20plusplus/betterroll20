@@ -5,6 +5,7 @@
   <title>Character Sheet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="css/5ecs_style.css">
+  <script src="js/socketScripts.js"></script>
 
 </head>
 <body>
@@ -19,6 +20,7 @@
         <label for="buttonload" id="loadlabel" style="text-transform:Capitalize;">Load Character</label><input name="buttonload" id="buttonload" type="file" style="width:200px;margin-bottom:5px;" />
         <button name="buttonloadcloud" type="button" onclick="load_cloud()" style="width:100px;,margin-bottom:5px;">Load from Cloud</button>
         <button name="buttonrest" type="button" onclick="long_rest()" style="width:100px;,margin-bottom:5px;">Long Rest</button>
+        <button name="buttonpopup" type="button" onclick="window.open('https://main.d38el35uq1kkh7.amplifyapp.com/5ecs.html','popup','width=600,height=600'); return false;" style="width:100px;,margin-bottom:5px;">Open in popup</button>
     </section>
   </header>
   <header>
