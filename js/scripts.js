@@ -767,7 +767,6 @@ canvas.on('mouse:up', function(opt) {
   this.isDragging = false;
   this.selection = true;
 });
-
 function getUserProfile() {
 
     var data = {
