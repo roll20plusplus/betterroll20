@@ -190,7 +190,7 @@ function receiveSocketMessage(socketMessage) {
         msgContents = msg.data;
         var chatMessageList = document.querySelector(".chatlist");
 
-        if(msgContents.diceroll.S != '') {
+        if(msgContents.diceroll != '') {
             var template = document.querySelector('#rollMessageTemplate');
             var clone = template.content.cloneNode(true);
             clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
