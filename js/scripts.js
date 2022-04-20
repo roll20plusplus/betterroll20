@@ -72,18 +72,27 @@ class CommandHistory {
     return this.index;
   }
   back() {
+    action = false;
+    console.log('Command History back (trying to undo an event)');
     if (this.index > 0) {
       console.log('rolling back state history');
-      let command = this.commands[--this.index];
+      this.index = this.index-1
+      let command = this.commands[this.index];
       command.undo();
     }
+    action=true;
     return this;
   }
   forward() {
+    action = false;
+    console.log('Command History forward (trying to redo an event)');
     if (this.index < this.commands.length) {
-      let command = this.commands[this.index++];
+      console.log('Redoing event');
+      let command = this.commands[this.index];
+      this.index = this.index+1
       command.execute();
     }
+    action = true;
     return this;
   }
   add(command) {
@@ -109,7 +118,8 @@ class AddCommand {
     this.controller = controller;
   }
   execute() {
-    this.controller.add(this.receiver);
+    console.log('redoing add command');
+    this.controller.add(this.receiver.target);
   }
   undo() {
     console.log('Undoing add command');
@@ -118,7 +128,7 @@ class AddCommand {
 
         if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
             console.log(obj);
-            console.log(canvas.remove(obj));
+            console.log(this.controller.remove(obj));
         }
         // canvas.remove(obj)
     });
@@ -135,10 +145,18 @@ class RemoveCommand {
     this.controller = controller;
   }
   execute() {
-    this.controller.remove(this.receiver);
+    this.controller.getObjects().forEach((obj) => {
+        console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
+
+        if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
+            console.log(obj);
+            console.log(this.controller.remove(obj));
+        }
+        // canvas.remove(obj)
+    });  
   }
   undo() {
-    this.controller.add(this.receiver);
+    this.controller.add(this.receiver.target);
   }
 }
 
@@ -225,7 +243,7 @@ window.addEventListener('DOMContentLoaded', event => {
 });
 
 var updateCanvas = function (canvasState) {
-    canvas.loadFromJSON(JSON.parse(canvasState), function() {drawBackground(); action = true;});
+    canvas.loadFromJSON(JSON.parse(canvasState), function() {drawGrid(); action = true;});
     canvas.renderAll();
 }
 
@@ -241,7 +259,7 @@ function receiveSocketMessage(socketMessage) {
     if(msg.messageType == MessageType.CanvasUpdate) {
         action = false;
         console.log("Got a canvas update message");
-        console.log(msg.data);
+        // console.log(msg.data);
        updateCanvas(msg.data);
     }
     else if (msg.messageType == MessageType.ChatMessage) {
@@ -329,24 +347,28 @@ function drawGrid() {
     var x = 0;
     var y = 0;
     for (x = 0; x <= bw; x+= grid) {
-        canvas.add(new fabric.Line([x, 0, x, bh], {
+        var newLine = new fabric.Line([x, 0, x, bh], {
           fill: 'black',
           stroke: 'black',
           strokeWidth: 1,
           selectable: false,
           evented: false,
           excludeFromExport: true
-        }));
+        })
+        canvas.add(newLine);
+        canvas.sendToBack(newLine);
     }
     for (y = 0; y <= bh; y+= grid) {
-        canvas.add(new fabric.Line([0, y, bw, y], {
+        var newLine = new fabric.Line([0, y, bw, y], {
           fill: 'black',
           stroke: 'black',
           strokeWidth: 1,
           selectable: false,
           evented: false,
           excludeFromExport: true
-        }));
+        })
+        canvas.add(newLine);
+        canvas.sendToBack(newLine);
     }
 }
 
@@ -713,12 +735,14 @@ function updateModifications() {
 
 undo = function undo() {
     console.log('undo');
-    // console.log(stateHistory);
+    console.log(this.stateHistory);
+
     this.stateHistory.back();
 }
 
 redo = function redo() {
     console.log('redo');
+    console.log(this.stateHistory);
     this.stateHistory.forward();
 }
 
