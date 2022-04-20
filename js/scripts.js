@@ -53,8 +53,8 @@ var backgroundURL = 'img/background_53x56.png';
 
 fabric.Object.prototype.transparentCorners = false;
 
-var state = [];
-var mods = 0;
+var stateHistory;
+
 
 const UserProfileAttributes = {
     Gender: "gender",
@@ -181,13 +181,11 @@ class TransformCommand {
   }
 }
 
-this.history = new CommandHistory();
 
 function init() {
     action=false;
     console.log("Initializing the app");
-    history = new CommandHistory();
-    console.log(history);
+    stateHistory = new CommandHistory();
     socket = initSocket();
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     drawBackground();
@@ -318,7 +316,6 @@ function drawGrid() {
     bh = canvasEl.height;
     var x = 0;
     var y = 0;
-    console.log(bw + " " + bh);
     for (x = 0; x <= bw; x+= grid) {
         canvas.add(new fabric.Line([x, 0, x, bh], {
           fill: 'black',
@@ -666,24 +663,30 @@ function getMousePos(canvas, evt) {
 
 canvas.on(
     'object:modified', function (e) {
-        console.log('Object Modified');
-        console.log(e);
-        updateModifications();
+        if (action) {
+            console.log('Object Modified');
+            console.log(e);
+            updateModifications();
+        }
 });
 
 canvas.on(
     'object:added', function (e) {
-        console.log('Object added');
-        console.log(typeof(history));
-        this.history.add(new AddCommand(e[0], canvas));
-        updateModifications();
+        if (action) {
+            console.log('Object added');
+            console.log(stateHistory);
+            stateHistory.add(new AddCommand(e[0], canvas));
+            updateModifications();
+        }
 });
 
 canvas.on(
-    'object:added', function (e) {
-        console.log('Object removed');
-        history.add(new RemoveCommand(e[0], canvas))
-        updateModifications();
+    'object:removed', function (e) {
+        if (action) {
+            console.log('Object removed');
+            stateHistory.add(new RemoveCommand(e[0], canvas))
+            updateModifications();
+        }
 });
 
 function updateModifications() {
@@ -691,43 +694,16 @@ function updateModifications() {
         console.log("Updating Modifications")
         myjson = JSON.stringify(canvas);
         sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
-        state.push(myjson);
-        console.log(state);
-        //mods += 1;
-        console.log("Number of saved states:" + state.length);
-        console.log("mods " + mods);
-        //console.log("states " + state);
     }
 }
 
 undo = function undo() {
     console.log('undo');
-    if (mods < state.length-1) {
-        action = false;
-        canvas.clear().renderAll();
-        stateIndex = state.length - 1 - mods - 1;
-        console.log('loading from state index ' + stateIndex)
-        canvas.loadFromJSON(state[stateIndex], function() {drawBackground(); action = true;});
-        canvas.renderAll();
-        //console.log("geladen " + (state.length-1-mods-1));
-        console.log("state " + state.length);
-        mods += 1;
-        console.log("mods " + mods);
-        //console.log("states " + state);
-    }
+    stateHistory.back();
 }
 
 redo = function redo() {
-    if (mods > 0) {
-        action = false;
-        canvas.clear().renderAll();
-        canvas.loadFromJSON(state[state.length - 1 - mods + 1], function() {action=true});
-        canvas.renderAll();
-        //console.log("geladen " + (state.length-1-mods+1));
-        mods -= 1;
-        //console.log("state " + state.length);
-        //console.log("mods " + mods);
-    }
+    stateHistory.forward();
 }
 
 clearcan = function clearcan() {
@@ -739,8 +715,10 @@ clearcan = function clearcan() {
 
 function KeyPress(e) {
     var evtobj = window.event? event : e
-    if (evtobj.keyCode == 90 && evtobj.ctrlKey) undo();
-    if (evtobj.keyCode == 89 && evtobj.ctrlKey) redo();
+    if (evtobj.keyCode == 90 && (evtobj.ctrlKey || evtobj.metaKey)) undo();
+
+    if (evtobj.keyCode == 89 && (evtobj.ctrlKey || evtobj.metaKey)) redo();
+
 }
 
 canvas.on('mouse:wheel', function(opt) {
