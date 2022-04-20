@@ -64,6 +64,144 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
+class CommandHistory {
+  commands = [];
+  index = 0;
+
+  getIndex() {
+    return this.index;
+  }
+  back() {
+    if (this.index > 0) {
+      let command = this.commands[--this.index];
+      command.undo();
+    }
+    return this;
+  }
+  forward() {
+    if (this.index < this.commands.length) {
+      let command = this.commands[this.index++];
+      command.execute();
+    }
+    return this;
+  }
+  add(command) {
+    if (this.commands.length) {
+      this.commands.splice(this.index, this.commands.length - this.index);
+    }
+    this.commands.push(command);
+    this.index++;
+    return this;
+  }
+  clear() {
+    this.commands.length = 0;
+    this.index = 0;
+    return this;
+  }
+}
+
+// use when you init your Canvas, like this.history = new CommandHistory();
+
+class AddCommand {
+  constructor(receiver, controller) {
+    this.receiver = receiver;
+    this.controller = controller;
+  }
+  execute() {
+    this.controller.add(this.receiver);
+  }
+  undo() {
+    this.controller.remove(this.receiver);
+  }
+}
+
+// When you will add object on your canvas invoke also this.history.add(new AddCommand(object, controller))
+
+class RemoveCommand {
+  constructor(receiver, controller) {
+    this.receiver = receiver;
+    this.controller = controller;
+  }
+  execute() {
+    this.controller.remove(this.receiver);
+  }
+  undo() {
+    this.controller.add(this.receiver);
+  }
+}
+
+class TransformCommand {
+  constructor(receiver, options = {}) {
+    this.receiver = receiver;
+    this._initStateProperties(options);
+
+    this.state = {};
+    this.prevState = {};
+
+    this._saveState();
+    this._savePrevState();
+  }
+  execute() {
+    this._restoreState();
+    this.receiver.setCoords();
+  }
+  undo() {
+    this._restorePrevState();
+    this.receiver.setCoords();
+  }
+  // private
+  _initStateProperties(options) {
+    this.stateProperties = this.receiver.stateProperties;
+    if (options.stateProperties && options.stateProperties.length) {
+      this.stateProperties.push(...options.stateProperties);
+    }
+  }
+  _restoreState() {
+    this._restore(this.state);
+  }
+  _restorePrevState() {
+    this._restore(this.prevState);
+  }
+  _restore(state) {
+    this.stateProperties.forEach((prop) => {
+      this.receiver.set(prop, state[prop]);
+    });
+  }
+  _saveState() {
+    this.stateProperties.forEach((prop) => {
+      this.state[prop] = this.receiver.get(prop);
+    });
+  }
+  _savePrevState() {
+    if (this.receiver._stateProperties) {
+      this.stateProperties.forEach((prop) => {
+        this.prevState[prop] = this.receiver._stateProperties[prop];
+      });
+    }
+  }
+}
+
+this.history = new CommandHistory();
+
+function init() {
+    action=false;
+    console.log("Initializing the app");
+    history = new CommandHistory();
+    console.log(history);
+    socket = initSocket();
+    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
+    drawBackground();
+    drawGrid();
+    sidebarToggleConfig();
+    popUpDragConfig();
+    chatInputConfig();
+    getUserProfile();
+    initS3();
+    console.log("Fetching current canvas state");
+    loadCanvasState();
+    action=true;
+}
+
 function sendChatMessage() {
     //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
     sendSocketMessage(MessageType.ChatMessage, username, document.getElementById("message").value);
@@ -127,23 +265,6 @@ function receiveSocketMessage(socketMessage) {
     }
 }
 
-function init() {
-    action=false;
-    console.log("Initializing the app");
-    socket = initSocket();
-    socket.onmessage = function(evt) {receiveSocketMessage(evt);};
-    drawBackground();
-    drawGrid();
-    sidebarToggleConfig();
-    //updateModifications();
-    popUpDragConfig();
-    chatInputConfig();
-    getUserProfile();
-    initS3();
-    console.log("Fetching current canvas state");
-    loadCanvasState();
-    action=true;
-}
 
 
 function sidebarToggleConfig() {
@@ -242,10 +363,6 @@ function popUpDragConfig() {
       drag.removeClass('dragging')
       $(this).off('mousemove')
     }
-
-    // setTimeout(function(
-    //           $("")
-    //           ){}, 4000);
 
     $(document).on('click', 'a#check-iframe-content-url', function(){
       // blocked by CORS
@@ -548,22 +665,26 @@ function getMousePos(canvas, evt) {
 }
 
 canvas.on(
-    'object:modified', function () {
+    'object:modified', function (e) {
         console.log('Object Modified');
+        console.log(e);
         updateModifications();
 });
 
 canvas.on(
-    'object:added', function () {
+    'object:added', function (e) {
         console.log('Object added');
+        console.log(typeof(history));
+        this.history.add(new AddCommand(e[0], canvas));
         updateModifications();
 });
 
-//canvas.on(
-//    'path:created', function(e) {
-//        console.log('Path Created');
-//        updateModifications(true);
-//});
+canvas.on(
+    'object:added', function (e) {
+        console.log('Object removed');
+        history.add(new RemoveCommand(e[0], canvas))
+        updateModifications();
+});
 
 function updateModifications() {
     if (action) {
