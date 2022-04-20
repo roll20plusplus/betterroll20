@@ -73,6 +73,7 @@ class CommandHistory {
   }
   back() {
     if (this.index > 0) {
+      console.log('rolling back state history');
       let command = this.commands[--this.index];
       command.undo();
     }
@@ -111,7 +112,18 @@ class AddCommand {
     this.controller.add(this.receiver);
   }
   undo() {
-    this.controller.remove(this.receiver);
+    console.log('Undoing add command');
+    this.controller.getObjects().forEach((obj) => {
+        console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
+
+        if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
+            console.log(obj);
+            console.log(canvas.remove(obj));
+        }
+        // canvas.remove(obj)
+    });
+    // console.log(this.receiver);
+    // canvas.remove(this.receiver);
   }
 }
 
@@ -675,7 +687,9 @@ canvas.on(
         if (action) {
             console.log('Object added');
             console.log(stateHistory);
-            stateHistory.add(new AddCommand(e[0], canvas));
+            console.log(e);
+
+            stateHistory.add(new AddCommand(e, canvas));
             updateModifications();
         }
 });
@@ -684,7 +698,7 @@ canvas.on(
     'object:removed', function (e) {
         if (action) {
             console.log('Object removed');
-            stateHistory.add(new RemoveCommand(e[0], canvas))
+            stateHistory.add(new RemoveCommand(e, canvas))
             updateModifications();
         }
 });
@@ -699,11 +713,13 @@ function updateModifications() {
 
 undo = function undo() {
     console.log('undo');
-    stateHistory.back();
+    // console.log(stateHistory);
+    this.stateHistory.back();
 }
 
 redo = function redo() {
-    stateHistory.forward();
+    console.log('redo');
+    this.stateHistory.forward();
 }
 
 clearcan = function clearcan() {
