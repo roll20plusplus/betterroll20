@@ -41,6 +41,13 @@
                 <div class="list-group list-group-flush m-2">
                 <button id="open-character-sheet" class="btn btn-secondary">Open Character Sheet</button><br>
                     <button id="drawing-mode" class="btn btn-secondary">Cancel drawing mode</button><br>
+
+                    <button id="edit-fow" class="btn btn-secondary">Edit Fog of War</button><br>
+                    <input type="radio" id="revealfow" name="fow-edit-mode" value="Reveal">
+                    <label for="revealfow" id="reveallbl">Reveal</label>
+                    <input type="radio" id="hidefow" name="fow-edit-mode" value="Hide">
+                    <label for="hidefow" id="hidelbl">Hide</label>
+
                     <button id="clear-canvas" class="btn btn-secondary">Clear</button><br>
                     <div id="drawing-mode-options">
                         <label for="drawing-mode-selector">Mode:</label>
@@ -101,7 +108,8 @@
                 <!-- Page content-->
                 <div class="container-canvas" id = "drop_zone" ondrop="drop_handler(event);"
                  ondragover="dragOverHandler(event)">
-                    <canvas id="canvas" width="3710" height="3920"></canvas>
+                    <canvas id="playcanvas" width="3710" height="3920"></canvas>
+                    <canvas id="fowcanvas" width="3710" height="3920"></canvas>
                 </div>
             </div>
             <!-- Right bar -->

@@ -41,9 +41,11 @@ var grid = 70;
 
 var $ = function(id){return document.getElementById(id)};
 
-var canvas = this.__canvas = new fabric.Canvas('canvas', {
+var canvas = this.__canvas = new fabric.Canvas('playcanvas', {
 isDrawingMode: true
 });
+
+
 
 canvas.counter = 0;
 var newleft = 0;
@@ -54,6 +56,9 @@ var backgroundURL = 'img/background_53x56.png';
 fabric.Object.prototype.transparentCorners = false;
 
 var stateHistory;
+
+var editingFOW = false;
+var fowgroup;
 
 
 const UserProfileAttributes = {
@@ -211,6 +216,9 @@ class TransformCommand {
   }
 }
 
+window.addEventListener('DOMContentLoaded', event => {
+    init();
+});
 
 function init() {
     action=false;
@@ -227,7 +235,32 @@ function init() {
     initS3();
     console.log("Fetching current canvas state");
     loadCanvasState();
+    initFOW();
+    initFowCanvas();
     action=true;
+}
+
+function initFowCanvas() {
+    // create a rectangle object
+    var blackRect = new fabric.Rect({
+      left: 0,
+      top: 0,
+      fill: 'black',
+      width: canvas.getWidth(),
+      height: canvas.getHeight(),
+      selectable: false
+    });
+
+    fowgroup = new fabric.Group([blackRect], {
+      left: 0,
+      top: 0,
+      angle: 0,
+      selectable: false
+    });
+
+
+    // "add" rectangle onto canvas
+    canvas.add(fowgroup);
 }
 
 function sendChatMessage() {
@@ -238,12 +271,8 @@ function sendChatMessage() {
     document.getElementById("message").value = "";
 }
 
-window.addEventListener('DOMContentLoaded', event => {
-    init();
-});
-
 var updateCanvas = function (canvasState) {
-    canvas.loadFromJSON(JSON.parse(canvasState), function() {drawGrid(); action = true;});
+    canvas.loadFromJSON(JSON.parse(canvasState), function() {drawBackground(); drawGrid(); action = true;});
     canvas.renderAll();
 }
 
@@ -341,7 +370,7 @@ function drawBackground() {
 
 function drawGrid() {
     console.log('Drawing grid');
-    canvasEl = document.getElementById("canvas");
+    canvasEl = document.getElementById("playcanvas");
     bw = canvasEl.width;
     bh = canvasEl.height;
     var x = 0;
@@ -403,6 +432,12 @@ function popUpDragConfig() {
 
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
+  fogofwarEl = $('edit-fow'),
+  fogofwarHideEl = $('hidefow'),
+  fogofwarHideLbl = $('hidelbl'),
+  fogofwarRevealEl = $('revealfow'),
+  fogofwarRevealLbl = $('reveallbl'),
+
   drawingOptionsEl = $('drawing-mode-options'),
   drawingColorEl = $('drawing-color'),
   drawingShadowColorEl = $('drawing-shadow-color'),
@@ -423,155 +458,172 @@ charSheetButtonEl.onclick = function () {
     }
 }
 
+function initFOW() {
+    fogofwarEl.style.display = 'none';
+    fogofwarHideEl.style.display = 'none';
+    fogofwarHideLbl.style.display = 'none';
+    fogofwarRevealEl.style.display = 'none';
+    fogofwarRevealLbl.style.display = 'none';    
+}
+
+fogofwarEl.onclick = function() {
+    editingFOW = !editingFOW;
+    if(editingFOW) {
+        fogofwarEl.innerHTML = 'Map Mode';
+        fogofwarHideEl.style.display = '';
+        fogofwarHideLbl.style.display = '';
+        fogofwarRevealEl.style.display = '';
+        fogofwarRevealLbl.style.display = '';  
+    }
+    else {
+        fogofwarEl.innerHTML = 'Edit FOW';
+        fogofwarHideEl.style.display = 'none';
+        fogofwarHideLbl.style.display = 'none';
+        fogofwarRevealEl.style.display = 'none';
+        fogofwarRevealLbl.style.display = 'none';  
+    }
+}
+
 drawingModeEl.click();
 charSheetButtonEl.click();
 
 clearEl.onclick = function() { clearcan()};
 
+
 drawingModeEl.onclick = function() {
     canvas.isDrawingMode = !canvas.isDrawingMode;
     if (canvas.isDrawingMode) {
-      drawingModeEl.innerHTML = 'Cancel drawing mode';
-      drawingOptionsEl.style.display = '';
+        drawingModeEl.innerHTML = 'Cancel drawing mode';
+        drawingOptionsEl.style.display = '';
+        fogofwarEl.style.display = 'none';
+
     }
     else {
         drawingModeEl.innerHTML = 'Enter drawing mode';
         drawingOptionsEl.style.display = 'none';
-
-        clearEl.onclick = function() { clearcan()};
-
-        drawingModeEl.onclick = function() {
-            canvas.isDrawingMode = !canvas.isDrawingMode;
-            if (canvas.isDrawingMode) {
-              drawingModeEl.innerHTML = 'Cancel drawing mode';
-              drawingOptionsEl.style.display = '';
-            }
-            else {
-              drawingModeEl.innerHTML = 'Enter drawing mode';
-              drawingOptionsEl.style.display = 'none';
-            }
-        };
-
-        if (fabric.PatternBrush) {
-            var vLinePatternBrush = new fabric.PatternBrush(canvas);
-            vLinePatternBrush.getPatternSrc = function() {
-
-              var patternCanvas = fabric.document.createElement('canvas');
-              patternCanvas.width = patternCanvas.height = 10;
-              var ctx = patternCanvas.getContext('2d');
-
-              ctx.strokeStyle = this.color;
-              ctx.lineWidth = 5;
-              ctx.beginPath();
-              ctx.moveTo(0, 5);
-              ctx.lineTo(10, 5);
-              ctx.closePath();
-              ctx.stroke();
-
-              return patternCanvas;
-            };
-
-            var hLinePatternBrush = new fabric.PatternBrush(canvas);
-            hLinePatternBrush.getPatternSrc = function() {
-
-            var patternCanvas = fabric.document.createElement('canvas');
-            patternCanvas.width = patternCanvas.height = 10;
-            var ctx = patternCanvas.getContext('2d');
-
-            ctx.strokeStyle = this.color;
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            ctx.moveTo(5, 0);
-            ctx.lineTo(5, 10);
-            ctx.closePath();
-            ctx.stroke();
-
-            return patternCanvas;
-        };
-
-        var squarePatternBrush = new fabric.PatternBrush(canvas);
-        squarePatternBrush.getPatternSrc = function() {
-
-          var squareWidth = 10, squareDistance = 2;
-
-          var patternCanvas = fabric.document.createElement('canvas');
-          patternCanvas.width = patternCanvas.height = squareWidth + squareDistance;
-          var ctx = patternCanvas.getContext('2d');
-
-          ctx.fillStyle = this.color;
-          ctx.fillRect(0, 0, squareWidth, squareWidth);
-
-          return patternCanvas;
-        };
-
-        var diamondPatternBrush = new fabric.PatternBrush(canvas);
-        diamondPatternBrush.getPatternSrc = function() {
-
-            var squareWidth = 10, squareDistance = 5;
-            var patternCanvas = fabric.document.createElement('canvas');
-            var rect = new fabric.Rect({
-                width: squareWidth,
-                height: squareWidth,
-                angle: 45,
-                fill: this.color
-            });
-
-            var canvasWidth = rect.getBoundingRect().width;
-
-            patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
-            rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
-
-            var ctx = patternCanvas.getContext('2d');
-            rect.render(ctx);
-
-            return patternCanvas;
-        };
-
-        var img = new Image();
-        img.src = 'img/70x70-0000ffff.png';
-
-        var texturePatternBrush = new fabric.PatternBrush(canvas);
-        texturePatternBrush.source = img;
-        }
+        fogofwarEl.style.display = '';
     }
+};
+
+if (fabric.PatternBrush) {
+    var vLinePatternBrush = new fabric.PatternBrush(canvas);
+    vLinePatternBrush.getPatternSrc = function() {
+
+      var patternCanvas = fabric.document.createElement('playcanvas');
+      patternCanvas.width = patternCanvas.height = 10;
+      var ctx = patternCanvas.getContext('2d');
+
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(0, 5);
+      ctx.lineTo(10, 5);
+      ctx.closePath();
+      ctx.stroke();
+
+      return patternCanvas;
+    };
+
+    var hLinePatternBrush = new fabric.PatternBrush(canvas);
+        hLinePatternBrush.getPatternSrc = function() {
+
+        var patternCanvas = fabric.document.createElement('playcanvas');
+        patternCanvas.width = patternCanvas.height = 10;
+        var ctx = patternCanvas.getContext('2d');
+
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(5, 0);
+        ctx.lineTo(5, 10);
+        ctx.closePath();
+        ctx.stroke();
+
+        return patternCanvas;
+    };
+
+    var squarePatternBrush = new fabric.PatternBrush(canvas);
+    squarePatternBrush.getPatternSrc = function() {
+
+      var squareWidth = 10, squareDistance = 2;
+
+      var patternCanvas = fabric.document.createElement('playcanvas');
+      patternCanvas.width = patternCanvas.height = squareWidth + squareDistance;
+      var ctx = patternCanvas.getContext('2d');
+
+      ctx.fillStyle = this.color;
+      ctx.fillRect(0, 0, squareWidth, squareWidth);
+
+      return patternCanvas;
+    };
+
+    var diamondPatternBrush = new fabric.PatternBrush(canvas);
+    diamondPatternBrush.getPatternSrc = function() {
+
+        var squareWidth = 10, squareDistance = 5;
+        var patternCanvas = fabric.document.createElement('playcanvas');
+        var rect = new fabric.Rect({
+            width: squareWidth,
+            height: squareWidth,
+            angle: 45,
+            fill: this.color
+        });
+
+        var canvasWidth = rect.getBoundingRect().width;
+
+        patternCanvas.width = patternCanvas.height = canvasWidth + squareDistance;
+        rect.set({ left: canvasWidth / 2, top: canvasWidth / 2 });
+
+        var ctx = patternCanvas.getContext('2d');
+        rect.render(ctx);
+
+        return patternCanvas;
+    };
+
+    var img = new Image();
+    img.src = 'img/70x70-0000ffff.png';
+
+    var texturePatternBrush = new fabric.PatternBrush(canvas);
+    texturePatternBrush.source = img;
 }
+
 
 $('drawing-mode-selector').onchange = function() {
 
-if (this.value === 'hline') {
-  canvas.freeDrawingBrush = vLinePatternBrush;
-}
-else if (this.value === 'vline') {
-  canvas.freeDrawingBrush = hLinePatternBrush;
-}
-else if (this.value === 'square') {
-  canvas.freeDrawingBrush = squarePatternBrush;
-}
-else if (this.value === 'diamond') {
-  canvas.freeDrawingBrush = diamondPatternBrush;
-}
-else if (this.value === 'texture') {
-  canvas.freeDrawingBrush = texturePatternBrush;
-}
-else {
-  canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
-}
+    if (this.value === 'hline') {
+      canvas.freeDrawingBrush = vLinePatternBrush;
+    }
+    else if (this.value === 'vline') {
+      canvas.freeDrawingBrush = hLinePatternBrush;
+    }
+    else if (this.value === 'square') {
+      canvas.freeDrawingBrush = squarePatternBrush;
+    }
+    else if (this.value === 'diamond') {
+      canvas.freeDrawingBrush = diamondPatternBrush;
+    }
+    else if (this.value === 'texture') {
+      canvas.freeDrawingBrush = texturePatternBrush;
+    }
+    else {
+      canvas.freeDrawingBrush = new fabric[this.value + 'Brush'](canvas);
+    }
 
-if (canvas.freeDrawingBrush) {
-  var brush = canvas.freeDrawingBrush;
-  brush.color = drawingColorEl.value;
-  if (brush.getPatternSrc) {
-    brush.source = brush.getPatternSrc.call(brush);
-  }
-  brush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
-  brush.shadow = new fabric.Shadow({
-    blur: parseInt(drawingShadowWidth.value, 10) || 0,
-    offsetX: 0,
-    offsetY: 0,
-    affectStroke: true,
-    color: drawingShadowColorEl.value,
-  });
-}
+    if (canvas.freeDrawingBrush) {
+      var brush = canvas.freeDrawingBrush;
+      brush.color = drawingColorEl.value;
+      if (brush.getPatternSrc) {
+        brush.source = brush.getPatternSrc.call(brush);
+      }
+      brush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
+      brush.shadow = new fabric.Shadow({
+        blur: parseInt(drawingShadowWidth.value, 10) || 0,
+        offsetX: 0,
+        offsetY: 0,
+        affectStroke: true,
+        color: drawingShadowColorEl.value,
+      });
+    }
 };
 
 drawingColorEl.onchange = function() {
@@ -610,6 +662,7 @@ if (canvas.freeDrawingBrush) {
       color: drawingShadowColorEl.value,
     });
 }
+
 //Image Drag and Drop Functions
 
 function drop_handler(ev) {
@@ -688,7 +741,7 @@ function dragOverHandler(event) {
 }
 
 function getMousePos(canvas, evt) {
-  var rect = document.getElementById("canvas").getBoundingClientRect();
+  var rect = document.getElementById("playcanvas").getBoundingClientRect();
   return {
     x: evt.clientX - rect.left,
     y: evt.clientY - rect.top
@@ -772,6 +825,8 @@ canvas.on('mouse:wheel', function(opt) {
   opt.e.stopPropagation();
 });
 
+var fowrect, isDown, origX, origY;
+
 canvas.on('mouse:down', function(opt) {
   var evt = opt.e;
   if (evt.altKey === true) {
@@ -780,7 +835,37 @@ canvas.on('mouse:down', function(opt) {
     this.lastPosX = evt.clientX;
     this.lastPosY = evt.clientY;
   }
+  else if (editingFOW) {
+    action = false;
+    isDown = true;
+    var pointer = canvas.getPointer(opt.e);
+    origX = pointer.x;
+    origY = pointer.y;
+    var pointer = canvas.getPointer(opt.e);
+    fowrect = new fabric.Rect({
+        left: origX,
+        top: origY,
+        originX: 'left',
+        originY: 'top',
+        width: pointer.x-origX,
+        height: pointer.y-origY,
+        angle: 0,
+        fill: 'rgba(0,0,0,1)',
+        selectable: 'false',
+        transparentCorners: false
+    });
+    if(fogofwarRevealEl.checked) {
+        fowrect.globalCompositeOperation = 'destination-out';
+        fowrect.fill = 'rgba(0,0,0,1';
+    }
+    else {
+        fowrect.fill = 'rgba(0, 0, 0,1';
+    }
+
+    canvas.add(fowrect);
+  }
 });
+
 canvas.on('mouse:move', function(opt) {
   if (this.isDragging) {
     var e = opt.e;
@@ -791,13 +876,37 @@ canvas.on('mouse:move', function(opt) {
     this.lastPosX = e.clientX;
     this.lastPosY = e.clientY;
   }
+  else if (editingFOW) {
+    if (!isDown) return;
+    var pointer = canvas.getPointer(opt.e);
+
+    if(origX>pointer.x){
+        fowrect.set({ left: Math.abs(pointer.x) });
+    }
+    if(origY>pointer.y){
+        fowrect.set({ top: Math.abs(pointer.y) });
+    }
+
+    fowrect.set({ width: Math.abs(origX - pointer.x) });
+    fowrect.set({ height: Math.abs(origY - pointer.y) });
+
+
+    canvas.renderAll();
+  }
 });
+
 canvas.on('mouse:up', function(opt) {
   // on mouse up we want to recalculate new interaction
   // for all objects, so we call setViewportTransform
   this.setViewportTransform(this.viewportTransform);
   this.isDragging = false;
   this.selection = true;
+  isDown = false;
+  if(editingFOW) {
+    fowrect.clone(function(cloned) {fowgroup.addWithUpdate(cloned)});
+    canvas.remove(fowrect);
+    action = true;
+  }
 });
 
 function getUserProfile() {
