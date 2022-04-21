@@ -241,6 +241,8 @@ function init() {
 }
 
 function initFowCanvas() {
+
+    action=false;
     // create a rectangle object
     var blackRect = new fabric.Rect({
       left: 0,
@@ -248,19 +250,22 @@ function initFowCanvas() {
       fill: 'black',
       width: canvas.getWidth(),
       height: canvas.getHeight(),
-      selectable: false
+      selectable: false,
+      evented: false
     });
 
     fowgroup = new fabric.Group([blackRect], {
       left: 0,
       top: 0,
       angle: 0,
-      selectable: false
+      selectable: false,
+      excludeFromExport: true,
+      evented: false
     });
-
 
     // "add" rectangle onto canvas
     canvas.add(fowgroup);
+    action=true;
 }
 
 function sendChatMessage() {
@@ -437,6 +442,8 @@ var charSheetButtonEl = $('open-character-sheet'),
   fogofwarHideLbl = $('hidelbl'),
   fogofwarRevealEl = $('revealfow'),
   fogofwarRevealLbl = $('reveallbl'),
+  fogofwarRevealAllEl = $('revealall-fow'),
+  fogofwarHideAllEl = $('hideall-fow'),
 
   drawingOptionsEl = $('drawing-mode-options'),
   drawingColorEl = $('drawing-color'),
@@ -463,7 +470,9 @@ function initFOW() {
     fogofwarHideEl.style.display = 'none';
     fogofwarHideLbl.style.display = 'none';
     fogofwarRevealEl.style.display = 'none';
-    fogofwarRevealLbl.style.display = 'none';    
+    fogofwarRevealLbl.style.display = 'none';
+    fogofwarRevealAllEl.style.display = 'none';
+    fogofwarHideAllEl.style.display = 'none';
 }
 
 fogofwarEl.onclick = function() {
@@ -474,6 +483,9 @@ fogofwarEl.onclick = function() {
         fogofwarHideLbl.style.display = '';
         fogofwarRevealEl.style.display = '';
         fogofwarRevealLbl.style.display = '';  
+        fogofwarRevealAllEl.style.display = '';
+        fogofwarHideAllEl.style.display = '';
+        clearEl.style.display = 'none';
     }
     else {
         fogofwarEl.innerHTML = 'Edit FOW';
@@ -481,7 +493,27 @@ fogofwarEl.onclick = function() {
         fogofwarHideLbl.style.display = 'none';
         fogofwarRevealEl.style.display = 'none';
         fogofwarRevealLbl.style.display = 'none';  
+        fogofwarRevealAllEl.style.display = 'none';
+        fogofwarHideAllEl.style.display = 'none';
+        clearEl.style.display = '';
     }
+}
+
+fogofwarHideAllEl.onclick =function() {
+    console.log("Hiding all in fog of war")
+    for (let i = 0; i < fowgroup.size(); i++) {
+        fowgroup.removeWithUpdate(fowgroup.getObjects()[i]);
+    }
+    initFowCanvas();
+}
+
+fogofwarRevealAllEl.onclick = function() {
+    console.log("Clearing fog of war")
+    for (let i = 0; i < fowgroup.size(); i++) {
+        console.log(fowgroup.getObjects());
+        fowgroup.removeWithUpdate(fowgroup.getObjects()[i]);
+    }
+    canvas.renderAll();
 }
 
 drawingModeEl.click();
@@ -852,7 +884,8 @@ canvas.on('mouse:down', function(opt) {
         angle: 0,
         fill: 'rgba(0,0,0,1)',
         selectable: 'false',
-        transparentCorners: false
+        transparentCorners: false,
+        evented: false
     });
     if(fogofwarRevealEl.checked) {
         fowrect.globalCompositeOperation = 'destination-out';
@@ -910,7 +943,6 @@ canvas.on('mouse:up', function(opt) {
 });
 
 function getUserProfile() {
-
     var data = {
         UserPoolId: _config.cognito.userPoolId,
         ClientId: _config.cognito.userPoolClientId,
@@ -971,7 +1003,6 @@ function getUserProfile() {
         console.log(e);
         return;
     }
-
 }
 
 function loadCanvasState() {
@@ -1024,7 +1055,6 @@ function loadCharFromDB() {
             console.log("Success");
             console.log(data.Item);
             document.getElementById('serviceFrameSend').contentWindow.load_character_json(data.Item.character);
-data.Item
         }
     });
     }
