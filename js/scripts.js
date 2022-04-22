@@ -98,17 +98,17 @@ function initFowCanvas() {
 
     action=false;
     // create a rectangle object
-    var blackRect = new fabric.Rect({
-      left: 0,
-      top: 0,
-      fill: 'black',
-      width: canvas.getWidth(),
-      height: canvas.getHeight(),
-      selectable: false,
-      evented: false
-    });
+    // var blackRect = new fabric.Rect({
+    //   left: 0,
+    //   top: 0,
+    //   fill: 'black',
+    //   width: canvas.getWidth(),
+    //   height: canvas.getHeight(),
+    //   selectable: false,
+    //   evented: false
+    // });
 
-    fowgroup = new fabric.Group([blackRect], {
+    fowgroup = new fabric.Group([], {
       left: 0,
       top: 0,
       angle: 0,
@@ -713,7 +713,11 @@ canvas.on('mouse:wheel', function(opt) {
 var fowrect, isDown, origX, origY;
 
 canvas.on('mouse:down', function(opt) {
+  isDown = true;
   var evt = opt.e;
+  var pointer = canvas.getPointer(opt.e);
+  origX = pointer.x;
+  origY = pointer.y;
   if (evt.altKey === true) {
     this.isDragging = true;
     this.selection = false;
@@ -749,6 +753,14 @@ canvas.on('mouse:down', function(opt) {
     }
 
     canvas.add(fowrect);
+  }
+  else if (!canvas.isDrawingMode) {
+    setTimeout(function() {
+        if(isDown) {
+          console.log("Mouse held down, animating point");
+          animatePointer({x: origX, y: origY});
+        }
+    }, 500);
   }
 });
 
@@ -964,4 +976,57 @@ function initS3() {
         apiVersion: '2006-03-01',
         params: {Bucket: bucketName}
     });
+}
+
+function animatePointer(animatePoint) {
+    action = false;
+    pointX = animatePoint.x;
+    pointY = animatePoint.y;
+
+    console.log(pointX + " " + pointY);
+
+    rect1 = new fabric.Rect({
+      left: pointX-130,
+      top: pointY-5,
+      fill: 'red',
+      width: 30,
+      height: 10,
+      eventable: false
+    });
+    rect2 = new fabric.Rect({
+      left: pointX-5,
+      top: pointY-130,
+      fill: 'red',
+      width: 10,
+      height: 30,
+      eventable: false
+    });
+    rect3 = new fabric.Rect({
+      left: pointX+100,
+      top: pointY-5,
+      fill: 'red',
+      width: 30,
+      height: 10,
+      eventable: false
+    });
+    rect4 = new fabric.Rect({
+      left: pointX-5,
+      top: pointY+100,
+      fill: 'red',
+      width: 10,
+      height: 30,
+      eventable: false
+    });
+
+    canvas.add(rect1);
+    canvas.add(rect2);
+    canvas.add(rect3);
+    canvas.add(rect4);
+
+
+    rect1.animate('left', '+=100');
+    rect2.animate('top', '+=100');
+    rect3.animate('left', '-=100');
+    rect4.animate('top', '-=100', {onChange: canvas.renderAll.bind(canvas), onComplete: function() {canvas.remove(rect1);canvas.remove(rect2);canvas.remove(rect3);canvas.remove(rect4); action = true}});
+
 }
