@@ -16,7 +16,7 @@ function sendSocketMessage(type, username, contents) {
             console.log("Canvas update going out to socket");
             var msg = {
                 action: MessageType.CanvasUpdate,
-                data: contents
+                data : {'sender': username, 'contents': contents}
             };
             socket.send(JSON.stringify(msg));
             break;

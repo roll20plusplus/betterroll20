@@ -46,7 +46,6 @@ isDrawingMode: true
 });
 
 
-
 canvas.counter = 0;
 var newleft = 0;
 canvas.selection = false;
@@ -90,6 +89,8 @@ function init() {
     loadCanvasState();
     initFOW();
     initFowCanvas();
+    drawingModeEl.click();
+    charSheetButtonEl.click();
     action=true;
 }
 
@@ -118,7 +119,7 @@ function initFowCanvas() {
 
     // "add" rectangle onto canvas
     canvas.add(fowgroup);
-    console.log(JSON.stringify(fowgroup));
+    // console.log(JSON.stringify(fowgroup));
     action=true;
 }
 
@@ -131,14 +132,31 @@ function sendChatMessage() {
 }
 
 var updateCanvas = function (canvasState) {
-    canvas.loadFromJSON(JSON.parse(canvasState), function() {drawBackground(); drawGrid(); action = true;});
+    if (canvasState.messageID.S == 'fogofwar') {
+        fabric.util.enlivenObjects(JSON.parse(canvasState.contents.S), function(objects) {
+          var origRenderOnAddRemove = canvas.renderOnAddRemove;
+          canvas.renderOnAddRemove = false;
+          console.log(objects);
+          console.log("Adjusting FOW canvas");
+          for (let i = 0; i < fowgroup.size(); i++) {
+            fowgroup.remove(fowgroup.getObjects()[i]);
+          }
+          objects.forEach(function(o) {
+            fowgroup.add(o);
+          });
+          canvas.renderOnAddRemove = origRenderOnAddRemove;
+          canvas.renderAll();
+        });
+    }
+    else {
+        canvas.loadFromJSON(canvasState, function() {drawBackground(); drawGrid(); action = true;});
+    }
     canvas.renderAll();
 }
 
 function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
-    console.log(socketMessage);
-    //var msg = JSON.parse(socketMessage);
+    // console.log(socketMessage);
     var msg = JSON.parse(socketMessage['data']);
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
@@ -148,10 +166,10 @@ function receiveSocketMessage(socketMessage) {
         action = false;
         console.log("Got a canvas update message");
         // console.log(msg.data);
-       updateCanvas(msg.data);
+        updateCanvas(msg.data);
     }
     else if (msg.messageType == MessageType.ChatMessage) {
-        console.log(msg);
+        // console.log(msg);
         console.log("Got a chat message");
 
         msgContents = msg.data;
@@ -181,8 +199,6 @@ function receiveSocketMessage(socketMessage) {
     }
 }
 
-
-
 function sidebarToggleConfig() {
     // Toggle the side navigation
     const sidebarToggle = document.body.querySelector('#sidebarToggle');
@@ -198,7 +214,6 @@ function sidebarToggleConfig() {
         });
     }
 }
-
 
 function chatInputConfig() {
     // Get the input field
@@ -342,7 +357,7 @@ fogofwarEl.onclick = function() {
 fogofwarHideAllEl.onclick =function() {
     console.log("Hiding all in fog of war")
     for (let i = 0; i < fowgroup.size(); i++) {
-        fowgroup.removeWithUpdate(fowgroup.getObjects()[i]);
+        fowgroup.remove(fowgroup.getObjects()[i]);
     }
     initFowCanvas();
 }
@@ -351,13 +366,10 @@ fogofwarRevealAllEl.onclick = function() {
     console.log("Clearing fog of war")
     for (let i = 0; i < fowgroup.size(); i++) {
         console.log(fowgroup.getObjects());
-        fowgroup.removeWithUpdate(fowgroup.getObjects()[i]);
+        fowgroup.remove(fowgroup.getObjects()[i]);
     }
     canvas.renderAll();
 }
-
-drawingModeEl.click();
-charSheetButtonEl.click();
 
 clearEl.onclick = function() { clearcan()};
 
@@ -780,6 +792,7 @@ canvas.on('mouse:up', function(opt) {
     fowrect.clone(function(cloned) {fowgroup.addWithUpdate(cloned)});
     canvas.remove(fowrect);
     console.log(JSON.stringify(fowgroup));
+    sendSocketMessage(MessageType.CanvasUpdate, "fogofwar", JSON.stringify(fowgroup.getObjects()));
     action = true;
   }
 });
@@ -942,7 +955,6 @@ function onCharSheetMessage(event) {
         window[data.func].call(null, data.message);
     }
 }
-
 
 function initS3() {
 
