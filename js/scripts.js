@@ -863,9 +863,8 @@ function loadCanvasState() {
                         action = false;
                         console.log("Success");
                         console.log(data);
-                        console.log(data.Item);
                         console.log(data.Item.contents);
-                        console.log(JSON.parse(data.Item.contents));
+                        console.log(typeof(data.Item.contents));
                         console.log(JSON.parse(data.Item.contents)['contents']);
                         canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;});
                     }
