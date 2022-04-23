@@ -862,8 +862,8 @@ function loadCanvasState() {
                     } else {
                         action = false;
                         console.log("Success");
-                        console.log(data);
-                        console.log(JSON.parse(data.Item.contents).contents);
+                        console.log(data.Item.contents);
+                        console.log(JSON.parse(data.Item.contents));
                         canvas.loadFromJSON(JSON.parse(data.Item.contents).contents, function() {drawBackground(); action = true;});
                     }
                 });
