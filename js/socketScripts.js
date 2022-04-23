@@ -25,10 +25,9 @@ function sendSocketMessage(type, username, contents) {
             console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
             break;
         };
-    }
     var msg = {
         action: type,
-        data : {'sender': username, 'contents': contents};
+        data : {'sender': username, 'contents': contents}};
     console.log(msg);
     socket.send(JSON.stringify(msg));
 }
