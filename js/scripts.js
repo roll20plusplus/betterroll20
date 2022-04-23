@@ -862,7 +862,7 @@ function loadCanvasState() {
                         action = false;
                         console.log("Success");
                         console.log(data.Item);
-                        canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;}); 
+                        canvas.loadFromJSON(JSON.parse(data.Item.contents).contents, function() {drawBackground(); action = true;});
                     }
                 });
             }
