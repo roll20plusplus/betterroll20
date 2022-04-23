@@ -202,6 +202,7 @@ function getUserProfile() {
                 var userAttributes;
                 cognitoUser.getUserAttributes(function(err, result) {
                     if (err) {
+                        console.log("error getting user attributes");
                         alert(err.message || JSON.stringify(err));
                         return;
                     }
