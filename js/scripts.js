@@ -156,7 +156,7 @@ var updateCanvas = function (canvasState) {
 
 function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
-    // console.log(socketMessage);
+    console.log(socketMessage);
     var msg = JSON.parse(socketMessage['data']);
     if (typeof(msg) == 'string') {
         msg = JSON.parse(msg);
@@ -195,7 +195,7 @@ function receiveSocketMessage(socketMessage) {
        }
     }
     else if (msg.messageType == MessageType.BroadcastAction) {
-        console.log('Broadcasting action (likely a crosshair clickhold');
+        console.log('Broadcasting action (likely a crosshair clickhold: ' + msg.data.contents);
         animatePointer(msg.data.contents);
     }
     else {
@@ -762,7 +762,7 @@ canvas.on('mouse:down', function(opt) {
     setTimeout(function() {
         if(isDown) {
           console.log("Mouse held down, animating point");
-          animatePointer({x: origX, y: origY});
+          sendSocketMessage(MessageType.BroadcastAction, username, {x: origX, y: origY});
         }
     }, 500);
   }
@@ -983,7 +983,6 @@ function initS3() {
 }
 
 function animatePointer(animatePoint) {
-    sendSocketMessage(MessageType.BroadcastAction, username, animatePoint);
     action = false;
     pointX = animatePoint.x;
     pointY = animatePoint.y;
