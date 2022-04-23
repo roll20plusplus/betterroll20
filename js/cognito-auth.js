@@ -206,6 +206,7 @@ function getUserProfile() {
                         return;
                     }
                     userAttributes = result;
+                    console.log(userAttributes);
                 });
                 return userAttributes;
             return;

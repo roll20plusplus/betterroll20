@@ -815,6 +815,7 @@ canvas.on('mouse:up', function(opt) {
 
 
 function assignUserAttributes() {
+    console.log("Getting and assigning user attribute values")
     var userAttributes = getUserProfile();
     if (userAttributes == null) {
         console.log('Couldnt get user attributes');
