@@ -50,7 +50,7 @@ canvas.counter = 0;
 var newleft = 0;
 canvas.selection = false;
 
-var backgroundURL = 'img/background_53x56.png';
+var backgroundURL = 'img/map_15x14.png';
 
 fabric.Object.prototype.transparentCorners = false;
 
