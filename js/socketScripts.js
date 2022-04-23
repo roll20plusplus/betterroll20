@@ -28,7 +28,7 @@ function sendSocketMessage(type, username, contents) {
     }
     var msg = {
         action: type,
-        data : {'sender': username, 'contents': contents}
+        data : {'sender': username, 'contents': contents};
     console.log(msg);
     socket.send(JSON.stringify(msg));
 }
