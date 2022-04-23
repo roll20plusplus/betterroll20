@@ -83,7 +83,7 @@ function init() {
     sidebarToggleConfig();
     popUpDragConfig();
     chatInputConfig();
-    getUserProfile();
+    assignUserAttributes();
     initS3();
     console.log("Fetching current canvas state");
     loadCanvasState();
@@ -813,66 +813,31 @@ canvas.on('mouse:up', function(opt) {
   }
 });
 
-function getUserProfile() {
-    var data = {
-        UserPoolId: _config.cognito.userPoolId,
-        ClientId: _config.cognito.userPoolClientId,
-    };
-    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
-    var cognitoUser = userPool.getCurrentUser();
-    console.log('Loading Cognito User');
-    try {
-        if (cognitoUser != null) {
-            cognitoUser.getSession(function(err, session) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                console.log('session validity: ' + session.isValid());
-                console.log('session token: ' + session.getIdToken().getJwtToken());
-                sessionToken = session.getIdToken().getJwtToken();
 
-                AWS.config.region = _config.cognito.region;
-                //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
-                AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                    IdentityPoolId : _config.cognito.identityPoolId,
-                    Logins : {
-                      // Change the key below according to the specific region your user pool is in.
-                      'cognito-idp.us-west-1.amazonaws.com/us-west-1_bJ5HhIOsZ' : session.getIdToken().getJwtToken()
-                    }
-                });
-                cognitoUser.getUserAttributes(function(err, result) {
-                    if (err) {
-                        alert(err.message || JSON.stringify(err));
-                        return;
-                    }
-                    for (i = 0; i < result.length; i++) {
-                        switch(result[i].getName()) {
-                            case UserProfileAttributes.Email:
-                                userEmail = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.FullName:
-                                userFullName = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.UserName:
-                                username = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.Gender:
-                                userGender = result[i].getValue();
-                                break;
-                            case UserProfileAttributes.EmailVerified:
-                                userEmailVerified = result[i].getValue();
-                                break;
-                        }
-                    }
-                    console.log('Loggedin username = ' + username);
-                });
-            return;
-            });
-        } else {console.log("error loading credentials")}  
-    } catch (e) {
-        console.log(e);
+function assignUserAttributes() {
+    var userAttributes = getUserProfile();
+    if (userAttributes == null) {
+        console.log('Couldnt get user attributes');
         return;
+    }
+    for (i = 0; i < result.length; i++) {
+        switch(result[i].getName()) {
+            case UserProfileAttributes.Email:
+                userEmail = result[i].getValue();
+                break;
+            case UserProfileAttributes.FullName:
+                userFullName = result[i].getValue();
+                break;
+            case UserProfileAttributes.UserName:
+                username = result[i].getValue();
+                break;
+            case UserProfileAttributes.Gender:
+                userGender = result[i].getValue();
+                break;
+            case UserProfileAttributes.EmailVerified:
+                userEmailVerified = result[i].getValue();
+                break;
+        }
     }
 }
 
