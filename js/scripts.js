@@ -173,9 +173,9 @@ function receiveSocketMessage(socketMessage) {
         console.log("Got a chat message");
 
         msgContents = msg.data;
-       var chatMessageList = document.querySelector(".chatlist");
+        var chatMessageList = document.querySelector(".chatlist");
 
-       if(msgContents.diceroll.S != '') {
+        if(msgContents.diceroll.S != '') {
            var template = document.querySelector('#rollMessageTemplate');
            var clone = template.content.cloneNode(true);
            clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
@@ -184,7 +184,7 @@ function receiveSocketMessage(socketMessage) {
            clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
            chatMessageList.appendChild(clone);
            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-       }
+        }
        else {
            var template = document.querySelector('#chatMessageTemplate');
            var clone = template.content.cloneNode(true);
@@ -193,6 +193,10 @@ function receiveSocketMessage(socketMessage) {
            chatMessageList.appendChild(clone);
            // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
        }
+    }
+    else if (msg.messageType == MessageType.BroadcastAction) {
+        console.log('Broadcasting action (likely a crosshair clickhold');
+        animatePointer(msg.data.contents);
     }
     else {
         console.log("Encountered a problem retrieving a message from the websocket");
@@ -979,6 +983,7 @@ function initS3() {
 }
 
 function animatePointer(animatePoint) {
+    sendSocketMessage(MessageType.BroadcastAction, username, animatePoint);
     action = false;
     pointX = animatePoint.x;
     pointY = animatePoint.y;

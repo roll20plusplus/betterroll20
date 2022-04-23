@@ -2,6 +2,7 @@ const MessageType = {
     ChatMessage: "chatmessage",
     CharSheetRoll: "charsheetroll",
     CanvasUpdate:"canvasupdate",
+    BroadcastAction:"broadcastaction"
 }
 
 function initSocket() {
@@ -15,7 +16,7 @@ function sendSocketMessage(type, username, contents) {
         case MessageType.CanvasUpdate:
             console.log("Canvas update going out to socket");
             var msg = {
-                action: MessageType.CanvasUpdate,
+                action: type,
                 data : {'sender': username, 'contents': contents}
             };
             socket.send(JSON.stringify(msg));
@@ -23,11 +24,20 @@ function sendSocketMessage(type, username, contents) {
         case MessageType.ChatMessage:
             console.log("Sending a chat message to the socket");
             var msg = {
-                action : MessageType.ChatMessage,
+                action : type,
                 data : {'sender': username, 'contents': contents}
             };
             socket.send(JSON.stringify(msg));
             break;
+        case MessageType.BroadcastAction:
+            console.log("Broadcasting an action to other users");
+            var msg = {
+                action : type,
+                data : {'sender': username, 'contents': contents}
+            };
+            socket.send(JSON.stringify(msg));
+            break;
+
         default:
             console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
     }
