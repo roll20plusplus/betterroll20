@@ -248,7 +248,7 @@ function drawBackground() {
 
 function drawGrid() {
     console.log('Drawing grid');
-    canvasEl = document.getElementById("playcanvas");
+    canvasEl = document.getElementsByClassName("canvas-container")[0];
     bw = canvasEl.width;
     bh = canvasEl.height;
     var x = 0;
