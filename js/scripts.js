@@ -921,7 +921,7 @@ function saveSocketConnection() {
         if (!err) {
             var id = AWS.config.credentials.identityId;
             console.log('Cognito Identity ID '+ id);
-
+            console.log(socket.id);
             // Instantiate aws sdk service objects now that the credentials have been updated
             var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
             var params = {
