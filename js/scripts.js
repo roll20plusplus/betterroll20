@@ -78,7 +78,7 @@ function init() {
     stateHistory = new CommandHistory();
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.addEventListener('open', (event) => {
-        saveSocketConnection();
+        saveSocketConnection(socket);
         loadCanvasState();
     });
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
@@ -916,12 +916,12 @@ else if (window.attachEvent) {
     window.attachEvent("onmessage", onCharSheetMessage, false);
 }
 
-function saveSocketConnection() {
+function saveSocketConnection(openSocket) {
     AWS.config.credentials.get(function(err) {
         if (!err) {
             var id = AWS.config.credentials.identityId;
             console.log('Cognito Identity ID '+ id);
-            console.log(socket.id);
+            console.log(openSocket.id);
             // Instantiate aws sdk service objects now that the credentials have been updated
             var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
             var params = {
@@ -929,7 +929,7 @@ function saveSocketConnection() {
                 Key:{'userID': id},
                 UpdateExpression: 'set connectionID = :c',
                 ExpressionAttributeValues: {
-                    ':c' : socket.id
+                    ':c' : openSocket.id
                 }
             };
             docClient.update(params, function(err, data) {
