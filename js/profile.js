@@ -1,5 +1,5 @@
-var userAttributes = getUserProfile();
-console.log(userAttributes);
+//var userAttributes = getUserProfile();
+//console.log(userAttributes);
 
 const UserProfileAttributes = {
     Gender: "gender",
