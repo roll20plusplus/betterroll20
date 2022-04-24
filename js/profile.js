@@ -38,3 +38,7 @@ function initUserAttributes() {
         }
     });
 }
+
+window.addEventListener('DOMContentLoaded', event => {
+    initUserAttributes();
+});
