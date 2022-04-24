@@ -222,7 +222,7 @@ function getUserProfile(_callback) {
     }
 }
 
-function updateUserAttributes(attributeList) {
+async function updateUserAttributes(attributeList) {
     var poolData = {
         UserPoolId: _config.cognito.userPoolId,
         ClientId: _config.cognito.userPoolClientId
