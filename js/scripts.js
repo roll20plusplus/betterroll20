@@ -135,6 +135,7 @@ function sendChatMessage() {
 }
 
 var updateCanvas = function (canvasState) {
+    console.log(canvasState);
     if (canvasState.messageID.S == 'fogofwar') {
         fabric.util.enlivenObjects(JSON.parse(canvasState.contents.S), function(objects) {
           var origRenderOnAddRemove = canvas.renderOnAddRemove;
@@ -152,7 +153,7 @@ var updateCanvas = function (canvasState) {
         });
     }
     else {
-        canvas.loadFromJSON(canvasState, function() {drawBackground(); drawGrid(); action = true;});
+        canvas.loadFromJSON(canvasState.contents.S, function() {drawBackground(); drawGrid(); action = true;});
     }
     canvas.renderAll();
 }
