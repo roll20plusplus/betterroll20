@@ -201,7 +201,7 @@ function getUserProfile(_callback) {
                     }
                 });
                 var userAttributes;
-                cognitoUser.getUserAttributes(function(err, result) {
+                return cognitoUser.getUserAttributes(function(err, result) {
                     if (err) {
                         console.log("error getting user attributes");
                         alert(err.message || JSON.stringify(err));
@@ -210,9 +210,8 @@ function getUserProfile(_callback) {
                     userAttributes = result;
                     console.log(userAttributes);
                     _callback(userAttributes);
+                    return userAttributes;
                 });
-                console.log(userAttributes);
-                return userAttributes;
             return;
             });
         } else {console.log("error loading credentials")}
