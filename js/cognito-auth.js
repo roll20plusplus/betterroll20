@@ -210,7 +210,7 @@ function getUserProfile(_callback) {
                     console.log(userAttributes);
                 });
                 console.log(userAttributes);
-                _callback(result);
+                _callback(userAttributes);
                 return userAttributes;
             return;
             });
