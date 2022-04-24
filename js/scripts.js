@@ -863,11 +863,11 @@ function loadCanvasState() {
                     } else {
                         action = false;
                         console.log("Success");
-                        console.log(data);
                         console.log(data.Item.contents);
+                        console.log(JSON.parse(data.Item.contents));
                         console.log(typeof(data.Item.contents));
-                        console.log(canvas.toJSON());
-                        canvas.loadFromJSON(data.Item.contents, function() {drawBackground(); action = true;});
+//                        console.log(canvas.toJSON());
+                        canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;});
                     }
                 });
             }
