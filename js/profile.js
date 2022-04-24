@@ -32,6 +32,9 @@ function initUserAttributes() {
                     document.getElementById("gender").value = result[i].getValue();
                     break;
                 case UserProfileAttributes.EmailVerified:
+                    if (result[i].getValue() == false) {
+                        document.getElementById("emailverified").style.display = "none";
+                    }
 //                    userEmailVerified = result[i].getValue();
                     break;
             }
