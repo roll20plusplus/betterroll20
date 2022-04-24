@@ -74,25 +74,38 @@ window.addEventListener('DOMContentLoaded', event => {
 
 function init() {
     action=false;
-    console.log("Initializing the app");
+    console.log("Initialize command history object");
     stateHistory = new CommandHistory();
+    console.log("Initializing websocket connection");
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.addEventListener('open', (event) => {
+        console.log("Save the connectionID to Inara");
         saveSocketConnection(socket);
+        console.log("Loading current canvas state");
         loadCanvasState();
     });
+    console.log("Set receiveSocketMessage as callback for incoming socket messages");
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
+    console.log("Drawing background image");
     drawBackground();
+    console.log("Drawing Grid");
     drawGrid();
+    console.log("Initializing sidebar/draggable windows/chat input");
     sidebarToggleConfig();
     popUpDragConfig();
     chatInputConfig();
+    console.log("Pull and load user attributes from cognito");
     assignUserAttributes();
+    console.log("initS3");
     initS3();
-    console.log("Fetching current canvas state");
+//    console.log("Fetching current canvas state");
 //    loadCanvasState();
+//    console.log("Fetching current canvas state");
+    console.log("Initialize fog of war");
     initFOW();
     initFowCanvas();
+
+    // Lazy way of setting the character sheet and drawing mode elements
     drawingModeEl.click();
     charSheetButtonEl.click();
     action=true;
