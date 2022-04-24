@@ -866,7 +866,7 @@ function loadCanvasState() {
                         console.log(data);
                         console.log(data.Item.contents);
                         console.log(typeof(data.Item.contents));
-                        console.log(canvas.stringify());
+                        console.log(canvas.toJSON());
                         canvas.loadFromJSON(data.Item.contents, function() {drawBackground(); action = true;});
                     }
                 });
