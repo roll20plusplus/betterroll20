@@ -18,26 +18,7 @@ function initUserAttributes() {
             return;
         }
         for (i = 0; i < result.length; i++) {
-            switch(result[i].getName()) {
-                case UserProfileAttributes.Email:
-                    document.getElementById("email").value = result[i].getValue();
-                    break;
-                case UserProfileAttributes.FullName:
-                    document.getElementById("name").value = result[i].getValue();
-                    break;
-                case UserProfileAttributes.UserName:
-                    document.getElementById("username").value = result[i].getValue();
-                    break;
-                case UserProfileAttributes.Gender:
-                    document.getElementById("gender").value = result[i].getValue();
-                    break;
-                case UserProfileAttributes.EmailVerified:
-                    if (result[i].getValue() == true) {
-                        document.getElementById("emailverified").style.display = "none";
-                    }
-//                    userEmailVerified = result[i].getValue();
-                    break;
-            }
+            document.getElementById(result[i].getName()).value = result[i].getValue();
         }
     });
 }

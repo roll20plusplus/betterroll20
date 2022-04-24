@@ -257,6 +257,14 @@ function drawGrid() {
     bh = canvasEl.height;
     var x = 0;
     var y = 0;
+    var gridGroup = new fabric.Group([], {
+      left: 0,
+      top: 0,
+      angle: 0,
+      selectable: false,
+      excludeFromExport: true,
+      evented: false
+    });
     for (x = 0; x <= bw; x+= grid) {
         var newLine = new fabric.Line([x, 0, x, bh], {
           fill: 'black',
@@ -266,8 +274,7 @@ function drawGrid() {
           evented: false,
           excludeFromExport: true
         })
-        canvas.add(newLine);
-        canvas.sendToBack(newLine);
+        gridGroup.add(newLine);
     }
     for (y = 0; y <= bh; y+= grid) {
         var newLine = new fabric.Line([0, y, bw, y], {
@@ -278,9 +285,11 @@ function drawGrid() {
           evented: false,
           excludeFromExport: true
         })
-        canvas.add(newLine);
-        canvas.sendToBack(newLine);
+        gridGroup.add(newLine);
     }
+    canvas.add(gridGroup);
+    canvas.sendToBack(gridGroup);
+
 }
 
 function popUpDragConfig() {
