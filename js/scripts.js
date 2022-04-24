@@ -77,6 +77,9 @@ function init() {
     console.log("Initializing the app");
     stateHistory = new CommandHistory();
     socket = initSocket();
+    socket.addEventListener('open', (event) => {
+        loadCanvasState();
+    });
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     drawBackground();
     drawGrid();
@@ -86,7 +89,7 @@ function init() {
     assignUserAttributes();
     initS3();
     console.log("Fetching current canvas state");
-    loadCanvasState();
+//    loadCanvasState();
     initFOW();
     initFowCanvas();
     drawingModeEl.click();
@@ -845,37 +848,38 @@ function assignUserAttributes() {
 }
 
 function loadCanvasState() {
-    if (AWS.config.credentials != null) {
-        AWS.config.credentials.get(function(err) {
-            if (!err) {
-                var id = AWS.config.credentials.identityId;
-                console.log('Cognito Identity ID '+ id);
-
-                // Instantiate aws sdk service objects now that the credentials have been updated
-                var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
-                var params = {
-                TableName: 'Archive',
-                Key:{'messageID': 'Canvas', 'date': 'Current'}
-                };
-                docClient.get(params, function(err, data) {
-                    if (err) {
-                        console.log("Error", err);
-                    } else {
-                        action = false;
-                        console.log("Success");
-                        console.log(data.Item.contents);
-                        console.log(JSON.parse(data.Item.contents));
-                        console.log(typeof(data.Item.contents));
-//                        console.log(canvas.toJSON());
-                        canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;});
-                    }
-                });
-            }
-        });
-    }
-    else {
-        console.log('No credentials to load');
-    }
+//    if (AWS.config.credentials != null) {
+//        AWS.config.credentials.get(function(err) {
+//            if (!err) {
+//                var id = AWS.config.credentials.identityId;
+//                console.log('Cognito Identity ID '+ id);
+    sendSocketMessage(MessageType.CanvasUpdate, 'getcanvasstate', '');
+//
+//                // Instantiate aws sdk service objects now that the credentials have been updated
+//                var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+//                var params = {
+//                TableName: 'Archive',
+//                Key:{'messageID': 'Canvas', 'date': 'Current'}
+//                };
+//                docClient.get(params, function(err, data) {
+//                    if (err) {
+//                        console.log("Error", err);
+//                    } else {
+//                        action = false;
+//                        console.log("Success");
+//                        console.log(JSON.stringify({x: 1, y:2}));
+//                        console.log(JSON.parse(data.Item.contents));
+//                        console.log(typeof(data.Item.contents));
+////                        console.log(canvas.toJSON());
+//                        canvas.loadFromJSON(JSON.parse(data.Item.contents), function() {drawBackground(); action = true;});
+//                    }
+//                });
+////            }
+//        });
+//    }
+//    else {
+//        console.log('No credentials to load');
+//    }
 }
 
 function loadCharFromDB() {
