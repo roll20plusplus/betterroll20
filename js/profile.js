@@ -29,12 +29,14 @@ function initUserAttributes() {
 function sendUserAttributeUpdate() {
     var attributeList = [];
     for (const property in UserProfileAttributes) {
-        var attribute = {
-            Name : property,
-            Value : document.getElementById(property).value
-        };
-        attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
-        attributeList.push(attribute)
+        if(document.getElementById(property) != null) {
+            var attribute = {
+                Name : property,
+                Value : document.getElementById(property).value
+            };
+            attribute = new AmazonCognitoIdentity.CognitoUserAttribute(attribute);
+            attributeList.push(attribute)
+        }
     }
     updateUserAttributes(attributeList);
 }
