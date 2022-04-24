@@ -917,12 +917,20 @@ else if (window.attachEvent) {
 }
 
 function saveSocketConnection(openSocket) {
-    AWS.config.credentials.get(function(err) {
-        if (!err) {
-            var id = AWS.config.credentials.identityId;
-            sendSocketMessage(MessageType.InaraConnect, id, "");
-        }
-    });
+    if(AWS.config.credentials !=null) {
+        AWS.config.credentials.get(function(err) {
+            if (!err) {
+                var id = AWS.config.credentials.identityId;
+                sendSocketMessage(MessageType.InaraConnect, id, "");
+            }
+            else {
+                console.log("Could not save socket connection, error retrieving cognito credentials");
+            }
+        });
+    }
+    else {
+        console.log("Not saving connection ID, no AWS credentials");
+    }
 }
 //            console.log('Cognito Identity ID '+ id);
 //            console.log(openSocket);

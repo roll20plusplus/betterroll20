@@ -13,34 +13,39 @@ function initSocket() {
 }
 
 function sendSocketMessage(type, username, contents) {
+    var msg;
     switch (type) {
         case MessageType.CanvasUpdate:
-            var msg = {
+            msg = {
                 action: type,
                 data : {'sender': username, 'contents': contents}};
-            console.log(msg);
-            socket.send(JSON.stringify(msg));
             console.log("Canvas update going out to socket");
+            break;
         case MessageType.ChatMessage:
-            var msg = {
+            msg = {
                 action: type,
                 data : {'sender': username, 'contents': contents}};
-            console.log(msg);
-            socket.send(JSON.stringify(msg));
             console.log("Sending a chat message to the socket");
             break;
         case MessageType.BroadcastAction:
-            var msg = {
+            msg = {
                 action: type,
                 data : {'sender': username, 'contents': contents}};
-            console.log(msg);
-            socket.send(JSON.stringify(msg));
+            console.log("Broadcasting an action to other users");
+            break;
+        case MessageType.InaraConnect:
+            msg = {
+                action: type,
+                data : {'sender': username, 'contents': contents}};
             console.log("Broadcasting an action to other users");
             break;
         default:
-            console.log("Tried to send a message that was neither a Canvas Update or a Chat Message: " + type);
-            break;
-        };
+            console.log("No case statement in sendsocketmessage to handle this message: " + type);
+            return;
+        console.log(msg);
+    };
+    socket.send(JSON.stringify(msg));
+
 }
 
 
