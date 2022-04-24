@@ -76,7 +76,7 @@ function init() {
     action=false;
     console.log("Initializing the app");
     stateHistory = new CommandHistory();
-    socket = initSocket();
+    socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.addEventListener('open', (event) => {
         saveSocketConnection();
         loadCanvasState();
