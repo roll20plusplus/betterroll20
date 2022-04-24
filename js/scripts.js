@@ -816,31 +816,32 @@ canvas.on('mouse:up', function(opt) {
 
 function assignUserAttributes() {
     console.log("Getting and assigning user attribute values")
-    var result = getUserProfile();
-    console.log(result);
-    if (result == null) {
-        console.log('Couldnt get user attributes');
-        return;
-    }
-    for (i = 0; i < result.length; i++) {
-        switch(result[i].getName()) {
-            case UserProfileAttributes.Email:
-                userEmail = result[i].getValue();
-                break;
-            case UserProfileAttributes.FullName:
-                userFullName = result[i].getValue();
-                break;
-            case UserProfileAttributes.UserName:
-                username = result[i].getValue();
-                break;
-            case UserProfileAttributes.Gender:
-                userGender = result[i].getValue();
-                break;
-            case UserProfileAttributes.EmailVerified:
-                userEmailVerified = result[i].getValue();
-                break;
+    getUserProfile(function(result) {
+        console.log(result);
+        if (result == null) {
+            console.log('Couldnt get user attributes');
+            return;
         }
-    }
+        for (i = 0; i < result.length; i++) {
+            switch(result[i].getName()) {
+                case UserProfileAttributes.Email:
+                    userEmail = result[i].getValue();
+                    break;
+                case UserProfileAttributes.FullName:
+                    userFullName = result[i].getValue();
+                    break;
+                case UserProfileAttributes.UserName:
+                    username = result[i].getValue();
+                    break;
+                case UserProfileAttributes.Gender:
+                    userGender = result[i].getValue();
+                    break;
+                case UserProfileAttributes.EmailVerified:
+                    userEmailVerified = result[i].getValue();
+                    break;
+            }
+        }
+    });
 }
 
 function loadCanvasState() {

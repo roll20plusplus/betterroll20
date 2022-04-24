@@ -171,7 +171,7 @@ var WildRydes = window.WildRydes || {};
     }
 }(jQuery));
 
-function getUserProfile() {
+function getUserProfile(_callback) {
     var data = {
         UserPoolId: _config.cognito.userPoolId,
         ClientId: _config.cognito.userPoolClientId,
@@ -209,6 +209,8 @@ function getUserProfile() {
                     userAttributes = result;
                     console.log(userAttributes);
                 });
+                console.log(userAttributes);
+                _callback(result);
                 return userAttributes;
             return;
             });
