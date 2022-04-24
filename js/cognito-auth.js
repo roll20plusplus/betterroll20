@@ -208,9 +208,9 @@ function getUserProfile(_callback) {
                     }
                     userAttributes = result;
                     console.log(userAttributes);
+                    _callback(userAttributes);
                 });
                 console.log(userAttributes);
-                _callback(userAttributes);
                 return userAttributes;
             return;
             });
