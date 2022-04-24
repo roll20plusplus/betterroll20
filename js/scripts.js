@@ -922,7 +922,7 @@ function saveSocketConnection(openSocket) {
             var id = AWS.config.credentials.identityId;
             sendSocketMessage(MessageType.InaraConnect, id, "");
         }
-    }
+    });
 }
 //            console.log('Cognito Identity ID '+ id);
 //            console.log(openSocket);
