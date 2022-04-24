@@ -900,7 +900,7 @@ function saveSocketConnection() {
             Key:{'userID': id},
             UpdateExpression: 'set connectionID = :c',
             ExpressionAttributeValues: {
-                ':c' : socket.id;
+                ':c' : socket.id
             }
           };
         docClient.update(params, function(err, data) {

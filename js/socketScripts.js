@@ -8,8 +8,6 @@ const MessageType = {
 
 function initSocket() {
     var socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
-    socket.on('connection', function() {
-    })
     // socket.onmessage = function(evt) {receiveSocketMessage(evt);};
     return socket;
 }
