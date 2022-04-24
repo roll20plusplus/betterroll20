@@ -64,13 +64,9 @@
                   <label class="form-label">E-mail</label>
                   <input id="email" type="text" class="form-control mb-1" value="nmaxwell@mail.com">
                   <div id="emailverified" class="alert alert-warning mt-3">
-                    Your email is not confirmed. Please check your inbox.<br>
+                    Your email is not confirmed. Talk to Ryan to reset it<br>
                     <a href="javascript:void(0)">Resend confirmation</a>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Company</label>
-                  <input type="text" class="form-control" value="Company Ltd.">
                 </div>
               </div>
 
@@ -263,7 +259,7 @@
     </div>
 
     <div class="text-right mt-3">
-      <button type="button" class="btn btn-primary">Save changes</button>&nbsp;
+      <button type="button" class="btn btn-primary" onclick="sendUserAttributeUpdate()">Save changes</button>&nbsp;
       <button type="button" class="btn btn-default">Cancel</button>
     </div>
 

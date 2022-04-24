@@ -169,6 +169,17 @@ var WildRydes = window.WildRydes || {};
             }
         );
     }
+
+    function updateUserAttributes(attributeList) {
+        userPool.getCurrentUser().updateAttributes(attributeList, function(errm, result) {
+            if (err) {
+                alert(err.message || JSON.stringify(err));
+                return;
+            }
+            console.log('call result: ' + result);
+        });
+    }
+
 }(jQuery));
 
 function getUserProfile(_callback) {
@@ -220,3 +231,4 @@ function getUserProfile(_callback) {
         return;
     }
 }
+
