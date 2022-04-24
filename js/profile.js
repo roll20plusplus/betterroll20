@@ -5,7 +5,7 @@ const UserProfileAttributes = {
     Gender: "gender",
     UserName: "preferred_username",
     Email: "email",
-    EmailVerified: "email_verified",
+    //EmailVerified: "email_verified",
     FullName: "name"
 }
 
