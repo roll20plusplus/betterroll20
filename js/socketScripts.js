@@ -19,7 +19,12 @@ function sendSocketMessage(type, username, contents) {
             msg = {
                 action: type,
                 data : {'sender': username, 'contents': contents}};
-            console.log("Canvas update going out to socket");
+            if(username == 'getcanvasstate' && contents ==''){
+                console.log('Getting the current canvas state by sending blank update');
+            }
+            else {
+                console.log("Canvas update going out to socket");
+            }
             break;
         case MessageType.ChatMessage:
             msg = {
