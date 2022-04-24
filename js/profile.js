@@ -20,16 +20,16 @@ function initUserAttributes() {
         for (i = 0; i < result.length; i++) {
             switch(result[i].getName()) {
                 case UserProfileAttributes.Email:
-                    document.getElementByID("email").value = result[i].getValue();
+                    document.getElementById("email").value = result[i].getValue();
                     break;
                 case UserProfileAttributes.FullName:
-                    document.getElementByID("name").value = result[i].getValue();
+                    document.getElementById("name").value = result[i].getValue();
                     break;
                 case UserProfileAttributes.UserName:
-                    document.getElementByID("username").value = result[i].getValue();
+                    document.getElementById("username").value = result[i].getValue();
                     break;
                 case UserProfileAttributes.Gender:
-                    document.getElementByID("gender").value = result[i].getValue();
+                    document.getElementById("gender").value = result[i].getValue();
                     break;
                 case UserProfileAttributes.EmailVerified:
 //                    userEmailVerified = result[i].getValue();
