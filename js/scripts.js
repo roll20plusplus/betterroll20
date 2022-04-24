@@ -78,6 +78,7 @@ function init() {
     stateHistory = new CommandHistory();
     socket = initSocket();
     socket.addEventListener('open', (event) => {
+        saveSocketConnection();
         loadCanvasState();
     });
     socket.onmessage = function(evt) {receiveSocketMessage(evt);};
@@ -882,6 +883,35 @@ function loadCharFromDB() {
             document.getElementById('serviceFrameSend').contentWindow.load_character_json(data.Item.character);
         }
     });
+    }
+  });
+}
+
+function saveSocketConnection() {
+    AWS.config.credentials.get(function(err) {
+        if (!err) {
+          var id = AWS.config.credentials.identityId;
+          console.log('Cognito Identity ID '+ id);
+
+          // Instantiate aws sdk service objects now that the credentials have been updated
+          var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
+          var params = {
+            TableName: 'Inara',
+            Key:{'userID': id},
+            UpdateExpression: 'set connectionID = :c',
+            ExpressionAttributeValues: {
+                ':c' : socket.id;
+            }
+          };
+        docClient.update(params, function(err, data) {
+            if (err) {
+                console.log("Error", err);
+            } else {
+                console.log("Success");
+                console.log(data.Item);
+                document.getElementById('serviceFrameSend').contentWindow.load_character_json(data.Item.character);
+            }
+        });
     }
   });
 }
