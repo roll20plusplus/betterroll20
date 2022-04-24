@@ -232,7 +232,7 @@ function updateUserAttributes(attributeList) {
 
     userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-    userPool.getCurrentUser().updateAttributes(attributeList, function(errm, result) {
+    userPool.getCurrentUser().updateAttributes(attributeList, function(err, result) {
         if (err) {
             alert(err.message || JSON.stringify(err));
             return;
