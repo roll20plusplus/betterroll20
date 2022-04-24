@@ -19,7 +19,7 @@ function initUserAttributes() {
         }
         for (i = 0; i < result.length; i++) {
             console.log(result[i].getName());
-            if(document.getElementById(result[i].getName()) != null) {}
+            if(document.getElementById(result[i].getName()) != null) {
                 document.getElementById(result[i].getName()).value = result[i].getValue();
             }
         }
