@@ -945,33 +945,6 @@ function saveSocketConnection(openSocket) {
         console.log("Not saving connection ID, no AWS credentials");
     }
 }
-//            console.log('Cognito Identity ID '+ id);
-//            console.log(openSocket);
-//            // Instantiate aws sdk service objects now that the credentials have been updated
-//            var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
-//            var params = {
-//                TableName: 'Inara',
-//                Key:{'userID': id},
-//                UpdateExpression: 'set connectionID = :c',
-//                ExpressionAttributeValues: {
-//                    ':c' : openSocket.id
-//                }
-//            };
-//            docClient.update(params, function(err, data) {
-//                if (err) {
-//                    console.log("Error", err);
-//                } else {
-//                    console.log("Success");
-//                    console.log(data.Item);
-//                    document.getElementById('serviceFrameSend').contentWindow.load_character_json(data.Item.character);
-//                }
-//            });
-//        }
-//        else {
-//            console.log("Error loading AWS credentials");
-//        }
-//    });
-//}
 
 function onCharSheetMessage(event) {
     // Check sender origin to be trusted
