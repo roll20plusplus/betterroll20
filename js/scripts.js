@@ -8,6 +8,7 @@
 // Scripts
 //
 
+
 var socket;
 
 var current;
@@ -46,7 +47,7 @@ isDrawingMode: true
 });
 
 
-canvas.counter = 0;
+// canvas.counter = 0;
 var newleft = 0;
 canvas.selection = false;
 
@@ -59,6 +60,25 @@ var stateHistory;
 var editingFOW = false;
 var fowgroup;
 
+var charSheetButtonEl = $('open-character-sheet'),
+  drawingModeEl = $('drawing-mode'),
+  fogofwarMenuEl = $('fowmenu'),
+  fogofwarOptionsEl = $('fowoptions'),
+  fogofwarEl = $('edit-fow'),
+  fogofwarHideEl = $('hidefow'),
+  fogofwarHideLbl = $('hidelbl'),
+  fogofwarRevealEl = $('revealfow'),
+  fogofwarRevealLbl = $('reveallbl'),
+  fogofwarRevealAllEl = $('revealall-fow'),
+  fogofwarHideAllEl = $('hideall-fow'),
+
+  drawingOptionsEl = $('drawing-mode-options'),
+  drawingColorEl = $('drawing-color'),
+  drawingShadowColorEl = $('drawing-shadow-color'),
+  drawingLineWidthEl = $('drawing-line-width'),
+  drawingShadowWidth = $('drawing-shadow-width'),
+  drawingShadowOffset = $('drawing-shadow-offset'),
+  clearEl = $('clear-canvas');
 
 const UserProfileAttributes = {
     Gender: "gender",
@@ -68,14 +88,23 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
+/**
+ * Initialize app after page is loaded
+ */
+
 window.addEventListener('DOMContentLoaded', event => {
     init();
 });
 
+/**
+ * Initialization function. At the end of init(), the app should have the most 
+ * up to date canvas loaded, websocket connected, personal profile data loaded
+ * and the page should be in its default state
+ * 
+ */
+
 function init() {
     action=false;
-    console.log("Initialize command history object");
-    stateHistory = new CommandHistory();
     console.log("Initializing websocket connection");
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.addEventListener('open', (event) => {
@@ -94,15 +123,14 @@ function init() {
     sidebarToggleConfig();
     popUpDragConfig();
     chatInputConfig();
+    console.log("Initialize command history object");
+    stateHistory = new CommandHistory();
     console.log("Pull and load user attributes from cognito");
     assignUserAttributes();
     console.log("initS3");
     initS3();
-//    console.log("Fetching current canvas state");
-//    loadCanvasState();
-//    console.log("Fetching current canvas state");
     console.log("Initialize fog of war");
-    initFOW();
+    initFOW(false);
     initFowCanvas();
 
     // Lazy way of setting the character sheet and drawing mode elements
@@ -111,34 +139,52 @@ function init() {
     action=true;
 }
 
-function initFowCanvas() {
+/**
+ * Saves the connectionID to the Inara user item. Only called after the
+ * socket is initialized and open
+ * 
+ */
 
-    action=false;
-    // create a rectangle object
-    // var blackRect = new fabric.Rect({
-    //   left: 0,
-    //   top: 0,
-    //   fill: 'black',
-    //   width: canvas.getWidth(),
-    //   height: canvas.getHeight(),
-    //   selectable: false,
-    //   evented: false
-    // });
-
-    fowgroup = new fabric.Group([], {
-      left: 0,
-      top: 0,
-      angle: 0,
-      selectable: false,
-      excludeFromExport: true,
-      evented: false
-    });
-
-    // "add" rectangle onto canvas
-    canvas.add(fowgroup);
-    // console.log(JSON.stringify(fowgroup));
-    action=true;
+function saveSocketConnection() {
+    if(socket.readyState != 1) {
+        if(AWS.config.credentials !=null) {
+            AWS.config.credentials.get(function(err) {
+                if (!err) {
+                    var id = AWS.config.credentials.identityId;
+                    sendSocketMessage(MessageType.InaraConnect, id, "");
+                }
+                else {
+                    console.log("Could not save socket connection, error retrieving cognito credentials");
+                }
+            });
+        }
+        else {
+            console.log("Not saving connection ID, no AWS credentials");
+        }
+    }
+    else {
+        console.log("Tried to save connectionID to Inara, but the socket wasn't open")
+    }
 }
+
+
+/**
+ * Kind of a hacky solution, gets the canvas state by sending a blank update
+ * to the dynamodb canvas object to trigger a canvas update broadcast.
+ * 
+ * In the future, this should either be a REST call or a separate function
+ * altogether.
+ */
+function loadCanvasState() {
+    sendSocketMessage(MessageType.CanvasUpdate, 'getcanvasstate', '');
+}
+
+
+/**
+ * Called when the submit or enter button are hit when using the chat window.
+ * Gets the value of the message box and brodcasts it to the websocket.
+ * 
+ */
 
 function sendChatMessage() {
     //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
@@ -148,123 +194,91 @@ function sendChatMessage() {
     document.getElementById("message").value = "";
 }
 
-var updateCanvas = function (canvasState) {
-    console.log(canvasState);
-    if (canvasState.messageID.S == 'fogofwar') {
-        fabric.util.enlivenObjects(JSON.parse(canvasState.contents.S), function(objects) {
-          var origRenderOnAddRemove = canvas.renderOnAddRemove;
-          canvas.renderOnAddRemove = false;
-          console.log(objects);
-          console.log("Adjusting FOW canvas");
-          for (let i = 0; i < fowgroup.size(); i++) {
-            fowgroup.remove(fowgroup.getObjects()[i]);
-          }
-          objects.forEach(function(o) {
-            fowgroup.add(o);
-          });
-          canvas.renderOnAddRemove = origRenderOnAddRemove;
-          canvas.renderAll();
-        });
-    }
-    else {
-        canvas.loadFromJSON(canvasState.contents.S, function() {drawBackground(); drawGrid(); action = true;});
-    }
-    canvas.renderAll();
-}
+/**
+ * Incoming websocket message handler. Disammbiguates the messagetype
+ * and takes an action based on it
+ * 
+ * @param  {String} socketMessage The message arriving directly from the
+ *                                websocket.
+ */
 
 function receiveSocketMessage(socketMessage) {
     console.log("Receiving a message from the websocket");
     console.log(socketMessage);
+
+    // msg.data is the JSON payload of the websocket message. 
     var msg = JSON.parse(socketMessage['data']);
-    if (typeof(msg) == 'string') {
-        msg = JSON.parse(msg);
-    }
+    // console.log(msg.data);
 
-    if(msg.messageType == MessageType.CanvasUpdate) {
-        action = false;
-        console.log("Got a canvas update message");
-        // console.log(msg.data);
-        updateCanvas(msg.data);
-    }
-    else if (msg.messageType == MessageType.ChatMessage) {
-        // console.log(msg);
-        console.log("Got a chat message");
+    // Keep this comment here, sometimes the JSON.parse function behaves oddly
+    // if (typeof(msg) == 'string') {
+    //     msg = JSON.parse(msg);
+    // }
 
-        msgContents = msg.data;
-        var chatMessageList = document.querySelector(".chatlist");
+    msgtype = msg.messageType;
+    switch(msgtype) {
+        //Canvas updates contain the entire canvas as a json payload
+        case MessageType.CanvasUpdate:
+            action = false;
+            console.log("Got a canvas update message");
+            updateCanvas(msg.data);
+            break;
+        //Chat messages are either rolls or whispers
+        case MessageType.ChatMessage:
+            console.log("Got a chat message");
 
-        if(msgContents.diceroll.S != '') {
-           var template = document.querySelector('#rollMessageTemplate');
-           var clone = template.content.cloneNode(true);
-           clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
-           clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
-           clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
-           clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
-           chatMessageList.appendChild(clone);
-           // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-        }
-       else {
-           var template = document.querySelector('#chatMessageTemplate');
-           var clone = template.content.cloneNode(true);
-           clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
-           clone.querySelector('.messageContents').textContent = msgContents.contents.S;
-           chatMessageList.appendChild(clone);
-           // chatMessageList.insertBefore(clone, chatMessageList.firstChild);
-       }
-    }
-    else if (msg.messageType == MessageType.BroadcastAction) {
-        console.log('Broadcasting action (likely a crosshair clickhold: ' + msg.data.contents);
-        animatePointer(msg.data.contents);
-    }
-    else {
-        console.log("Encountered a problem retrieving a message from the websocket");
-    }
-}
+            msgContents = msg.data;
+            var chatMessageList = document.querySelector(".chatlist");
 
-function sidebarToggleConfig() {
-    // Toggle the side navigation
-    const sidebarToggle = document.body.querySelector('#sidebarToggle');
-    if (sidebarToggle) {
-        // Uncomment Below to persist sidebar toggle between refreshes
-        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        //     document.body.classList.toggle('sb-sidenav-toggled');
-        // }
-        sidebarToggle.addEventListener('click', event => {
-            event.preventDefault();
-            document.body.classList.toggle('sb-sidenav-toggled');
-            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-        });
+            // Messages with rolls need to be parsed into the rollMessageTemplate
+            if(msgContents.diceroll.S != '') {
+               var template = document.querySelector('#rollMessageTemplate');
+               var clone = template.content.cloneNode(true);
+               clone.querySelector('.messageSender').textContent = msgContents.sender.S + ':';
+               clone.querySelector('.rollAttribute').textContent = msgContents.rollAttribute.S+ ':';
+               clone.querySelector('.diceRoll').textContent = msgContents.contents.S;
+               clone.querySelector('.diceResult').textContent = msgContents.diceroll.S;
+               chatMessageList.appendChild(clone);
+            }
+            // Non-roll messages should just be parsed as chat messages
+            else {
+               var template = document.querySelector('#chatMessageTemplate');
+               var clone = template.content.cloneNode(true);
+               clone.querySelector('.messageSender').textContent = msgContents.sender.S+ ':';
+               clone.querySelector('.messageContents').textContent = msgContents.contents.S;
+               chatMessageList.appendChild(clone);
+           }
+           break;
+        // Broadcast actions are currently just pointer animations, expect this to grow
+        case MessageType.BroadcastAction:
+            console.log('Broadcasting action (likely a crosshair clickhold: ' + msg.data.contents);
+            animatePointer(msg.data.contents);
+        // 
+        default:
+            console.log("MessageType not found in enumeration");
     }
 }
 
-function chatInputConfig() {
-    // Get the input field
-    var messageinput = document.getElementById("message");
-
-    // Execute a function when the user releases a key on the keyboard
-    messageinput.addEventListener("keyup", function(event) {
-      // Number 13 is the "Enter" key on the keyboard
-      if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("messagebutton").click();
-      }
-    });
-
-    var _chatMessageList = document.querySelector(".chatlist");
-    var _template = document.querySelector('#chatMessageTemplate');
-    var _clone = _template.content.cloneNode(true);
-    _clone.querySelector('.messageSender').textContent = 'Tom from Myspace:';
-    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
-    _chatMessageList.appendChild(_clone);
-}
+/**
+ * Kind of useless function that just handles setting the canvas background
+ * Change the backgroundURL global variable to change the background.
+ * 
+ * @todo In the future this should probably be fetched from the database
+ * 
+ */
 
 function drawBackground() {
     canvas.setBackgroundImage(backgroundURL, canvas.renderAll.bind(canvas));
 }
 
-function drawGrid() {
+/**
+ * Draws the grid over the battlemap
+ * 
+ * @param  {String} socketMessage The message arriving directly from the
+ *                                websocket.
+ */
+
+function drawGrid(grid = 70) {
     console.log('Drawing grid');
     canvasEl = document.getElementsByClassName("canvas-container")[0];
     bw = canvasEl.width;
@@ -303,8 +317,71 @@ function drawGrid() {
     }
     canvas.add(gridGroup);
     canvas.sendToBack(gridGroup);
-
 }
+
+/**
+ * Loads the canvas retrieved from the websocket. 
+ * 
+ * @param  {CanvasJSON} canvasState CanvasState JSON object retrieved after a 
+ *                                              canvas update
+ */
+
+var updateCanvas = function (canvasState) {
+    console.log(canvasState);
+
+    // Check if the canvas update was for the Fog of War canvas
+    if (canvasState.messageID.S == 'fogofwar') {
+        fabric.util.enlivenObjects(JSON.parse(canvasState.contents.S), function(objects) {
+          //Save the current renderonaddremove property to restore it later
+          var origRenderOnAddRemove = canvas.renderOnAddRemove;
+          canvas.renderOnAddRemove = false;
+          console.log("Adjusting FOW canvas");
+          console.log(objects);
+          //Remove everything 
+          for (let i = 0; i < fowgroup.size(); i++) {
+            fowgroup.remove(fowgroup.getObjects()[i]);
+          }
+          objects.forEach(function(o) {
+            fowgroup.add(o);
+          });
+          canvas.renderOnAddRemove = origRenderOnAddRemove;
+          canvas.renderAll();
+        });
+    }
+    // If its not for the Fog of War, just load the contents and then draw the background and grid
+    else {
+        canvas.loadFromJSON(canvasState.contents.S, function() {drawBackground(); drawGrid(); action = true;});
+    }
+    canvas.renderAll();
+}
+
+
+/**
+ * Configures the toggle-able sidebar to the left of the page
+ * 
+ */
+
+function sidebarToggleConfig() {
+    // Toggle the side navigation
+    const sidebarToggle = document.body.querySelector('#sidebarToggle');
+    if (sidebarToggle) {
+        // Uncomment Below to persist sidebar toggle between refreshes
+        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+        //     document.body.classList.toggle('sb-sidenav-toggled');
+        // }
+        sidebarToggle.addEventListener('click', event => {
+            event.preventDefault();
+            document.body.classList.toggle('sb-sidenav-toggled');
+            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+        });
+    }
+}
+
+/**
+ * Function that makes allows the user to draw the character sheet window
+ * Potentially useful for other things down the line similarly
+ * 
+ */
 
 function popUpDragConfig() {
     document.onkeyup = KeyPress;
@@ -335,25 +412,41 @@ function popUpDragConfig() {
     });
 }
 
-var charSheetButtonEl = $('open-character-sheet'),
-  drawingModeEl = $('drawing-mode'),
-  fogofwarMenuEl = $('fowmenu'),
-  fogofwarOptionsEl = $('fowoptions'),
-  fogofwarEl = $('edit-fow'),
-  fogofwarHideEl = $('hidefow'),
-  fogofwarHideLbl = $('hidelbl'),
-  fogofwarRevealEl = $('revealfow'),
-  fogofwarRevealLbl = $('reveallbl'),
-  fogofwarRevealAllEl = $('revealall-fow'),
-  fogofwarHideAllEl = $('hideall-fow'),
 
-  drawingOptionsEl = $('drawing-mode-options'),
-  drawingColorEl = $('drawing-color'),
-  drawingShadowColorEl = $('drawing-shadow-color'),
-  drawingLineWidthEl = $('drawing-line-width'),
-  drawingShadowWidth = $('drawing-shadow-width'),
-  drawingShadowOffset = $('drawing-shadow-offset'),
-  clearEl = $('clear-canvas');
+/**
+ * Configures the chat message elements in the bottom right corner.
+ * 
+ */
+
+function chatInputConfig() {
+    // Get the input field
+    var messageinput = document.getElementById("message");
+
+    // Execute a function when the user releases a key on the keyboard
+    messageinput.addEventListener("keyup", function(event) {
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("messagebutton").click();
+      }
+    });
+
+    // Puts a message in the chat on initialization
+    var _chatMessageList = document.querySelector(".chatlist");
+    var _template = document.querySelector('#chatMessageTemplate');
+    var _clone = _template.content.cloneNode(true);
+    _clone.querySelector('.messageSender').textContent = 'Inara';
+    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
+    _chatMessageList.appendChild(_clone);
+}
+
+
+/**
+ * Opens the charactersheet when the character sheet button in the top left
+ * 
+ */
 
 charSheetButtonEl.onclick = function () {
     charSheetEl = document.getElementById("panel1 dragcharsheet");
@@ -367,10 +460,111 @@ charSheetButtonEl.onclick = function () {
     }
 }
 
-function initFOW() {
+/**
+ * Gets the user attributes for the logged-in user and assigns them on both
+ * the back and frontend. More useful in the profile page.
+ * 
+ */
+function assignUserAttributes() {
+    console.log("Getting and assigning user attribute values")
+    getUserProfile(function(result) {
+        console.log(result);
+        if (result == null) {
+            console.log('Couldnt get user attributes');
+            return;
+        }
+        for (i = 0; i < result.length; i++) {
+            switch(result[i].getName()) {
+                case UserProfileAttributes.Email:
+                    userEmail = result[i].getValue();
+                    break;
+                case UserProfileAttributes.FullName:
+                    userFullName = result[i].getValue();
+                    break;
+                case UserProfileAttributes.UserName:
+                    username = result[i].getValue();
+                    break;
+                case UserProfileAttributes.Gender:
+                    userGender = result[i].getValue();
+                    break;
+                case UserProfileAttributes.EmailVerified:
+                    userEmailVerified = result[i].getValue();
+                    break;
+            }
+        }
+    });
+}
+
+/**
+ * Initializes the S3 bucket for storing and retrieving images added to the 
+ * canvas (and possibly other).
+ * 
+ */
+
+function initS3() {
+    var bucketName = _config.s3.bucketName;
+    var bucketRegion = _config.s3.region;
+    s3 = new AWS.S3({
+        apiVersion: '2006-03-01',
+        params: {Bucket: bucketName}
+    });
+}
+
+/**
+ * Initialize the fog of war canvas
+ * 
+ * @param  {boolean} hideall Flag to either reveal or hide the map by on init
+ *                           (Set false by default)
+ */
+
+function initFowCanvas(hideall=false) {
+    //Set action to false so it doesnt hit the action queue
+    action=false;
+
+    //All fog of war updates should be added through this group
+    fowgroup = new fabric.Group([], {
+      left: 0,
+      top: 0,
+      angle: 0,
+      selectable: false,
+      excludeFromExport: true,
+      evented: false
+    });
+
+    // If we want to hide everything first, set the hideall flag
+    if (hideall) {
+        //Black out the entire FOW canvas
+        var blackRect = new fabric.Rect({
+          left: 0,
+          top: 0,
+          fill: 'black',
+          width: canvas.getWidth(),
+          height: canvas.getHeight(),
+          selectable: false,
+          evented: false
+        });
+
+        fowgroup.add(blackRect)
+    }
+
+    // Add FOW group to the canvas
+    canvas.add(fowgroup);
+    // Re-enable action so that future updates get tracked in stateaction
+    action=true;
+}
+
+/**
+ * Hides the FOW button in the sidebar menu when first loaded
+ * 
+ */
+function initFOWEl() {
     fogofwarMenuEl.style.display = 'none';
 }
 
+/**
+ * Toggles the fog of war menu in the sidebar
+ * 
+ */
 fogofwarEl.onclick = function() {
     editingFOW = !editingFOW;
     if(editingFOW) {
@@ -385,26 +579,52 @@ fogofwarEl.onclick = function() {
     }
 }
 
+/**
+ * Menu button event that reinitializes the fog of war, hiding everything
+ * 
+ */
 fogofwarHideAllEl.onclick =function() {
     console.log("Hiding all in fog of war")
     for (let i = 0; i < fowgroup.size(); i++) {
         fowgroup.remove(fowgroup.getObjects()[i]);
     }
-    initFowCanvas();
+    initFowCanvas(true);
 }
 
+/**
+ * Menu button event that reinitializes the fog of war, revealing everything
+ * 
+ */
 fogofwarRevealAllEl.onclick = function() {
     console.log("Clearing fog of war")
     for (let i = 0; i < fowgroup.size(); i++) {
         console.log(fowgroup.getObjects());
         fowgroup.remove(fowgroup.getObjects()[i]);
     }
-    canvas.renderAll();
+    initFowCanvas(false)
 }
 
+/**
+ * Menu button event that calls the clear canvas function
+ * 
+ */
 clearEl.onclick = function() { clearcan()};
 
+/**
+ * Clears the map canvas (doesn't change the fog of war)
+ * 
+ */
+clearcan = function clearcan() {
+    console.log('Clearing Canvas');
+    action = false;
+    canvas.loadFromJSON(state[0], function() {drawBackground(); canvas.renderAll.bind(canvas); action=true;});
+    //canvas.renderAll();
+}
 
+/**
+ * Toggles the drawing mode to freedraw on the canvas
+ * 
+ */
 drawingModeEl.onclick = function() {
     canvas.isDrawingMode = !canvas.isDrawingMode;
     if (canvas.isDrawingMode) {
@@ -421,6 +641,13 @@ drawingModeEl.onclick = function() {
     }
 };
 
+/**
+ * If I'm going to be honest, i don't understand 90% of this code, I copied it
+ * from an example and whenever I try to fuck with it freedrawing breaks.
+ * 
+ * Basically it just sets up how the various pattern brushes work in freedraw mode.
+ * 
+ */
 if (fabric.PatternBrush) {
     var vLinePatternBrush = new fabric.PatternBrush(canvas);
     vLinePatternBrush.getPatternSrc = function() {
@@ -504,6 +731,11 @@ if (fabric.PatternBrush) {
 }
 
 
+
+/**
+ * Freedrawing menu option event handlers. Nothing that needs to be touched for the most part.
+ * 
+ */
 $('drawing-mode-selector').onchange = function() {
 
     if (this.value === 'hline') {
@@ -581,11 +813,20 @@ if (canvas.freeDrawingBrush) {
 
 //Image Drag and Drop Functions
 
+/**
+ * Event handler for dragging and dropping objects (mostly images) onto the canvas
+ * I copied the drop_handling function from an example, so there are a bunch of 
+ * handlers that I'm not using right now.
+ * 
+ *  @param  {Event} ev  Drag and drop event, passed from drop_handler
+ * 
+ */
 function drop_handler(ev) {
     console.log('Drop');
     console.log(ev);
     ev.preventDefault();
     var data = ev.dataTransfer.items;
+    //
     for (var i = 0; i < data.length; i += 1) {
         if ((data[i].kind == 'string') &&
            (data[i].type.match('^text/plain'))) {
@@ -610,7 +851,7 @@ function drop_handler(ev) {
             s3Upload(f);
             reader.onload = function(event) {
                 var img = new Image();
-                var truePos = getMousePos(canvas, ev);
+                var truePos = getMousePos(ev);
                 placeImage(event.target.result, truePos.x, truePos.y);
             }
             reader.readAsDataURL(f)
@@ -618,6 +859,12 @@ function drop_handler(ev) {
         }
     }
 }
+
+/**
+ * Uploads a file to the S3 bucket, usually after being dragged and dropped onto the canvas
+ * 
+ *  @param  {File} file  The image file to be uploaded to the bucket
+ */
 
 function s3Upload(file) {
     var fileName = file.name;
@@ -637,6 +884,15 @@ function s3Upload(file) {
     });
 }
 
+/**
+ * Place an image onto the canvas
+ * 
+ * @param  {String} base_image  URL of the image file to be uploaded onto the canvas (typically an S3 bucket)
+ * @param  {int} imageX  The 'left' position of the image relative to the canvas
+ * @param  {int} imageY  The 'top' position of the image relative to the canvas
+ * 
+ * 
+ */
 function placeImage(base_image, imageX, imageY) {
     fabric.Image.fromURL(base_image, function(oImg) {
         canvas.add(oImg);
@@ -646,17 +902,29 @@ function placeImage(base_image, imageX, imageY) {
         canvas.renderAll();
     });
     console.log('image placed');
-    canvas.counter++;
+    // canvas.counter++;
     updateModifications();
 }
 
+/**
+ * Really just here to prevent the default behavior of dragging something over the screen
+ * 
+ *  @param  {Event} ev  Drag event, passed from drop_handler
+ * 
+ */
 function dragOverHandler(event) {
-    console.log(event);
+    // console.log(event);
     event.preventDefault();
     return;
 }
 
-function getMousePos(canvas, evt) {
+/**
+ * Passes a global mouse event and gets the location of the event relative to the canvas
+ * 
+ *  @param  {Event} evt  Mouse event
+ * 
+ */
+function getMousePos(evt) {
   var rect = document.getElementById("playcanvas").getBoundingClientRect();
   return {
     x: evt.clientX - rect.left,
@@ -664,6 +932,12 @@ function getMousePos(canvas, evt) {
   };
 }
 
+//History State functions
+
+/**
+ * Canvas object modification event handler. Calls updateModifications()
+ * 
+ */
 canvas.on(
     'object:modified', function (e) {
         if (action) {
@@ -673,6 +947,10 @@ canvas.on(
         }
 });
 
+/**
+ * Canvas object added event handler. Saves the action to StateHistory and calls updateModifications()
+ * 
+ */
 canvas.on(
     'object:added', function (e) {
         if (action) {
@@ -685,6 +963,10 @@ canvas.on(
         }
 });
 
+/**
+ * Canvas object removed event handler. Saves the action to StateHistory and calls updateModifications()
+ * 
+ */
 canvas.on(
     'object:removed', function (e) {
         if (action) {
@@ -694,6 +976,11 @@ canvas.on(
         }
 });
 
+/**
+ * Checks if the global action flag is set, and if it is, send the canvas state out to the socket
+ * to update the database item and others connected to the websocket.
+ * 
+ */
 function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
@@ -702,6 +989,21 @@ function updateModifications() {
     }
 }
 
+/**
+ * KeyPress event handler monitoring ctrl+z and ctrl+y for undo and redo events respectively.
+ * 
+ */
+function KeyPress(e) {
+    var evtobj = window.event? event : e
+    if (evtobj.keyCode == 90 && (evtobj.ctrlKey || evtobj.metaKey)) undo();
+
+    if (evtobj.keyCode == 89 && (evtobj.ctrlKey || evtobj.metaKey)) redo();
+}
+
+/**
+ * Handles undoing the last action in StateHistory
+ * 
+ */
 undo = function undo() {
     console.log('undo');
     console.log(this.stateHistory);
@@ -709,27 +1011,22 @@ undo = function undo() {
     this.stateHistory.back();
 }
 
+/**
+ * Handles redoing the last action in StateHistory
+ * 
+ */
 redo = function redo() {
     console.log('redo');
     console.log(this.stateHistory);
     this.stateHistory.forward();
 }
 
-clearcan = function clearcan() {
-    console.log('Clearing Canvas');
-    action = false;
-    canvas.loadFromJSON(state[0], function() {drawBackground(); canvas.renderAll.bind(canvas); action=true;});
-    //canvas.renderAll();
-}
-
-function KeyPress(e) {
-    var evtobj = window.event? event : e
-    if (evtobj.keyCode == 90 && (evtobj.ctrlKey || evtobj.metaKey)) undo();
-
-    if (evtobj.keyCode == 89 && (evtobj.ctrlKey || evtobj.metaKey)) redo();
-
-}
-
+/**
+ * Maps scrolling the mousewheel to zooming the canvas
+ * 
+ * @todo A manual slider would be helpful for this, probably pretty easy to do
+ * 
+ */
 canvas.on('mouse:wheel', function(opt) {
   var delta = opt.e.deltaY;
   var zoom = canvas.getZoom();
@@ -741,8 +1038,16 @@ canvas.on('mouse:wheel', function(opt) {
   opt.e.stopPropagation();
 });
 
+// Need to make these global because both the mouse:down and mouse:move events reference them?
 var fowrect, isDown, origX, origY;
 
+/**
+ * The mouse down event is pulling a lot of work here. Currently handles:
+ *   panning the canvas when the alt key is held, 
+ *   hiding or revealing portions of the fog of war canvas when it is in FOW mode
+ *   fires a pointer animation action to the websocket
+ * 
+ */
 canvas.on('mouse:down', function(opt) {
   isDown = true;
   var evt = opt.e;
@@ -795,6 +1100,10 @@ canvas.on('mouse:down', function(opt) {
   }
 });
 
+/**
+ * The mouse move handler also handles panning the canvas and editing FOW
+ * 
+ */
 canvas.on('mouse:move', function(opt) {
   if (this.isDragging) {
     var e = opt.e;
@@ -824,6 +1133,11 @@ canvas.on('mouse:move', function(opt) {
   }
 });
 
+/**
+ * Mouse up handlers finish canvas panning and updates the fog of war group 
+ * and sends it out to the socket
+ * 
+ */
 canvas.on('mouse:up', function(opt) {
   // on mouse up we want to recalculate new interaction
   // for all objects, so we call setViewportTransform
@@ -841,40 +1155,11 @@ canvas.on('mouse:up', function(opt) {
 });
 
 
-function assignUserAttributes() {
-    console.log("Getting and assigning user attribute values")
-    getUserProfile(function(result) {
-        console.log(result);
-        if (result == null) {
-            console.log('Couldnt get user attributes');
-            return;
-        }
-        for (i = 0; i < result.length; i++) {
-            switch(result[i].getName()) {
-                case UserProfileAttributes.Email:
-                    userEmail = result[i].getValue();
-                    break;
-                case UserProfileAttributes.FullName:
-                    userFullName = result[i].getValue();
-                    break;
-                case UserProfileAttributes.UserName:
-                    username = result[i].getValue();
-                    break;
-                case UserProfileAttributes.Gender:
-                    userGender = result[i].getValue();
-                    break;
-                case UserProfileAttributes.EmailVerified:
-                    userEmailVerified = result[i].getValue();
-                    break;
-            }
-        }
-    });
-}
-
-function loadCanvasState() {
-    sendSocketMessage(MessageType.CanvasUpdate, 'getcanvasstate', '');
-}
-
+/**
+ * Loads the character sheet from Inara, loading the credentials from Cognito and
+ * fetching it using their userID. Loads the contents into the charactersheet iframe.
+ * 
+ */
 function loadCharFromDB() {
     AWS.config.credentials.get(function(err) {
     if (!err) {
@@ -900,6 +1185,11 @@ function loadCharFromDB() {
   });
 }
 
+/**
+ * Saves a JSON-ified character sheet into Inara under the userID.
+ *  @param  {JSON CharacterSheet} charToSave  The JSON representation of the player's character sheet.
+ *
+ */
 function saveCharToDB(charToSave) {
   AWS.config.credentials.get(function(err) {
     if (!err) {
@@ -922,6 +1212,11 @@ function saveCharToDB(charToSave) {
   });
 }
 
+/**
+ * Add event handles for charactersheet iframe messages to the onCharSheet function
+ * No, I do not know why they are phrased as if/else statements, and I don't want to break things by changing it.
+ *
+ */
 if (window.addEventListener) {
     window.addEventListener("message", onCharSheetMessage, false);
 }
@@ -929,54 +1224,12 @@ else if (window.attachEvent) {
     window.attachEvent("onmessage", onCharSheetMessage, false);
 }
 
-function saveSocketConnection(openSocket) {
-    if(AWS.config.credentials !=null) {
-        AWS.config.credentials.get(function(err) {
-            if (!err) {
-                var id = AWS.config.credentials.identityId;
-                sendSocketMessage(MessageType.InaraConnect, id, "");
-            }
-            else {
-                console.log("Could not save socket connection, error retrieving cognito credentials");
-            }
-        });
-    }
-    else {
-        console.log("Not saving connection ID, no AWS credentials");
-    }
-}
-//            console.log('Cognito Identity ID '+ id);
-//            console.log(openSocket);
-//            // Instantiate aws sdk service objects now that the credentials have been updated
-//            var docClient = new AWS.DynamoDB.DocumentClient({ region: AWS.config.region });
-//            var params = {
-//                TableName: 'Inara',
-//                Key:{'userID': id},
-//                UpdateExpression: 'set connectionID = :c',
-//                ExpressionAttributeValues: {
-//                    ':c' : openSocket.id
-//                }
-//            };
-//            docClient.update(params, function(err, data) {
-//                if (err) {
-//                    console.log("Error", err);
-//                } else {
-//                    console.log("Success");
-//                    console.log(data.Item);
-//                    document.getElementById('serviceFrameSend').contentWindow.load_character_json(data.Item.character);
-//                }
-//            });
-//        }
-//        else {
-//            console.log("Error loading AWS credentials");
-//        }
-//    });
-//}
-
+/**
+ * Calls the function that the iframe requested.
+ *  @param  {Event} event  The message that the character sheet iframe sent
+ *
+ */
 function onCharSheetMessage(event) {
-    // Check sender origin to be trusted
-    //if (event.origin !== "http://example.com") return;
-
     var data = event.data;
 
     if (typeof(window[data.func]) == "function") {
@@ -984,16 +1237,14 @@ function onCharSheetMessage(event) {
     }
 }
 
-function initS3() {
-
-    var bucketName = _config.s3.bucketName;
-    var bucketRegion = _config.s3.region;
-    s3 = new AWS.S3({
-        apiVersion: '2006-03-01',
-        params: {Bucket: bucketName}
-    });
-}
-
+/**
+ * Creates a pointer animation at the point referenced. Draws four red rectangles
+ * in a collapsing crosshair around the point. Only called after receiving the 
+ * broadcastaction from animatepointer.
+ * 
+ *  @param  {Point} animatePoint A point object with x and y coordinates relative to the canvas to draw attention to
+ *
+ */
 function animatePointer(animatePoint) {
     action = false;
     pointX = animatePoint.x;
