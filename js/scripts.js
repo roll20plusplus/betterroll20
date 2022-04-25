@@ -1229,6 +1229,7 @@ else if (window.attachEvent) {
  *  @param  {Event} event  The message that the character sheet iframe sent
  *
  */
+
 function onCharSheetMessage(event) {
     var data = event.data;
 
