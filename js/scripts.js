@@ -934,7 +934,7 @@ function saveSocketConnection(openSocket) {
         AWS.config.credentials.get(function(err) {
             if (!err) {
                 var id = AWS.config.credentials.identityId;
-                sendSocketMessage(MessageType.InaraConnect, id, "");
+                sendSocketMessage(MessageType.InaraConnect, id, username);
             }
             else {
                 console.log("Could not save socket connection, error retrieving cognito credentials");
