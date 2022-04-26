@@ -179,13 +179,18 @@ function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
     const loadState = async () => {
-      const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
-        method: 'get', 
-        headers: new Headers({
-            'Authorization': idt
+        const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
+            method: 'get', 
+            headers: new Headers({
+                'Authorization': idt
         })});
-      const myJson = await response.json(); //extract JSON from the http response
-      console.log(myJson);
+        const myJson = await response.json(); //extract JSON from the http response
+        console.log(myJson);
+        canvas.loadFromJSON(myJson);
+        for (const co of canvas.getObjects()) {
+            co.selectable = (co.name != undefined && co.name == username)
+        }
+        canvas.renderAll();
       // do something with myJson
     }
     loadState();
