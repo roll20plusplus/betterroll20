@@ -240,7 +240,7 @@ function getIDToken() {
                 }
                 console.log('session validity: ' + session.isValid());
                 console.log('session token: ' + session.getIdToken().getJwtToken());
-                return = session.getIdToken().getJwtToken();
+                return session.getIdToken().getJwtToken();
             });
         } else {console.log("error loading credentials")}
     } catch (e) {
