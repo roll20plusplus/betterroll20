@@ -947,7 +947,7 @@ canvas.on(
             console.log('Object Modified');
             console.log(e);
             var tcommand = new TransformCommand(e);
-            sendSocketMessage(ChatMessage.BroadcastAction, "canvasupdate", tcommand);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", tcommand);
             stateHistory.add(tcommand);
             updateModifications();
         }
@@ -964,7 +964,7 @@ canvas.on(
             console.log(stateHistory);
             console.log(e);
             var acommand = new AddCommand(e);
-            sendSocketMessage(ChatMessage.BroadcastAction, "canvasupdate", acommand);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
             stateHistory.add(acommand);
             updateModifications();
         }
@@ -979,7 +979,7 @@ canvas.on(
         if (action) {
             console.log('Object removed');
             var rcommand = new RemoveCommand(e);
-            sendSocketMessage(ChatMessage.BroadcastAction, "canvasupdate", rcommand);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", rcommand);
             stateHistory.add(rcommand);
             updateModifications();
         }
