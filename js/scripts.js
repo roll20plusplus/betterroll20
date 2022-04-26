@@ -179,7 +179,7 @@ function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
     const userAction = async () => {
-      const response = await fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod/inara',{ 
+      const response = await fetch('https://w9sgmzcen2.execute-api.us-west-1.amazonaws.com/prod/',{ 
         method: 'get', 
         headers: new Headers({
             'Authorization': idt
