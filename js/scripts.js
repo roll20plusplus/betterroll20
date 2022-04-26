@@ -221,7 +221,10 @@ function receiveSocketMessage(socketMessage) {
         case MessageType.CanvasUpdate:
             action = false;
             console.log("Got a canvas update message");
-            updateCanvas(msg.data);
+            canvasAction = JSON.parse(msg.data.contents);
+            canvasAction.execute();
+//            updateCanvas(msg.data);
+            action=true;
             break;
         //Chat messages are either rolls or whispers
         case MessageType.ChatMessage:
