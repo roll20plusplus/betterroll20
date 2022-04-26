@@ -179,7 +179,7 @@ function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
     const loadState = async () => {
-      const response = await fetch('https://w9sgmzcen2.execute-api.us-west-1.amazonaws.com/prod/',{ 
+      const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
         method: 'get', 
         headers: new Headers({
             'Authorization': idt
@@ -195,7 +195,7 @@ function setCanvasState() {
     console.log('setting canvas state with REST API')
     var idt = getIDToken();
     const setState = async () => {
-      const response = await fetch('https://w9sgmzcen2.execute-api.us-west-1.amazonaws.com/prod/',{ 
+      const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
         method: 'post',
         body: JSON.stringify(canvas),
         headers: new Headers({
