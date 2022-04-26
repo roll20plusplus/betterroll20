@@ -194,7 +194,7 @@ function loadCanvasState() {
 function setCanvasState() {
     console.log('setting canvas state with REST API')
     var idt = getIDToken();
-    const userAction = async () => {
+    const setState = async () => {
       const response = await fetch('https://w9sgmzcen2.execute-api.us-west-1.amazonaws.com/prod/',{ 
         method: 'post',
         body: JSON.stringify(canvas),
