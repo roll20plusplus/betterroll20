@@ -182,7 +182,7 @@ function loadCanvasState() {
       const response = await fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod/inara',{ 
         method: 'get', 
         headers: new Headers({
-            'Authorization': idt, 
+            'Authorization': idt
         })});
       const myJson = await response.json(); //extract JSON from the http response
       console.log(myJson);
