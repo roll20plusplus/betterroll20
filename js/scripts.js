@@ -1008,7 +1008,7 @@ undo = function undo() {
     console.log('undo');
     console.log(this.stateHistory);
 
-    this.stateHistory.back();
+    this.stateHistory.back(canvas);
 }
 
 /**
@@ -1018,7 +1018,7 @@ undo = function undo() {
 redo = function redo() {
     console.log('redo');
     console.log(this.stateHistory);
-    this.stateHistory.forward();
+    this.stateHistory.forward(canvas);
 }
 
 /**

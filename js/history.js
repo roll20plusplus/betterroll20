@@ -6,26 +6,26 @@ class CommandHistory {
   getIndex() {
     return this.index;
   }
-  back() {
+  back(canvas) {
     action = false;
     console.log('Command History back (trying to undo an event)');
     if (this.index > 0) {
       console.log('rolling back state history');
       this.index = this.index-1
       let command = this.commands[this.index];
-      command.undo();
+      command.undo(canvas);
     }
     action=true;
     return this;
   }
-  forward() {
+  forward(canvas) {
     action = false;
     console.log('Command History forward (trying to redo an event)');
     if (this.index < this.commands.length) {
       console.log('Redoing event');
       let command = this.commands[this.index];
       this.index = this.index+1
-      command.execute();
+      command.execute(canvas);
     }
     action = true;
     return this;
@@ -48,50 +48,45 @@ class CommandHistory {
 // use when you init your Canvas, like this.history = new CommandHistory();
 
 class AddCommand {
-  constructor(receiver, controller) {
+  constructor(receiver) {
     this.receiver = receiver;
-    this.controller = controller;
   }
-  execute() {
+  execute(canvas) {
     console.log('redoing add command');
-    this.controller.add(this.receiver.target);
+    canvas.add(this.receiver.target);
   }
-  undo() {
+  undo(canvas) {
     console.log('Undoing add command');
-    this.controller.getObjects().forEach((obj) => {
+    canvas.getObjects().forEach((obj) => {
         console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
 
         if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
             console.log(obj);
-            console.log(this.controller.remove(obj));
+            console.log(canvas.remove(obj));
         }
         // canvas.remove(obj)
     });
-    // console.log(this.receiver);
-    // canvas.remove(this.receiver);
   }
 }
 
 // When you will add object on your canvas invoke also this.history.add(new AddCommand(object, controller))
 
 class RemoveCommand {
-  constructor(receiver, controller) {
+  constructor(receiver) {
     this.receiver = receiver;
-    this.controller = controller;
   }
   execute() {
-    this.controller.getObjects().forEach((obj) => {
+    canvas.getObjects().forEach((obj) => {
         console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
 
         if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
             console.log(obj);
-            console.log(this.controller.remove(obj));
+            console.log(canvas.remove(obj));
         }
-        // canvas.remove(obj)
-    });  
+    });
   }
   undo() {
-    this.controller.add(this.receiver.target);
+    canvas.add(this.receiver.target);
   }
 }
 
