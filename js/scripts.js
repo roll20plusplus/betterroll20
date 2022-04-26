@@ -959,14 +959,34 @@ canvas.on(
  */
 canvas.on(
     'object:added', function (e) {
-        if (action) {
+        if (action && e.target.owner != null) {
             console.log('Object added');
             console.log(stateHistory);
             console.log(e);
+
+            console.log(canvas.getObjects()[0] == e.target);
             var acommand = new AddCommand(e);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
             stateHistory.add(acommand);
             updateModifications();
+        }
+        else if (action) {
+            action = false;
+            for (const co of canvas.getObjects()) {
+                if(co==e.target){
+                    co.toObject = (function(toObject) {
+                      return function() {
+                        return fabric.util.object.extend(toObject.call(this), {
+                          owner: this.owner
+                        });
+                      };
+                    })(co.toObject);
+                    co.owner = username;
+                    action=true;
+                    canvas.add(co);
+                }
+            }
+            action=true;
         }
 });
 
