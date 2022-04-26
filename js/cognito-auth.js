@@ -223,6 +223,32 @@ function getUserProfile(_callback) {
     }
 }
 
+function getIDToken() {
+    var data = {
+        UserPoolId: _config.cognito.userPoolId,
+        ClientId: _config.cognito.userPoolClientId,
+    };
+    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
+    var cognitoUser = userPool.getCurrentUser();
+    console.log('Loading Cognito User');
+    try {
+        if (cognitoUser != null) {
+            cognitoUser.getSession(function(err, session) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                console.log('session validity: ' + session.isValid());
+                console.log('session token: ' + session.getIdToken().getJwtToken());
+                return = session.getIdToken().getJwtToken();
+            });
+        } else {console.log("error loading credentials")}
+    } catch (e) {
+        console.log(e);
+        return;
+    }
+}
+
 async function updateUserAttributes(attributeList) {
     var poolData = {
         UserPoolId: _config.cognito.userPoolId,

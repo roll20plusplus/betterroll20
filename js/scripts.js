@@ -177,6 +177,7 @@ function saveSocketConnection() {
  */
 function loadCanvasState() {
     console.log('loading canvas state from REST API')
+    console.log(getIDToken());
     // const userAction = async () => {
     //   const response = await fetch('https://whhwgt5ilj.execute-api.us-west-1.amazonaws.com/prod/inara');
     //   const myJson = await response.json(); //extract JSON from the http response
