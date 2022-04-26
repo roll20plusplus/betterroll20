@@ -178,7 +178,7 @@ function saveSocketConnection() {
 function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
-    const userAction = async () => {
+    const loadState = async () => {
       const response = await fetch('https://w9sgmzcen2.execute-api.us-west-1.amazonaws.com/prod/',{ 
         method: 'get', 
         headers: new Headers({
@@ -188,7 +188,24 @@ function loadCanvasState() {
       console.log(myJson);
       // do something with myJson
     }
-    userAction();
+    loadState();
+}
+
+function setCanvasState() {
+    console.log('setting canvas state with REST API')
+    var idt = getIDToken();
+    const userAction = async () => {
+      const response = await fetch('https://w9sgmzcen2.execute-api.us-west-1.amazonaws.com/prod/',{ 
+        method: 'post',
+        body: JSON.stringify(canvas),
+        headers: new Headers({
+            'Authorization': idt
+        })});
+      const myJson = await response.json(); //extract JSON from the http response
+      console.log(myJson);
+      // do something with myJson
+    }
+    setState(); 
 }
 
 
@@ -1026,7 +1043,7 @@ canvas.on(
 function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
-        myjson = JSON.stringify(canvas);
+        setCanvasState();
 //        sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
     }
 }
