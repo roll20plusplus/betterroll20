@@ -130,8 +130,8 @@ function init() {
     console.log("initS3");
     initS3();
     console.log("Initialize fog of war");
-    initFOW(false);
-    initFowCanvas();
+    initFOWEl();
+    initFowCanvas(false);
 
     // Lazy way of setting the character sheet and drawing mode elements
     drawingModeEl.click();
@@ -943,6 +943,7 @@ canvas.on(
         if (action) {
             console.log('Object Modified');
             console.log(e);
+            stateHistory.add(new TransformCommand(e));
             updateModifications();
         }
 });
@@ -1007,8 +1008,10 @@ function KeyPress(e) {
 undo = function undo() {
     console.log('undo');
     console.log(this.stateHistory);
-
+    action = false;
     this.stateHistory.back(canvas);
+    canvas.renderAll();
+    action = true;
 }
 
 /**
@@ -1018,7 +1021,10 @@ undo = function undo() {
 redo = function redo() {
     console.log('redo');
     console.log(this.stateHistory);
+    action = false;
     this.stateHistory.forward(canvas);
+    canvas.renderAll();
+    action = true;
 }
 
 /**

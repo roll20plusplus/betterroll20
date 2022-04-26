@@ -59,12 +59,10 @@ class AddCommand {
     console.log('Undoing add command');
     canvas.getObjects().forEach((obj) => {
         console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
-
-        if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
+          if(this.receiver.target == obj) {
             console.log(obj);
             console.log(canvas.remove(obj));
         }
-        // canvas.remove(obj)
     });
   }
 }
@@ -74,69 +72,58 @@ class AddCommand {
 class RemoveCommand {
   constructor(receiver) {
     this.receiver = receiver;
+    this.transform = transform;
   }
-  execute() {
+  execute(canvas) {
     canvas.getObjects().forEach((obj) => {
         console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
-
-        if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
+          if(this.receiver.target == obj) {
+//        if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
             console.log(obj);
             console.log(canvas.remove(obj));
         }
     });
   }
-  undo() {
+  undo(canvas) {
     canvas.add(this.receiver.target);
   }
 }
 
 class TransformCommand {
-  constructor(receiver, options = {}) {
+  constructor(receiver) {
     this.receiver = receiver;
-    this._initStateProperties(options);
-
-    this.state = {};
-    this.prevState = {};
-
-    this._saveState();
-    this._savePrevState();
-  }
-  execute() {
-    this._restoreState();
-    this.receiver.setCoords();
-  }
-  undo() {
-    this._restorePrevState();
-    this.receiver.setCoords();
-  }
-  // private
-  _initStateProperties(options) {
-    this.stateProperties = this.receiver.stateProperties;
-    if (options.stateProperties && options.stateProperties.length) {
-      this.stateProperties.push(...options.stateProperties);
+    this.original = this.receiver.transform.original;
+    this.transform = {};
+    console.log(Object.entries(this.original));
+    for (const [key, value] of Object.entries(this.original)) {
+        this.transform[key] = this.receiver.target[key];
     }
+    console.log(this.original);
+    console.log(this.transform);
   }
-  _restoreState() {
-    this._restore(this.state);
-  }
-  _restorePrevState() {
-    this._restore(this.prevState);
-  }
-  _restore(state) {
-    this.stateProperties.forEach((prop) => {
-      this.receiver.set(prop, state[prop]);
+  execute(canvas) {
+    canvas.getObjects().forEach((obj) => {
+        console.log(this.original.left == obj.left && this.original.top == obj.top);
+          if(this.original.left == obj.left && this.original.top == obj.top) {
+            console.log("Found the matching item")
+            for (const [key, value] of Object.entries(this.transform)) {
+                console.log("Changing attribute " + key + " to value " + value);
+                obj.set(key, value);
+            }
+        }
     });
   }
-  _saveState() {
-    this.stateProperties.forEach((prop) => {
-      this.state[prop] = this.receiver.get(prop);
+  undo(canvas) {
+    canvas.getObjects().forEach((obj) => {
+//        console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
+          if(this.transform.left == obj.left && this.transform.top == obj.top) {
+            console.log("Found the matching item")
+            console.log(Object.entries(this.original));
+            for (const [key, value] of Object.entries(this.original)) {
+                console.log("Changing attribute " + key + " to value " + value);
+                obj.set(key, value);
+            }
+        }
     });
-  }
-  _savePrevState() {
-    if (this.receiver._stateProperties) {
-      this.stateProperties.forEach((prop) => {
-        this.prevState[prop] = this.receiver._stateProperties[prop];
-      });
-    }
   }
 }
