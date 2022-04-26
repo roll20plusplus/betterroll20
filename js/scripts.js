@@ -258,7 +258,7 @@ function receiveSocketMessage(socketMessage) {
             animatePointer(msg.data.contents);
         // 
         default:
-            console.log("MessageType not found in enumeration");
+            console.log("MessageType not found in enumeration: " + msgtype);
     }
 }
 
