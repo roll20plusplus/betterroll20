@@ -232,6 +232,7 @@ async function updateUserAttributes(attributeList) {
     userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
     var cognitoUser = userPool.getCurrentUser()
+    console.log(cognitoUser);
 
     await new Promise(res => cognitoUser.getSession(res));
 
