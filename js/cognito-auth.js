@@ -207,6 +207,8 @@ function getUserProfile(_callback) {
                         alert(err.message || JSON.stringify(err));
                         return;
                     }
+                    console.log(cognitoUser);
+
                     userAttributes = result;
                     console.log(userAttributes);
                     _callback(userAttributes);
@@ -232,7 +234,6 @@ async function updateUserAttributes(attributeList) {
     userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
     var cognitoUser = userPool.getCurrentUser()
-    console.log(cognitoUser);
 
     await new Promise(res => cognitoUser.getSession(res));
 
