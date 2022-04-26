@@ -943,7 +943,9 @@ canvas.on(
         if (action) {
             console.log('Object Modified');
             console.log(e);
-            stateHistory.add(new TransformCommand(e));
+            TransformCommand tcommand = new TransformCommand(e);
+            sendSocketMessage(ChatMessage.BroadcastAction, "canvasupdate", tcommand);
+            stateHistory.add(tcommand);
             updateModifications();
         }
 });
@@ -958,8 +960,9 @@ canvas.on(
             console.log('Object added');
             console.log(stateHistory);
             console.log(e);
-
-            stateHistory.add(new AddCommand(e, canvas));
+            AddCommand acommand = new AddCommand(e);
+            sendSocketMessage(ChatMessage.BroadcastAction, "canvasupdate", acommand);
+            stateHistory.add(acommand);
             updateModifications();
         }
 });
@@ -972,7 +975,9 @@ canvas.on(
     'object:removed', function (e) {
         if (action) {
             console.log('Object removed');
-            stateHistory.add(new RemoveCommand(e, canvas))
+            RemoveCommand rcommand = new RemoveCommand(e);
+            sendSocketMessage(ChatMessage.BroadcastAction, "canvasupdate", rcommand);
+            stateHistory.add(rcommand);
             updateModifications();
         }
 });
@@ -986,7 +991,7 @@ function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
         myjson = JSON.stringify(canvas);
-        sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
+//        sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
     }
 }
 
