@@ -146,7 +146,7 @@ function init() {
  */
 
 function saveSocketConnection() {
-    if(socket.readyState != 1) {
+    if(socket.readyState == 1) {
         if(AWS.config.credentials !=null) {
             AWS.config.credentials.get(function(err) {
                 if (!err) {
@@ -163,7 +163,7 @@ function saveSocketConnection() {
         }
     }
     else {
-        console.log("Tried to save connectionID to Inara, but the socket wasn't open")
+        console.log("Tried to save connectionID to Inara, but the socket wasn't open: " + socket.readyState)
     }
 }
 
@@ -964,7 +964,7 @@ canvas.on(
             console.log(stateHistory);
             console.log(e);
 
-            console.log(canvas.getObjects()[0] == e.target);
+//            console.log(canvas.getObjects()[0] == e.target);
             var acommand = new AddCommand(e);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
             stateHistory.add(acommand);
