@@ -256,6 +256,7 @@ function receiveSocketMessage(socketMessage) {
         case MessageType.BroadcastAction:
             console.log('Broadcasting action (likely a crosshair clickhold: ' + msg.data.contents);
             animatePointer(msg.data.contents);
+            break;
         // 
         default:
             console.log("MessageType not found in enumeration: " + msgtype);
