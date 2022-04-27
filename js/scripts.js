@@ -169,11 +169,8 @@ function saveSocketConnection() {
 
 
 /**
- * Kind of a hacky solution, gets the canvas state by sending a blank update
- * to the dynamodb canvas object to trigger a canvas update broadcast.
+ * Calls a REST API to get the current canvas state from the database
  * 
- * In the future, this should either be a REST call or a separate function
- * altogether.
  */
 function loadCanvasState() {
     console.log('loading canvas state from REST API')
@@ -196,6 +193,10 @@ function loadCanvasState() {
     loadState();
 }
 
+/**
+ * Calls a REST API to upload the current canvas state to the database
+ * 
+ */
 function setCanvasState() {
     console.log('setting canvas state with REST API')
     var idt = getIDToken();

@@ -72,7 +72,6 @@ class AddCommand {
 class RemoveCommand {
   constructor(receiver) {
     this.receiver = receiver;
-    this.transform = transform;
   }
   execute(canvas) {
     canvas.getObjects().forEach((obj) => {
