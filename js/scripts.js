@@ -1277,7 +1277,7 @@ canvas.on('mouse:move', function(opt) {
 
 function getLineLengthFeet(line) {
     var length = (Math.sqrt(Math.pow(line.width,2)+Math.pow(line.height, 2)));
-    return Math.round(length*10/grid*5)/10
+    return Math.round(length*10/grid*5)/10;
 }
 
 /**
@@ -1302,7 +1302,7 @@ canvas.on('mouse:up', function(opt) {
   else if (rulerMode) {
     console.log("Make ruler invisble");
     canvas.selection = true;
-    // canvas.remove(rulerLine, rulerText);
+    canvas.remove(rulerLine, rulerText);
 
     rulerLine.visible = false;
     rulerText.visible = false;
