@@ -60,6 +60,8 @@ var stateHistory;
 var editingFOW = false;
 var fowgroup;
 
+var rulerMode = false;
+
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
   fogofwarMenuEl = $('fowmenu'),
@@ -608,6 +610,7 @@ function initFOWEl() {
 fogofwarEl.onclick = function() {
     editingFOW = !editingFOW;
     if(editingFOW) {
+        rulerMode = false;
         fogofwarEl.innerHTML = 'Exit FOW Mode';
         fogofwarOptionsEl.style.display = '';
         clearEl.style.display = 'none';
@@ -673,6 +676,7 @@ drawingModeEl.onclick = function() {
     canvas.isDrawingMode = !canvas.isDrawingMode;
     if (canvas.isDrawingMode) {
         editingFOW = false;
+        rulerMode = false;
         drawingModeEl.innerHTML = 'Cancel drawing mode';
         drawingOptionsEl.style.display = '';
         fogofwarMenuEl.style.display = 'none';
@@ -688,6 +692,24 @@ drawingModeEl.onclick = function() {
         rulerButtonEl.style.display = '';
     }
 };
+
+rulerButtonEl.onclick = function() {
+    rulerMode = !rulerMode;
+    if(rulerMode) {
+        rulerButtonEl.innerHTML = 'Cancel ruler mode';
+        drawingOptionsEl.style.display = 'none';
+        fogofwarMenuEl.style.display = 'none';
+        drawingModeEl.style.display = 'none';
+
+    }
+    else {
+        rulerButtonEl.innerHTML = 'Ruler Mode';
+        drawingOptionsEl.style.display = '';
+        fogofwarMenuEl.style.display = '';
+        drawingModeEl.style.display = '';
+
+    }
+}
 
 /**
  * If I'm going to be honest, i don't understand 90% of this code, I copied it
