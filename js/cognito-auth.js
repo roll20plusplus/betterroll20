@@ -188,7 +188,7 @@ function getUserProfile(_callback) {
                     return;
                 }
                 console.log('session validity: ' + session.isValid());
-                console.log('session token: ' + session.getIdToken().getJwtToken());
+                // console.log('session token: ' + session.getIdToken().getJwtToken());
                 sessionToken = session.getIdToken().getJwtToken();
 
                 AWS.config.region = _config.cognito.region;

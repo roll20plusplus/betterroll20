@@ -1094,7 +1094,7 @@ canvas.on(
 function updateModifications() {
     if (action) {
         console.log("Updating Modifications")
-        setCanvasState();
+        // setCanvasState();
 //        sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
     }
 }
@@ -1209,7 +1209,7 @@ canvas.on('mouse:down', function(opt) {
     console.log("Beginning to draw ruler");
     rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY});
     rulerLine.visible = true;
-    // canvas.add(rulerLine);
+    canvas.renderAll();
   }
   else if (!canvas.isDrawingMode) {
     setTimeout(function() {
@@ -1284,7 +1284,7 @@ canvas.on('mouse:up', function(opt) {
   else if (rulerMode) {
     console.log("Make ruler invisble");
     rulerLine.visible = false;
-    // canvas.renderAll();    
+    canvas.renderAll();    
   }
 });
 
