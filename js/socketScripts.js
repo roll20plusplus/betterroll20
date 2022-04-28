@@ -14,42 +14,48 @@ function initSocket() {
 
 function sendSocketMessage(type, username, contents) {
     var msg;
-    switch (type) {
-        case MessageType.CanvasUpdate:
-            msg = {
-                action: type,
-                data : {'sender': username, 'contents': contents}};
-            if(username == 'getcanvasstate' && contents ==''){
-                console.log('Getting the current canvas state by sending blank update');
-            }
-            else {
-                console.log("Canvas update going out to socket");
-            }
-            break;
-        case MessageType.ChatMessage:
-            msg = {
-                action: type,
-                data : {'sender': username, 'contents': contents}};
-            console.log("Sending a chat message to the socket");
-            break;
-        case MessageType.BroadcastAction:
-            msg = {
-                action: type,
-                data : {'sender': username, 'contents': contents}};
-            console.log("Broadcasting an action to other users");
-            break;
-        case MessageType.InaraConnect:
-            msg = {
-                action: type,
-                data : {'sender': username, 'contents': contents}};
-            console.log("Broadcasting an action to other users");
-            break;
-        default:
-            console.log("No case statement in sendsocketmessage to handle this message: " + type);
-            return;
-        console.log(msg);
-    };
-    socket.send(JSON.stringify(msg));
+    if(socket.readyState == 1) {
+        switch (type) {
+            case MessageType.CanvasUpdate:
+                msg = {
+                    action: type,
+                    data : {'sender': username, 'contents': contents}};
+                if(username == 'getcanvasstate' && contents ==''){
+                    console.log('Getting the current canvas state by sending blank update');
+                }
+                else {
+                    console.log("Canvas update going out to socket");
+                }
+                break;
+            case MessageType.ChatMessage:
+                msg = {
+                    action: type,
+                    data : {'sender': username, 'contents': contents}};
+                console.log("Sending a chat message to the socket");
+                break;
+            case MessageType.BroadcastAction:
+                msg = {
+                    action: type,
+                    data : {'sender': username, 'contents': contents}};
+                console.log("Broadcasting an action to other users: " + contents.toString());
+                break;
+            case MessageType.InaraConnect:
+                msg = {
+                    action: type,
+                    data : {'sender': username, 'contents': contents}};
+                console.log("Broadcasting an action to other users");
+                break;
+            default:
+                console.log("No case statement in sendsocketmessage to handle this message: " + type);
+                return;
+            console.log(msg);
+        };
+        socket.send(JSON.stringify(msg));
+    }
+    else {
+        console.log("Socket not open yet");
+        return("Socket not open yet");
+    }
 }
 
 

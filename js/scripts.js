@@ -373,6 +373,7 @@ function drawGrid(grid = 70) {
 
 var updateCanvas = function (canvasState) {
     console.log(canvasState);
+    action=false;
 
     // Check if the canvas update was for the Fog of War canvas
     if (canvasState.messageID.S == 'fogofwar') {
@@ -391,6 +392,7 @@ var updateCanvas = function (canvasState) {
           });
           canvas.renderOnAddRemove = origRenderOnAddRemove;
           canvas.renderAll();
+          action = true;
         });
     }
     // If its not for the Fog of War, just load the contents and then draw the background and grid
@@ -572,8 +574,8 @@ function initFowCanvas(hideall=false) {
       top: 0,
       angle: 0,
       selectable: false,
-      excludeFromExport: true,
-      evented: false
+      excludeFromExport: true
+      // evented: false
     });
 
     // If we want to hide everything first, set the hideall flag
@@ -585,8 +587,8 @@ function initFowCanvas(hideall=false) {
           fill: 'black',
           width: canvas.getWidth(),
           height: canvas.getHeight(),
-          selectable: false,
-          evented: false
+          selectable: false
+          // evented: false
         });
 
         fowgroup.add(blackRect)
