@@ -71,6 +71,7 @@ var charSheetButtonEl = $('open-character-sheet'),
   fogofwarRevealLbl = $('reveallbl'),
   fogofwarRevealAllEl = $('revealall-fow'),
   fogofwarHideAllEl = $('hideall-fow'),
+  rulerButtonEl = $('rulerbtn'),
 
   drawingOptionsEl = $('drawing-mode-options'),
   drawingColorEl = $('drawing-color'),
@@ -607,14 +608,18 @@ function initFOWEl() {
 fogofwarEl.onclick = function() {
     editingFOW = !editingFOW;
     if(editingFOW) {
-        fogofwarEl.innerHTML = 'Map Mode';
+        fogofwarEl.innerHTML = 'Exit FOW Mode';
         fogofwarOptionsEl.style.display = '';
         clearEl.style.display = 'none';
+        drawingModeEl.style.display = 'none';
+        rulerButtonEl.style.display = 'none';
     }
     else {
         fogofwarEl.innerHTML = 'Edit FOW';
         fogofwarOptionsEl.style.display = 'none';
+        drawingModeEl.style.display = '';
         clearEl.style.display = '';
+        rulerButtonEl.style.display = '';
     }
 }
 
@@ -667,16 +672,20 @@ clearcan = function clearcan() {
 drawingModeEl.onclick = function() {
     canvas.isDrawingMode = !canvas.isDrawingMode;
     if (canvas.isDrawingMode) {
+        editingFOW = false;
         drawingModeEl.innerHTML = 'Cancel drawing mode';
         drawingOptionsEl.style.display = '';
         fogofwarMenuEl.style.display = 'none';
         fogofwarOptionsEl.style.display = 'none';
+        rulerButtonEl.style.display = 'none';
+
     }
     else {
         drawingModeEl.innerHTML = 'Enter drawing mode';
         drawingOptionsEl.style.display = 'none';
         fogofwarMenuEl.style.display = '';
         fogofwarOptionsEl.style.display = 'none';
+        rulerButtonEl.style.display = '';
     }
 };
 
