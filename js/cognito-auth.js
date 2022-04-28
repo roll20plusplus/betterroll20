@@ -242,10 +242,10 @@ function getIDToken() {
                 console.log('session token: ' + session.getIdToken().getJwtToken());
                 return session.getIdToken().getJwtToken();
             });
-        } else {console.log("error loading credentials")}
+        } else {console.log("error loading credentials"); return null;}
     } catch (e) {
         console.log(e);
-        return;
+        return null;
     }
 }
 

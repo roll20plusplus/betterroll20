@@ -131,7 +131,7 @@ function init() {
     stateHistory = new CommandHistory();
     console.log("Pull and load user attributes from cognito");
     assignUserAttributes();
-    console.log("initS3");
+    console.log("Initializing S3 Bucket");
     initS3();
     console.log("Initialize fog of war");
     initFOWEl();
@@ -189,7 +189,9 @@ function loadCanvasState() {
         })});
         const myJson = await response.json(); //extract JSON from the http response
         console.log(myJson);
-        canvas.loadFromJSON(myJson);
+        canvasData = JSON.parse(myJson.body).contents.S;
+        // console.log(canvasData);
+        canvas.loadFromJSON(canvasData);
         for (const co of canvas.getObjects()) {
             co.selectable = (co.name != undefined && co.name == username)
         }
@@ -574,8 +576,8 @@ function initFowCanvas(hideall=false) {
       top: 0,
       angle: 0,
       selectable: false,
-      excludeFromExport: true
-      // evented: false
+      excludeFromExport: true,
+      evented: false
     });
 
     // If we want to hide everything first, set the hideall flag
@@ -587,8 +589,8 @@ function initFowCanvas(hideall=false) {
           fill: 'black',
           width: canvas.getWidth(),
           height: canvas.getHeight(),
-          selectable: false
-          // evented: false
+          selectable: false,
+          evented: false
         });
 
         fowgroup.add(blackRect)
@@ -657,8 +659,10 @@ fogofwarRevealAllEl.onclick = function() {
 }
 
 function initRuler() {
-    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', selectable:'false', visible:'false'});
+    action=false;
+    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', strokeWidth:3, selectable:false, visible:false});
     canvas.add(rulerLine);
+    action=true;
 }
 
 /**
@@ -1053,6 +1057,7 @@ canvas.on(
         }
         else if (action) {
             action = false;
+            console.log("trying to add ownership to object");
             for (const co of canvas.getObjects()) {
                 if(co==e.target){
                     co.toObject = (function(toObject) {
@@ -1078,7 +1083,7 @@ canvas.on(
 canvas.on(
     'object:removed', function (e) {
         if (action) {
-            console.log('Object removed');
+            console.log('Object removed: ' + e.toString());
             var rcommand = new RemoveCommand(e);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", rcommand);
             stateHistory.add(rcommand);
@@ -1169,6 +1174,8 @@ canvas.on('mouse:down', function(opt) {
   var pointer = canvas.getPointer(opt.e);
   origX = pointer.x;
   origY = pointer.y;
+  isDown = true;
+
   if (evt.altKey === true) {
     this.isDragging = true;
     this.selection = false;
@@ -1177,7 +1184,6 @@ canvas.on('mouse:down', function(opt) {
   }
   else if (editingFOW) {
     action = false;
-    isDown = true;
     // var pointer = canvas.getPointer(opt.e);
     // origX = pointer.x;
     // origY = pointer.y;
@@ -1191,7 +1197,7 @@ canvas.on('mouse:down', function(opt) {
         height: pointer.y-origY,
         angle: 0,
         fill: 'rgba(0,0,0,1)',
-        selectable: 'false',
+        selectable: false,
         transparentCorners: false,
         evented: false
     });
@@ -1204,9 +1210,11 @@ canvas.on('mouse:down', function(opt) {
     }
 
     canvas.add(fowrect);
+    action = true;
   }
   else if (rulerMode) {
     console.log("Beginning to draw ruler");
+    canvas.selection = false;
     rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY});
     rulerLine.visible = true;
     canvas.renderAll();
@@ -1254,7 +1262,7 @@ canvas.on('mouse:move', function(opt) {
 
     canvas.renderAll();
   }
-  else if (rulerMode) {
+  else if (rulerMode && isDown) {
     console.log("Moving cursor end of ruler");
 
     rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
@@ -1283,6 +1291,7 @@ canvas.on('mouse:up', function(opt) {
   }
   else if (rulerMode) {
     console.log("Make ruler invisble");
+    canvas.selection = true;
     rulerLine.visible = false;
     canvas.renderAll();    
   }
