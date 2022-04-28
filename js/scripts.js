@@ -61,6 +61,7 @@ var editingFOW = false;
 var fowgroup;
 
 var rulerMode = false;
+var rulerLine;
 
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
@@ -135,6 +136,8 @@ function init() {
     console.log("Initialize fog of war");
     initFOWEl();
     initFowCanvas(false);
+    console.log("Initializing Ruler");
+    initRuler();
 
     // Lazy way of setting the character sheet and drawing mode elements
     drawingModeEl.click();
@@ -651,6 +654,11 @@ fogofwarRevealAllEl.onclick = function() {
     initFowCanvas(false)
 }
 
+function initRuler() {
+    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'red', eventable:'false', visible:'false'});
+    canvas.add(rulerLine);
+}
+
 /**
  * Menu button event that calls the clear canvas function
  * 
@@ -696,6 +704,9 @@ drawingModeEl.onclick = function() {
 rulerButtonEl.onclick = function() {
     rulerMode = !rulerMode;
     if(rulerMode) {
+        canvas.isDrawingMode = false;
+        editingFOW = false;
+        console.log("Entering ruler mode");
         rulerButtonEl.innerHTML = 'Cancel ruler mode';
         drawingOptionsEl.style.display = 'none';
         fogofwarMenuEl.style.display = 'none';
@@ -703,6 +714,7 @@ rulerButtonEl.onclick = function() {
 
     }
     else {
+        console.log("Exiting ruler mode");
         rulerButtonEl.innerHTML = 'Ruler Mode';
         drawingOptionsEl.style.display = '';
         fogofwarMenuEl.style.display = '';
@@ -1164,9 +1176,9 @@ canvas.on('mouse:down', function(opt) {
   else if (editingFOW) {
     action = false;
     isDown = true;
-    var pointer = canvas.getPointer(opt.e);
-    origX = pointer.x;
-    origY = pointer.y;
+    // var pointer = canvas.getPointer(opt.e);
+    // origX = pointer.x;
+    // origY = pointer.y;
     var pointer = canvas.getPointer(opt.e);
     fowrect = new fabric.Rect({
         left: origX,
@@ -1191,6 +1203,12 @@ canvas.on('mouse:down', function(opt) {
 
     canvas.add(fowrect);
   }
+  else if (rulerMode) {
+    console.log("Beginning to draw ruler");
+    rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY});
+    rulerLine.visible = true;
+    // canvas.add(rulerLine);
+  }
   else if (!canvas.isDrawingMode) {
     setTimeout(function() {
         if(isDown) {
@@ -1206,6 +1224,8 @@ canvas.on('mouse:down', function(opt) {
  * 
  */
 canvas.on('mouse:move', function(opt) {
+  var pointer = canvas.getPointer(opt.e);
+
   if (this.isDragging) {
     var e = opt.e;
     var vpt = this.viewportTransform;
@@ -1232,6 +1252,12 @@ canvas.on('mouse:move', function(opt) {
 
     canvas.renderAll();
   }
+  else if (rulerMode) {
+    console.log("Moving cursor end of ruler");
+
+    rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
+    canvas.renderAll();    
+  }
 });
 
 /**
@@ -1252,6 +1278,11 @@ canvas.on('mouse:up', function(opt) {
     console.log(JSON.stringify(fowgroup));
     sendSocketMessage(MessageType.CanvasUpdate, "fogofwar", JSON.stringify(fowgroup.getObjects()));
     action = true;
+  }
+  else if (rulerMode) {
+    console.log("Make ruler invisble");
+    rulerLine.visible = false;
+    // canvas.renderAll();    
   }
 });
 

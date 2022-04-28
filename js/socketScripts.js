@@ -50,7 +50,6 @@ function sendSocketMessage(type, username, contents) {
         console.log(msg);
     };
     socket.send(JSON.stringify(msg));
-
 }
 
 
