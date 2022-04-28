@@ -62,6 +62,7 @@ var fowgroup;
 
 var rulerMode = false;
 var rulerLine;
+var rulerText;
 
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
@@ -659,10 +660,12 @@ fogofwarRevealAllEl.onclick = function() {
 }
 
 function initRuler() {
-    action=false;
-    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', strokeWidth:3, selectable:false, visible:false});
-    canvas.add(rulerLine);
-    action=true;
+    // action=false;
+    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', strokeWidth:3, selectable:false, evented:false, visible:true});
+    rulerText = new fabric.Text('Initialize', {fontSize: 30, fill: 'green',top: 'top', left: 'top', selectable:false, evented:false, visible:true});
+    // canvas.add(rulerLine);
+    // canvas.add(rulerText);
+    // action=true;
 }
 
 /**
@@ -1174,7 +1177,6 @@ canvas.on('mouse:down', function(opt) {
   var pointer = canvas.getPointer(opt.e);
   origX = pointer.x;
   origY = pointer.y;
-  isDown = true;
 
   if (evt.altKey === true) {
     this.isDragging = true;
@@ -1203,10 +1205,10 @@ canvas.on('mouse:down', function(opt) {
     });
     if(fogofwarRevealEl.checked) {
         fowrect.globalCompositeOperation = 'destination-out';
-        fowrect.fill = 'rgba(0,0,0,1';
+        fowrect.fill = 'rgba(0,0,0, 1)';
     }
     else {
-        fowrect.fill = 'rgba(0, 0, 0,1';
+        fowrect.fill = 'rgba(0, 0, 0, 1)';
     }
 
     canvas.add(fowrect);
@@ -1215,9 +1217,11 @@ canvas.on('mouse:down', function(opt) {
   else if (rulerMode) {
     console.log("Beginning to draw ruler");
     canvas.selection = false;
-    rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY});
-    rulerLine.visible = true;
+    rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true});
+    rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true});
+    canvas.add(rulerLine, rulerText);
     canvas.renderAll();
+    console.log(rulerLine);
   }
   else if (!canvas.isDrawingMode) {
     setTimeout(function() {
@@ -1266,9 +1270,15 @@ canvas.on('mouse:move', function(opt) {
     console.log("Moving cursor end of ruler");
 
     rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
-    canvas.renderAll();    
+    rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
+    canvas.renderAll();
   }
 });
+
+function getLineLengthFeet(line) {
+    var length = (Math.sqrt(Math.pow(line.width,2)+Math.pow(line.height, 2)));
+    return Math.round(length*10/grid*5)/10
+}
 
 /**
  * Mouse up handlers finish canvas panning and updates the fog of war group 
@@ -1292,7 +1302,10 @@ canvas.on('mouse:up', function(opt) {
   else if (rulerMode) {
     console.log("Make ruler invisble");
     canvas.selection = true;
+    // canvas.remove(rulerLine, rulerText);
+
     rulerLine.visible = false;
+    rulerText.visible = false;
     canvas.renderAll();    
   }
 });
