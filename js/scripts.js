@@ -655,7 +655,7 @@ fogofwarRevealAllEl.onclick = function() {
 }
 
 function initRuler() {
-    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'red', eventable:'false', visible:'false'});
+    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', selectable:'false', visible:'false'});
     canvas.add(rulerLine);
 }
 
@@ -1391,7 +1391,7 @@ function animatePointer(animatePoint) {
       fill: 'red',
       width: 30,
       height: 10,
-      eventable: false
+      evented: false
     });
     rect2 = new fabric.Rect({
       left: pointX-5,
@@ -1399,7 +1399,7 @@ function animatePointer(animatePoint) {
       fill: 'red',
       width: 10,
       height: 30,
-      eventable: false
+      evented: false
     });
     rect3 = new fabric.Rect({
       left: pointX+100,
@@ -1407,7 +1407,7 @@ function animatePointer(animatePoint) {
       fill: 'red',
       width: 30,
       height: 10,
-      eventable: false
+      evented: false
     });
     rect4 = new fabric.Rect({
       left: pointX-5,
@@ -1415,7 +1415,7 @@ function animatePointer(animatePoint) {
       fill: 'red',
       width: 10,
       height: 30,
-      eventable: false
+      evented: false
     });
 
     canvas.add(rect1);
