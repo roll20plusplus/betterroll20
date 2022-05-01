@@ -51,7 +51,7 @@ isDrawingMode: true
 var newleft = 0;
 canvas.selection = false;
 
-var backgroundURL = 'img/map_15x14.png';
+var backgroundURL = 'https://betterroll20s3.s3.us-west-1.amazonaws.com/img/map_15x14.png';
 
 fabric.Object.prototype.transparentCorners = false;
 
