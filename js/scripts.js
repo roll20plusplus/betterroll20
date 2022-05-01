@@ -19,11 +19,11 @@ var index2 = 0;
 var action = false;
 var refresh = true;
 
-var userFullName = '';
-var username = '';
-var userEmail = '';
-var userEmailVerified = '';
-var userGender = '';
+var userFullName = 'unauthenticated_fullname';
+var username = 'unauthenticated_username';
+var userEmail = 'unauthenticated_email';
+var userEmailVerified = 'unauthenticated_emailverified';
+var userGender = 'unauthenticated_gender';
 
 var s3;
 var sessionToken;
