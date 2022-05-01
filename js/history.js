@@ -99,18 +99,18 @@ class TransformCommand {
     console.log(this.original);
     console.log(this.transform);
   }
-  execute(canvas) {
-    canvas.getObjects().forEach((obj) => {
-        console.log(this.original.left == obj.left && this.original.top == obj.top);
-          if(this.original.left == obj.left && this.original.top == obj.top) {
-            console.log("Found the matching item")
-            for (const [key, value] of Object.entries(this.transform)) {
-                console.log("Changing attribute " + key + " to value " + value);
-                obj.set(key, value);
+    execute(canvas) {
+        canvas.getObjects().forEach((obj) => {
+            console.log(this.original.left + " " obj.left + " " this.original.top + " " obj.top);
+            if(this.original.left == obj.left && this.original.top == obj.top) {
+                console.log("Found the matching item")
+                for (const [key, value] of Object.entries(this.transform)) {
+                    console.log("Changing attribute " + key + " to value " + value);
+                    obj.set(key, value);
+                }
             }
-        }
-    });
-  }
+        });
+    }
   undo(canvas) {
     canvas.getObjects().forEach((obj) => {
           if(this.transform.left == obj.left && this.transform.top == obj.top) {
