@@ -102,7 +102,8 @@ class TransformCommand {
     execute(canvas) {
         canvas.getObjects().forEach((obj) => {
             console.log(this.original.left + " " + obj.left + " " + this.original.top + " " + obj.top);
-            if(this.original.left == obj.left && this.original.top == obj.top) {
+            console.log(obj.id + " " + this.target.id)
+            if(obj.id == this.target.id) {
                 console.log("Found the matching item")
                 for (const [key, value] of Object.entries(this.transform)) {
                     console.log("Changing attribute " + key + " to value " + value);
@@ -113,7 +114,7 @@ class TransformCommand {
     }
     undo(canvas) {
         canvas.getObjects().forEach((obj) => {
-            if(this.transform.left == obj.left && this.transform.top == obj.top) {
+            if(obj.id == this.target.id) {
                 console.log("Found the matching item")
                 console.log(Object.entries(this.original));
                 for (const [key, value] of Object.entries(this.original)) {
