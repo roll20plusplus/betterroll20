@@ -269,6 +269,7 @@ function receiveSocketMessage(socketMessage) {
             console.log("Got a canvas update message");
             var canvasAction;
             var messageAction = msgcontents.command;
+            console.log(msgcontents.target);
             switch (messageAction) {
                 case "add":
                     canvasAction = new AddCommand(msgcontents.target);
