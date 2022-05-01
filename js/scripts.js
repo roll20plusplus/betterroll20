@@ -270,17 +270,23 @@ function receiveSocketMessage(socketMessage) {
             var canvasAction;
             var messageAction = msgcontents.command;
             console.log(msgcontents.target);
+            var enlivenedTarget;
+            fabric.util.enlivenObjects(elements, function(objects) {
+              objects.forEach(function(o) {
+                enlivenedTarget = o;
+              });
+            });
             switch (messageAction) {
                 case "add":
-                    canvasAction = new AddCommand(msgcontents.target);
+                    canvasAction = new AddCommand(enlivenedTarget);
                     canvasAction.execute(canvas);
                     break;
                 case "transform":
-                    canvasAction = new TransformCommand(msgcontents.target, msgcontents.transform);
+                    canvasAction = new TransformCommand(enlivenedTarget);
                     canvasAction.execute(canvas);
                     break;
                 case "add":
-                    canvasAction = new RemoveCommand(msgcontents.target);
+                    canvasAction = new RemoveCommand(enlivenedTarget);
                     canvasAction.execute(canvas);
                     break;
                 default:
