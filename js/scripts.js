@@ -266,7 +266,24 @@ function receiveSocketMessage(socketMessage) {
         case MessageType.CanvasUpdate:
             action = false;
             console.log("Got a canvas update message");
-            canvasAction = msg.contents;
+            var canvasAction;
+            var messageAction = msg.contents.command;
+            switch (messageAction) {
+                case "add":
+                    canvasAction = new AddCommand(msg.contents.target);
+                    canvasAction.execute();
+                    break;
+                case "transform":
+                    canvasAction = new TransformCommand(msg.contents.target, msg.contents.transform);
+                    canvasAction.execute();
+                    break;
+                case "add":
+                    canvasAction = new RemoveCommand(msg.contents.target);
+                    canvasAction.execute();
+                    break;
+                default:
+                    console.log("Could not identify canvas action: " + messageAction);
+            }
             canvasAction.execute();
 //            updateCanvas(msg.data);
             action=true;
@@ -1051,8 +1068,8 @@ canvas.on('object:added', function (e) {
             console.log('Object added');
             console.log(stateHistory);
             console.log(target);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"add", "target": target});
             var acommand = new AddCommand(target);
-            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
             stateHistory.add(acommand);
             updateModifications();
         }
@@ -1069,7 +1086,7 @@ canvas.on(
             console.log('Object Modified');
             console.log(e);
             var tcommand = new TransformCommand(e.target, e.target.original);
-            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", tcommand);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": target, "transform":e.target.original});
             stateHistory.add(tcommand);
             updateModifications();
         }
@@ -1084,7 +1101,7 @@ canvas.on(
         if (e.target.selectable && e.target.owner == username) {
             console.log('Object removed: ' + e.toString());
             var rcommand = new RemoveCommand(e.target);
-            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", rcommand);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"remove", "target": target});
             stateHistory.add(rcommand);
             updateModifications();
         }
