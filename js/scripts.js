@@ -1097,7 +1097,7 @@ canvas.on(
             console.log('Object Modified');
             console.log(e);
             var tcommand = new TransformCommand(e.target, e.transform.original);
-            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": target, "transform":e.target.original});
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": target, "transform":e.transform.original});
             stateHistory.add(tcommand);
             updateModifications();
         }
