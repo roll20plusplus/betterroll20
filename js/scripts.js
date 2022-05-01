@@ -1308,7 +1308,7 @@ canvas.on('mouse:move', function(opt) {
         rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
         rulerLine.setCoords();
         rulerText.setCoords();
-        canvas.renderAll();
+//        canvas.renderAll();
     }
   }
 });
