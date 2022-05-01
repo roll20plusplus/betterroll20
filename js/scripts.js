@@ -63,6 +63,7 @@ var fowgroup;
 var rulerMode = false;
 var rulerLine;
 var rulerText;
+var rulerTime = 0;
 
 var charSheetButtonEl = $('open-character-sheet'),
   drawingModeEl = $('drawing-mode'),
@@ -1072,7 +1073,7 @@ canvas.on(
         if (e.target.selectable && e.target.owner == username) {
             console.log('Object Modified');
             console.log(e);
-            var tcommand = new TransformCommand(e);
+            var tcommand = new TransformCommand(e.target, e.target.original);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", tcommand);
             stateHistory.add(tcommand);
             updateModifications();
@@ -1219,6 +1220,7 @@ canvas.on('mouse:down', function(opt) {
     canvas.selection = false;
     rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true});
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true});
+    rulerTimer = Date.now();
     canvas.add(rulerLine, rulerText);
     canvas.renderAll();
     console.log(rulerLine);
@@ -1267,11 +1269,13 @@ canvas.on('mouse:move', function(opt) {
     canvas.renderAll();
   }
   else if (rulerMode && isDown) {
-    console.log("Moving cursor end of ruler");
-
-    rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
-    rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
-    canvas.renderAll();
+    if(Date.now() - rulerTimer > 200){
+        console.log("Moving cursor end of ruler");
+        rulerTimer = Date.now();
+        rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
+        rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
+        canvas.renderAll();
+    }
   }
 });
 

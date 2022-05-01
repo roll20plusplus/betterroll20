@@ -88,13 +88,13 @@ class RemoveCommand {
 }
 
 class TransformCommand {
-  constructor(receiver) {
-    this.receiver = receiver;
-    this.original = this.receiver.transform.original;
+  constructor(target, original) {
+    this.target = target;
+    this.original = original;
     this.transform = {};
     console.log(Object.entries(this.original));
     for (const [key, value] of Object.entries(this.original)) {
-        this.transform[key] = this.receiver.target[key];
+        this.transform[key] = this.target[key];
     }
     console.log(this.original);
     console.log(this.transform);
@@ -113,7 +113,6 @@ class TransformCommand {
   }
   undo(canvas) {
     canvas.getObjects().forEach((obj) => {
-//        console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
           if(this.transform.left == obj.left && this.transform.top == obj.top) {
             console.log("Found the matching item")
             console.log(Object.entries(this.original));
