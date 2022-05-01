@@ -239,7 +239,7 @@ function getIDToken() {
                     return;
                 }
                 console.log('session validity: ' + session.isValid());
-                console.log('session token: ' + session.getIdToken().getJwtToken());
+//                console.log('session token: ' + session.getIdToken().getJwtToken());
                 return session.getIdToken().getJwtToken();
             });
         } else {console.log("error loading credentials"); return null;}
