@@ -271,7 +271,7 @@ function receiveSocketMessage(socketMessage) {
             var messageAction = msgcontents.command;
             console.log(msgcontents.target);
             var enlivenedTarget;
-            fabric.util.enlivenObjects(elements, function(objects) {
+            fabric.util.enlivenObjects([msgcontents.target], function(objects) {
               objects.forEach(function(o) {
                 enlivenedTarget = o;
               });
