@@ -1048,14 +1048,14 @@ canvas.on('object:added', function (e) {
 //                    canvas.add(co);
                 }
             }
+            console.log('Object added');
+            console.log(stateHistory);
+            console.log(e);
+            var acommand = new AddCommand(e);
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
+            stateHistory.add(acommand);
+            updateModifications();
         }
-        console.log('Object added');
-        console.log(stateHistory);
-        console.log(e);
-        var acommand = new AddCommand(e);
-        sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
-        stateHistory.add(acommand);
-        updateModifications();
     }
 });
 
