@@ -257,7 +257,7 @@ function receiveSocketMessage(socketMessage) {
     console.log(socketMessage);
 
     // msg.data is the JSON payload of the websocket message. 
-    var msg = JSON.parse(socketMessage['data']);
+    var msg = JSON.parse(socketMessage['data']).data;
     console.log(msg);
 
     msgtype = msg.messageType;
