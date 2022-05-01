@@ -1096,7 +1096,7 @@ canvas.on(
         if (e.target.selectable && e.target.owner == username) {
             console.log('Object Modified');
             console.log(e);
-            var tcommand = new TransformCommand(e.target, e.target.original);
+            var tcommand = new TransformCommand(e.target, e.transform.original);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": target, "transform":e.target.original});
             stateHistory.add(tcommand);
             updateModifications();
