@@ -273,8 +273,22 @@ function receiveSocketMessage(socketMessage) {
             var enlivenedTarget;
             fabric.util.enlivenObjects([msgcontents.target], function(objects) {
               objects.forEach(function(o) {
-                console.log(o)
-                enlivenedTarget = o;
+                    switch (messageAction) {
+                        case "add":
+                            canvasAction = new AddCommand(o);
+                            canvasAction.execute(canvas);
+                            break;
+                        case "transform":
+                            canvasAction = new TransformCommand(o, msgcontents.transform);
+                            canvasAction.execute(canvas);
+                            break;
+                        case "add":
+                            canvasAction = new RemoveCommand(o);
+                            canvasAction.execute(canvas);
+                            break;
+                        default:
+                            console.log("Could not identify canvas action: " + messageAction);
+                    }
               });
             });
             switch (messageAction) {
