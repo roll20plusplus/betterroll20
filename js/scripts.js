@@ -296,22 +296,6 @@ function receiveSocketMessage(socketMessage) {
                     }
                 });
             });
-            switch (messageAction) {
-                case "add":
-                    canvasAction = new AddCommand(enlivenedTarget);
-                    canvasAction.execute(canvas);
-                    break;
-                case "transform":
-                    canvasAction = new TransformCommand(enlivenedTarget);
-                    canvasAction.execute(canvas);
-                    break;
-                case "add":
-                    canvasAction = new RemoveCommand(enlivenedTarget);
-                    canvasAction.execute(canvas);
-                    break;
-                default:
-                    console.log("Could not identify canvas action: " + messageAction);
-            }
 //            updateCanvas(msg.data);
             action=true;
             break;
