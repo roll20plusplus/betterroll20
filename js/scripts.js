@@ -273,7 +273,7 @@ function receiveSocketMessage(socketMessage) {
             var enlivenedTarget;
             fabric.util.enlivenObjects([msgcontents.target], function(objects) {
                 objects.forEach(function(o) {
-                    if (o !=null) {
+                    if (o !=null && o.owner != username) {
                         switch (messageAction) {
                             case "add":
                                 canvasAction = new AddCommand(o);
