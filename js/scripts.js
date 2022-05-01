@@ -1034,6 +1034,7 @@ canvas.on('object:added', function (e) {
     if (e.target.selectable) {
         console.log("Object is selectable");
         if (e.target.owner == null) {
+            let target;
             for (const co of canvas.getObjects()) {
                 if (co==e.target){
                     co.toObject = (function(toObject) {
@@ -1045,6 +1046,7 @@ canvas.on('object:added', function (e) {
                     })(co.toObject);
                     co.owner = username;
                     e.target.owner = username;
+                    target = co;
                     action=true;
 //                    canvas.add(co);
                     break;
@@ -1053,7 +1055,7 @@ canvas.on('object:added', function (e) {
             console.log('Object added');
             console.log(stateHistory);
             console.log(e);
-            var acommand = new AddCommand(e);
+            var acommand = new AddCommand(target);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
             stateHistory.add(acommand);
             updateModifications();
@@ -1085,7 +1087,7 @@ canvas.on(
     'object:removed', function (e) {
         if (e.target.selectable) {
             console.log('Object removed: ' + e.toString());
-            var rcommand = new RemoveCommand(e);
+            var rcommand = new RemoveCommand(e.target);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", rcommand);
             stateHistory.add(rcommand);
             updateModifications();

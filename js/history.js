@@ -48,8 +48,8 @@ class CommandHistory {
 // use when you init your Canvas, like this.history = new CommandHistory();
 
 class AddCommand {
-  constructor(receiver) {
-    this.receiver = receiver;
+  constructor(target) {
+    this.target = target;
   }
   execute(canvas) {
     console.log('redoing add command');
@@ -58,8 +58,8 @@ class AddCommand {
   undo(canvas) {
     console.log('Undoing add command');
     canvas.getObjects().forEach((obj) => {
-        console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
-          if(this.receiver.target == obj) {
+        console.log(this.target.translationX == obj.translationX && this.target.translationY == obj.translationY);
+          if(this.target == obj) {
             console.log(obj);
             console.log(canvas.remove(obj));
         }
@@ -70,21 +70,20 @@ class AddCommand {
 // When you will add object on your canvas invoke also this.history.add(new AddCommand(object, controller))
 
 class RemoveCommand {
-  constructor(receiver) {
-    this.receiver = receiver;
+  constructor(target) {
+    this.target = target;
   }
   execute(canvas) {
     canvas.getObjects().forEach((obj) => {
-        console.log(this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY);
-          if(this.receiver.target == obj) {
-//        if(obj.selectable && this.receiver.target.translationX == obj.translationX && this.receiver.target.translationY == obj.translationY) {
+        console.log(this.target.translationX == obj.translationX && this.target.translationY == obj.translationY);
+          if(this.target == obj) {
             console.log(obj);
             console.log(canvas.remove(obj));
         }
     });
   }
   undo(canvas) {
-    canvas.add(this.receiver.target);
+    canvas.add(this.target);
   }
 }
 
