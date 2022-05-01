@@ -1251,8 +1251,6 @@ canvas.on('mouse:down', function(opt) {
     canvas.selection = false;
     rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true, 'owner' : null});
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
-    rulerLine.setCoords();
-    rulerText.setCoords();
 
     rulerTimer = Date.now();
     canvas.add(rulerLine, rulerText);
@@ -1308,6 +1306,8 @@ canvas.on('mouse:move', function(opt) {
         rulerTimer = Date.now();
         rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
         rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
+        rulerLine.setCoords();
+        rulerText.setCoords();
         canvas.renderAll();
     }
   }
