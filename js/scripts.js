@@ -312,7 +312,6 @@ function receiveSocketMessage(socketMessage) {
                 default:
                     console.log("Could not identify canvas action: " + messageAction);
             }
-            canvasAction.execute();
 //            updateCanvas(msg.data);
             action=true;
             break;
