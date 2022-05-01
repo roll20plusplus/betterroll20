@@ -272,15 +272,15 @@ function receiveSocketMessage(socketMessage) {
             switch (messageAction) {
                 case "add":
                     canvasAction = new AddCommand(msgcontents.target);
-                    canvasAction.execute();
+                    canvasAction.execute(canvas);
                     break;
                 case "transform":
                     canvasAction = new TransformCommand(msgcontents.target, msgcontents.transform);
-                    canvasAction.execute();
+                    canvasAction.execute(canvas);
                     break;
                 case "add":
                     canvasAction = new RemoveCommand(msgcontents.target);
-                    canvasAction.execute();
+                    canvasAction.execute(canvas);
                     break;
                 default:
                     console.log("Could not identify canvas action: " + messageAction);
