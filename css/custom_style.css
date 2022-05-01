@@ -111,7 +111,7 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
   overflow-x: scroll;
   overflow-y: scroll;
   /*width: 70vw;*/
-  /*height: 90vh;*/
+  height: 90vh;
   z-index: 0;
 
 }
