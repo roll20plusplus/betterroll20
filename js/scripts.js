@@ -688,8 +688,8 @@ fogofwarRevealAllEl.onclick = function() {
 
 function initRuler() {
     // action=false;
-    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', strokeWidth:3, /*selectable:false, evented:false,**/ visible:true});
-    rulerText = new fabric.Text('Initialize', {fontSize: 30, fill: 'green',top: 'top', left: 'top', /*selectable:false, evented:false,**/ visible:true});
+    rulerLine = new fabric.Line([0,0,0,0],  {stroke: 'green', strokeWidth:3, /*selectable:false, evented:false, visible:true**/ });
+    rulerText = new fabric.Text('Initialize', {fontSize: 30, fill: 'green', top: 'top', left: 'top', /*selectable:false, evented:false, visible:true**/ });
     // canvas.add(rulerLine);
     // canvas.add(rulerText);
     // action=true;
@@ -1251,6 +1251,9 @@ canvas.on('mouse:down', function(opt) {
     canvas.selection = false;
     rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true, 'owner' : null});
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
+    rulerLine.setCoords();
+    rulerText.setCoords();
+
     rulerTimer = Date.now();
     canvas.add(rulerLine, rulerText);
     canvas.renderAll();
