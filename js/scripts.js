@@ -1410,36 +1410,40 @@ function animatePointer(animatePoint) {
     console.log(pointX + " " + pointY);
 
     rect1 = new fabric.Rect({
-      left: pointX-130,
-      top: pointY-5,
-      fill: 'red',
-      width: 30,
-      height: 10,
-      evented: false
+        left: pointX-130,
+        top: pointY-5,
+        fill: 'red',
+        selectable: false,
+        width: 30,
+        height: 10,
+        evented: false
     });
     rect2 = new fabric.Rect({
-      left: pointX-5,
-      top: pointY-130,
-      fill: 'red',
-      width: 10,
-      height: 30,
-      evented: false
+        left: pointX-5,
+        top: pointY-130,
+        fill: 'red',
+        selectable: false,
+        width: 10,
+        height: 30,
+        evented: false
     });
     rect3 = new fabric.Rect({
-      left: pointX+100,
-      top: pointY-5,
-      fill: 'red',
-      width: 30,
-      height: 10,
-      evented: false
+        left: pointX+100,
+        top: pointY-5,
+        fill: 'red',
+        selectable: false,
+        width: 30,
+        height: 10,
+        evented: false
     });
     rect4 = new fabric.Rect({
-      left: pointX-5,
-      top: pointY+100,
-      fill: 'red',
-      width: 10,
-      height: 30,
-      evented: false
+        left: pointX-5,
+        top: pointY+100,
+        fill: 'red',
+        selectable: false,
+        width: 10,
+        height: 30,
+        evented: false
     });
 
     canvas.add(rect1);
