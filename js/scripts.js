@@ -303,7 +303,7 @@ function receiveSocketMessage(socketMessage) {
            break;
         // Broadcast actions are currently just pointer animations, expect this to grow
         case MessageType.BroadcastAction:
-            console.log('Broadcasting action (likely a crosshair clickhold: ' + msg.data.contents);
+            console.log('Broadcasting action (either a pointer animation or canvas update: ' + msg.data.contents);
             animatePointer(msg.data.contents);
             break;
         // 
