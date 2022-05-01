@@ -1045,16 +1045,16 @@ canvas.on('object:added', function (e) {
                       };
                     })(co.toObject);
                     co.owner = username;
-                    e.target.owner = username;
+//                    e.target.owner = username;
                     target = co;
-                    action=true;
+//                    action=true;
 //                    canvas.add(co);
                     break;
                 }
             }
             console.log('Object added');
             console.log(stateHistory);
-            console.log(e);
+            console.log(target);
             var acommand = new AddCommand(target);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
             stateHistory.add(acommand);

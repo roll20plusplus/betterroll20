@@ -52,8 +52,8 @@ class AddCommand {
     this.target = target;
   }
   execute(canvas) {
-    console.log('redoing add command');
-    canvas.add(this.receiver.target);
+    console.log('executing add command');
+    canvas.add(this.target);
   }
   undo(canvas) {
     console.log('Undoing add command');
