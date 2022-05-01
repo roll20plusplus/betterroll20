@@ -257,28 +257,29 @@ function receiveSocketMessage(socketMessage) {
     console.log(socketMessage);
 
     // msg.data is the JSON payload of the websocket message. 
-    var msg = JSON.parse(socketMessage['data']).data;
+    var msg = JSON.parse(socketMessage['data']);
     console.log(msg);
 
     msgtype = msg.messageType;
+    var msgcontents = msg.data.contents;
     switch(msgtype) {
         //Canvas updates contain the entire canvas as a json payload
         case MessageType.CanvasUpdate:
             action = false;
             console.log("Got a canvas update message");
             var canvasAction;
-            var messageAction = msg.contents.command;
+            var messageAction = msgcontents.command;
             switch (messageAction) {
                 case "add":
-                    canvasAction = new AddCommand(msg.contents.target);
+                    canvasAction = new AddCommand(msgcontents.target);
                     canvasAction.execute();
                     break;
                 case "transform":
-                    canvasAction = new TransformCommand(msg.contents.target, msg.contents.transform);
+                    canvasAction = new TransformCommand(msgcontents.target, msgcontents.transform);
                     canvasAction.execute();
                     break;
                 case "add":
-                    canvasAction = new RemoveCommand(msg.contents.target);
+                    canvasAction = new RemoveCommand(msgcontents.target);
                     canvasAction.execute();
                     break;
                 default:
