@@ -266,7 +266,7 @@ function receiveSocketMessage(socketMessage) {
         case MessageType.CanvasUpdate:
             action = false;
             console.log("Got a canvas update message");
-            canvasAction = JSON.parse(msg.data.contents);
+            canvasAction = msg.contents;
             canvasAction.execute();
 //            updateCanvas(msg.data);
             action=true;
