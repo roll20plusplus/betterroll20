@@ -260,11 +260,6 @@ function receiveSocketMessage(socketMessage) {
     var msg = JSON.parse(socketMessage['data']);
     // console.log(msg.data);
 
-    // Keep this comment here, sometimes the JSON.parse function behaves oddly
-    // if (typeof(msg) == 'string') {
-    //     msg = JSON.parse(msg);
-    // }
-
     msgtype = msg.messageType;
     switch(msgtype) {
         //Canvas updates contain the entire canvas as a json payload
@@ -1218,8 +1213,8 @@ canvas.on('mouse:down', function(opt) {
   else if (rulerMode) {
     console.log("Beginning to draw ruler");
     canvas.selection = false;
-    rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true});
-    rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true});
+    rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true, 'owner' : null});
+    rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
     rulerTimer = Date.now();
     canvas.add(rulerLine, rulerText);
     canvas.renderAll();
