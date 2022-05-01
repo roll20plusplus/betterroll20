@@ -1061,6 +1061,7 @@ canvas.on('object:added', function (e) {
             let target;
             for (const co of canvas.getObjects()) {
                 if (co==e.target){
+                    co.id = genID();
                     co.toObject = (function(toObject) {
                       return function() {
                         return fabric.util.object.extend(toObject.call(this), {
@@ -1484,4 +1485,11 @@ function animatePointer(animatePoint) {
     rect3.animate('left', '-=100');
     rect4.animate('top', '-=100', {onChange: canvas.renderAll.bind(canvas), onComplete: function() {canvas.remove(rect1);canvas.remove(rect2);canvas.remove(rect3);canvas.remove(rect4); action = true}});
 
+}
+
+/**
+  * Generates an string id, used
+  */
+function genID() {
+    return  Math.floor(Math.random() * 1000000000000).toString()
 }
