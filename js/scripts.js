@@ -1035,7 +1035,7 @@ canvas.on('object:added', function (e) {
         console.log("Object is selectable");
         if (e.target.owner == null) {
             for (const co of canvas.getObjects()) {
-                if(co==e.target){
+                if (co==e.target){
                     co.toObject = (function(toObject) {
                       return function() {
                         return fabric.util.object.extend(toObject.call(this), {
@@ -1044,8 +1044,10 @@ canvas.on('object:added', function (e) {
                       };
                     })(co.toObject);
                     co.owner = username;
+                    e.target.owner = username;
                     action=true;
 //                    canvas.add(co);
+                    break;
                 }
             }
             console.log('Object added');
