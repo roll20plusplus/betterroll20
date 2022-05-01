@@ -272,24 +272,29 @@ function receiveSocketMessage(socketMessage) {
             console.log(msgcontents.target);
             var enlivenedTarget;
             fabric.util.enlivenObjects([msgcontents.target], function(objects) {
-              objects.forEach(function(o) {
-                    switch (messageAction) {
-                        case "add":
-                            canvasAction = new AddCommand(o);
-                            canvasAction.execute(canvas);
-                            break;
-                        case "transform":
-                            canvasAction = new TransformCommand(o, msgcontents.transform);
-                            canvasAction.execute(canvas);
-                            break;
-                        case "add":
-                            canvasAction = new RemoveCommand(o);
-                            canvasAction.execute(canvas);
-                            break;
-                        default:
-                            console.log("Could not identify canvas action: " + messageAction);
+                objects.forEach(function(o) {
+                    if (o !=null) {
+                        switch (messageAction) {
+                            case "add":
+                                canvasAction = new AddCommand(o);
+                                canvasAction.execute(canvas);
+                                break;
+                            case "transform":
+                                canvasAction = new TransformCommand(o, msgcontents.transform);
+                                canvasAction.execute(canvas);
+                                break;
+                            case "add":
+                                canvasAction = new RemoveCommand(o);
+                                canvasAction.execute(canvas);
+                                break;
+                            default:
+                                console.log("Could not identify canvas action: " + messageAction);
+                        }
                     }
-              });
+                    else {
+                        console.log("Enlivened Object was null");
+                    }
+                });
             });
             switch (messageAction) {
                 case "add":
