@@ -1062,6 +1062,7 @@ canvas.on('object:added', function (e) {
             for (const co of canvas.getObjects()) {
                 if (co==e.target){
                     co.id = genID();
+                    console.log(co.id);
                     co.toObject = (function(toObject) {
                       return function() {
                         return fabric.util.object.extend(toObject.call(this), {
