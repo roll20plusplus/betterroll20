@@ -111,6 +111,7 @@ class TransformCommand {
                 }
             }
         });
+        canvas.renderAll();
     }
     undo(canvas) {
         canvas.getObjects().forEach((obj) => {
@@ -123,5 +124,6 @@ class TransformCommand {
                 }
             }
         });
+        canvas.renderAll();
     }
 }
