@@ -191,12 +191,17 @@ function loadCanvasState() {
         const myJson = await response.json(); //extract JSON from the http response
         console.log(myJson);
         canvasData = JSON.parse(myJson.body).contents.S;
-        // console.log(canvasData);
-        canvas.loadFromJSON(canvasData);
-        for (const co of canvas.getObjects()) {
-            co.selectable = (co.name != undefined && co.name == username)
+        if(canvasData != ''){
+            // console.log(canvasData);
+            canvas.loadFromJSON(canvasData);
+            for (const co of canvas.getObjects()) {
+                co.selectable = (co.name != undefined && co.name == username)
+            }
+            canvas.renderAll();
         }
-        canvas.renderAll();
+        else {
+            setCanvasState();
+        }
       // do something with myJson
     }
     loadState();
@@ -327,7 +332,6 @@ function drawBackground() {
  */
 
 function drawGrid(grid = 70) {
-    console.log('Drawing grid');
     canvasEl = document.getElementsByClassName("canvas-container")[0];
     bw = canvasEl.width;
     bh = canvasEl.height;
@@ -518,7 +522,6 @@ charSheetButtonEl.onclick = function () {
 function assignUserAttributes() {
     console.log("Getting and assigning user attribute values")
     getUserProfile(function(result) {
-        console.log(result);
         if (result == null) {
             console.log('Couldnt get user attributes');
             return;
@@ -821,8 +824,6 @@ if (fabric.PatternBrush) {
     texturePatternBrush.source = img;
 }
 
-
-
 /**
  * Freedrawing menu option event handlers. Nothing that needs to be touched for the most part.
  * 
@@ -1026,8 +1027,41 @@ function getMousePos(evt) {
 //History State functions
 
 /**
- * Canvas object modification event handler. Calls updateModifications()
+ * Canvas object added event handler. Saves the action to StateHistory and calls updateModifications()
  * 
+ */
+canvas.on('object:added', function (e) {
+    if (e.target.selectable) {
+        console.log("Object is selectable");
+        if (e.target.owner == null) {
+            for (const co of canvas.getObjects()) {
+                if(co==e.target){
+                    co.toObject = (function(toObject) {
+                      return function() {
+                        return fabric.util.object.extend(toObject.call(this), {
+                          owner: this.owner
+                        });
+                      };
+                    })(co.toObject);
+                    co.owner = username;
+                    action=true;
+//                    canvas.add(co);
+                }
+            }
+        }
+        console.log('Object added');
+        console.log(stateHistory);
+        console.log(e);
+        var acommand = new AddCommand(e);
+        sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
+        stateHistory.add(acommand);
+        updateModifications();
+    }
+});
+
+/**
+ * Canvas object modification event handler. Calls updateModifications()
+ *
  */
 canvas.on(
     'object:modified', function (e) {
@@ -1042,50 +1076,12 @@ canvas.on(
 });
 
 /**
- * Canvas object added event handler. Saves the action to StateHistory and calls updateModifications()
- * 
- */
-canvas.on(
-    'object:added', function (e) {
-        if (action && e.target.owner != null) {
-            console.log('Object added');
-            console.log(stateHistory);
-            console.log(e);
-
-//            console.log(canvas.getObjects()[0] == e.target);
-            var acommand = new AddCommand(e);
-            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", acommand);
-            stateHistory.add(acommand);
-            updateModifications();
-        }
-        else if (action) {
-            action = false;
-            console.log("trying to add ownership to object");
-            for (const co of canvas.getObjects()) {
-                if(co==e.target){
-                    co.toObject = (function(toObject) {
-                      return function() {
-                        return fabric.util.object.extend(toObject.call(this), {
-                          owner: this.owner
-                        });
-                      };
-                    })(co.toObject);
-                    co.owner = username;
-                    action=true;
-                    canvas.add(co);
-                }
-            }
-            action=true;
-        }
-});
-
-/**
  * Canvas object removed event handler. Saves the action to StateHistory and calls updateModifications()
  * 
  */
 canvas.on(
     'object:removed', function (e) {
-        if (action) {
+        if (e.target.selectable) {
             console.log('Object removed: ' + e.toString());
             var rcommand = new RemoveCommand(e);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", rcommand);
@@ -1101,7 +1097,7 @@ canvas.on(
  */
 function updateModifications() {
     if (action) {
-        console.log("Updating Modifications")
+        console.log("updateModifications() called")
         // setCanvasState();
 //        sendSocketMessage(MessageType.CanvasUpdate, username, myjson);
     }
