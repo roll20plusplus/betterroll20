@@ -1120,7 +1120,7 @@ canvas.on(
         if (e.target.selectable && e.target.owner == username) {
             console.log('Object removed: ' + e.toString());
             var rcommand = new RemoveCommand(e.target);
-            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"remove", "target": target});
+            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"remove", "target": e.target});
             stateHistory.add(rcommand);
             updateModifications();
         }
