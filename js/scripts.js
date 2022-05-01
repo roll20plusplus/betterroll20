@@ -1069,7 +1069,7 @@ canvas.on('object:added', function (e) {
  */
 canvas.on(
     'object:modified', function (e) {
-        if (action) {
+        if (e.target.selectable && e.target.owner == username) {
             console.log('Object Modified');
             console.log(e);
             var tcommand = new TransformCommand(e);
@@ -1085,7 +1085,7 @@ canvas.on(
  */
 canvas.on(
     'object:removed', function (e) {
-        if (e.target.selectable) {
+        if (e.target.selectable && e.target.owner == username) {
             console.log('Object removed: ' + e.toString());
             var rcommand = new RemoveCommand(e.target);
             sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", rcommand);
