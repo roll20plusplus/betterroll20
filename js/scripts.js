@@ -116,6 +116,8 @@ window.addEventListener('DOMContentLoaded', event => {
 
 function init() {
     action=false;
+    console.log("Pull and load user attributes from cognito");
+    assignUserAttributes();
     console.log("Initializing websocket connection");
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.addEventListener('open', (event) => {
@@ -136,8 +138,6 @@ function init() {
     chatInputConfig();
     console.log("Initialize command history object");
     stateHistory = new CommandHistory();
-    console.log("Pull and load user attributes from cognito");
-    assignUserAttributes();
     console.log("Initializing S3 Bucket");
     initS3();
     console.log("Initialize fog of war");
@@ -164,7 +164,7 @@ function saveSocketConnection() {
             AWS.config.credentials.get(function(err) {
                 if (!err) {
                     var id = AWS.config.credentials.identityId;
-                    sendSocketMessage(MessageType.InaraConnect, id, "");
+                    sendSocketMessage(MessageType.InaraConnect, id, username);
                 }
                 else {
                     console.log("Could not save socket connection, error retrieving cognito credentials");
@@ -254,6 +254,7 @@ function sendChatMessage() {
                         'Authorization': idt
                 })});
                 const myJson = await response.json(); //extract JSON from the http response
+
                 console.log(myJson);
             }
             getUsers();
