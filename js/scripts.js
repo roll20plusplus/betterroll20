@@ -1373,7 +1373,7 @@ canvas.on('mouse:move', function(opt) {
     if(Date.now() - rulerTimer > 200){
         rulerTimer = Date.now();
         canvas.fire('object:modified', {'target': rulerLine, 'transform':{'original':originalLine}});
-        // canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
+        canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
 //            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": e.target, "transform":e.transform.original});
     }
   }
