@@ -91,7 +91,8 @@ const UserProfileAttributes = {
     UserName: "preferred_username",
     Email: "email",
     EmailVerified: "email_verified",
-    FullName: "name"
+    FullName: "name",
+    Group: "usergroup"
 }
 
 const ChatCommands = {
@@ -189,7 +190,6 @@ function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
     console.log(idt);
-    console.log(jwt_decode(idt));
     const loadState = async () => {
         const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
             method: 'get', 
@@ -595,7 +595,8 @@ charSheetButtonEl.onclick = function () {
  * 
  */
 function assignUserAttributes() {
-    console.log("Getting and assigning user attribute values")
+    console.log("Getting and assigning user attribute values");
+    var jwt = jwt_decode(getIDToken());
     getUserProfile(function(result) {
         if (result == null) {
             console.log('Couldnt get user attributes');
@@ -621,6 +622,8 @@ function assignUserAttributes() {
             }
         }
     });
+    group = jwt['cognito:groups'];
+    console.log(group);
 }
 
 /**
