@@ -267,7 +267,7 @@ function sendChatMessage() {
             break;
 
         case ChatCommands.HelpCommands:
-            putChatMessage('Inara', '/help : Lists available command\r\n /list : Lists users currently online\r\n /roll (/r) : \
+            putChatMessage('Inara', '/help : Lists available command \r\n /list : Lists users currently online \r\n /roll (/r) : \
                 Rolls dice, ex. 1d20+2 \r\n /w : Whispers a message to a user ex. /w Inara This is a whispered message')
             break;
 
@@ -1299,12 +1299,18 @@ canvas.on('mouse:down', function(opt) {
     var pointer = canvas.getPointer(opt.e);
     origX = pointer.x;
     origY = pointer.y;
-    rulerLine = new fabric.Line([origX, origY, origX, origY]);
+    rulerLine = new fabric.Line([origX, origY, origX, origY], {
+      fill: 'green',
+      stroke: 'green',
+      strokeWidth: 5
+    });
+
     rulerLine.owner = null;
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
 
     rulerTimer = Date.now();
-    canvas.add(rulerLine, rulerText);
+    canvas.add(rulerLine);
+    canvas.add(rulerText);
     canvas.renderAll();
     console.log(rulerLine);
   }
@@ -1352,9 +1358,9 @@ canvas.on('mouse:move', function(opt) {
     canvas.renderAll();
   }
   else if (rulerMode && isDown) {
-    console.log("Moving cursor end of ruler");
-    console.log(rulerLine.x2 + " " + rulerLine.y2);
-    originalLine = {'x1': 0, 'y1': 0, 'x2':rulerLine.x2, 'y2': rulerLine.y2};
+    // console.log("Moving cursor end of ruler");
+    // console.log(rulerLine.x2 + " " + rulerLine.y2);
+    originalLine = {'x1': rulerLine.x1, 'y1': rulerLine.y1, 'x2':rulerLine.x2, 'y2': rulerLine.y2};
     originalText = {'left': rulerText.left, 'top':rulerText.top, 'text':rulerText.text}
     rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
     rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
@@ -1363,7 +1369,7 @@ canvas.on('mouse:move', function(opt) {
     if(Date.now() - rulerTimer > 200){
         rulerTimer = Date.now();
         canvas.fire('object:modified', {'target': rulerLine, 'transform':{'original':originalLine}});
-        canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
+        // canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
 //            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": e.target, "transform":e.transform.original});
     }
   }
