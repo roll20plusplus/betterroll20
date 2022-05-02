@@ -94,6 +94,11 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
+const ChatCommands = {
+    ListUsers: "/list",
+    HelpCommands: "/help"
+}
+
 /**
  * Initialize app after page is loaded
  */
@@ -111,6 +116,8 @@ window.addEventListener('DOMContentLoaded', event => {
 
 function init() {
     action=false;
+    console.log("Pull and load user attributes from cognito");
+    assignUserAttributes();
     console.log("Initializing websocket connection");
     socket = new WebSocket('wss://5v891qyp15.execute-api.us-west-1.amazonaws.com/Prod');
     socket.addEventListener('open', (event) => {
@@ -131,8 +138,6 @@ function init() {
     chatInputConfig();
     console.log("Initialize command history object");
     stateHistory = new CommandHistory();
-    console.log("Pull and load user attributes from cognito");
-    assignUserAttributes();
     console.log("Initializing S3 Bucket");
     initS3();
     console.log("Initialize fog of war");
@@ -159,7 +164,7 @@ function saveSocketConnection() {
             AWS.config.credentials.get(function(err) {
                 if (!err) {
                     var id = AWS.config.credentials.identityId;
-                    sendSocketMessage(MessageType.InaraConnect, id, "");
+                    sendSocketMessage(MessageType.InaraConnect, id, username);
                 }
                 else {
                     console.log("Could not save socket connection, error retrieving cognito credentials");
@@ -216,6 +221,7 @@ function loadCanvasState() {
 function setCanvasState() {
     console.log('setting canvas state with REST API')
     var idt = getIDToken();
+
     const setState = async () => {
       const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
         method: 'post',
@@ -238,9 +244,39 @@ function setCanvasState() {
  */
 
 function sendChatMessage() {
-    //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
-    sendSocketMessage(MessageType.ChatMessage, username, document.getElementById("message").value);
+    var text = document.getElementById("message").value;
+    switch(text) {
+        case ChatCommands.ListUsers:
+            var idt = getIDToken();
+            const getUsers = async () => {
+                const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod/inara',{ 
+                    method: 'get',
+                    headers: new Headers({
+                        'Authorization': idt
+                })});
+                const myJson = await response.json(); //extract JSON from the http response
+                console.log(myJson);
 
+                var activeUserString = 'Online Users: \r\n';
+                for (const user of myJson.body) {
+                    activeUserString += user;
+                    activeUserString += '\r\n';
+                }
+                putChatMessage('Inara', activeUserString);
+            }
+            getUsers();
+            break;
+
+        case ChatCommands.HelpCommands:
+            putChatMessage('Inara', '/help : Lists available command \r\n /list : Lists users currently online \r\n /roll (/r) : \
+                Rolls dice, ex. 1d20+2 \r\n /w : Whispers a message to a user ex. /w Inara This is a whispered message')
+            break;
+
+        default:
+            //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
+            sendSocketMessage(MessageType.ChatMessage, username, text);
+            break;
+    }
     // Blank the text input element, ready to receive the next line of text from the user.
     document.getElementById("message").value = "";
 }
@@ -277,10 +313,12 @@ function receiveSocketMessage(socketMessage) {
                     if (o !=null && o.owner != username) {
                         switch (messageAction) {
                             case "add":
+                                console.log("adding an object");
                                 canvasAction = new AddCommand(o);
                                 canvasAction.execute(canvas);
                                 break;
                             case "transform":
+                                console.log("transforming an object");
                                 canvasAction = new TransformCommand(o, msgcontents.transform);
                                 canvasAction.execute(canvas);
                                 break;
@@ -513,12 +551,22 @@ function chatInputConfig() {
       }
     });
 
+    putChatMessage('Inara', 'Welcome to Better Roll20');
+}
+
+
+/**
+ * Puts a chat message into the chat window. Mostly used for local messages
+ * like /help and /list
+ * 
+ */
+function putChatMessage(sender, contents) {
     // Puts a message in the chat on initialization
     var _chatMessageList = document.querySelector(".chatlist");
     var _template = document.querySelector('#chatMessageTemplate');
     var _clone = _template.content.cloneNode(true);
-    _clone.querySelector('.messageSender').textContent = 'Inara';
-    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
+    _clone.querySelector('.messageSender').textContent = sender;
+    _clone.querySelector('.messageContents').textContent = contents;
     _chatMessageList.appendChild(_clone);
 }
 
@@ -1254,12 +1302,20 @@ canvas.on('mouse:down', function(opt) {
     var pointer = canvas.getPointer(opt.e);
     origX = pointer.x;
     origY = pointer.y;
-    rulerLine = new fabric.Line([origX, origY, origX, origY]);
+    rulerLine = new fabric.Line([origX, origY, origX, origY], {
+      top: origY,
+      left: origX,
+      fill: 'green',
+      stroke: 'green',
+      strokeWidth: 5
+    });
+
     rulerLine.owner = null;
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
 
     rulerTimer = Date.now();
-    canvas.add(rulerLine, rulerText);
+    canvas.add(rulerLine);
+    canvas.add(rulerText);
     canvas.renderAll();
     console.log(rulerLine);
   }
@@ -1307,9 +1363,9 @@ canvas.on('mouse:move', function(opt) {
     canvas.renderAll();
   }
   else if (rulerMode && isDown) {
-    console.log("Moving cursor end of ruler");
-    console.log(rulerLine.x2 + " " + rulerLine.y2);
-    originalLine = {'x1': 0, 'y1': 0, 'x2':rulerLine.x2, 'y2': rulerLine.y2};
+    // console.log("Moving cursor end of ruler");
+    // console.log(rulerLine.x2 + " " + rulerLine.y2);
+    originalLine = {'x1': rulerLine.x1, 'y1': rulerLine.y1, 'x2':rulerLine.x2, 'y2': rulerLine.y2, 'top': rulerLine.top, 'left': rulerLine.left};
     originalText = {'left': rulerText.left, 'top':rulerText.top, 'text':rulerText.text}
     rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
     rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
