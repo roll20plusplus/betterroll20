@@ -596,8 +596,8 @@ charSheetButtonEl.onclick = function () {
  */
 function assignUserAttributes() {
     console.log("Getting and assigning user attribute values");
-    var jwt = jwt_decode(getIDToken());
     getUserProfile(function(result) {
+        var jwt = jwt_decode(getIDToken());
         if (result == null) {
             console.log('Couldnt get user attributes');
             return;
