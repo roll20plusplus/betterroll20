@@ -1313,7 +1313,7 @@ canvas.on('mouse:move', function(opt) {
         canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
 //            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": e.target, "transform":e.transform.original});
 
-//        canvas.renderAll();
+        canvas.renderAll();
     }
   }
 });
