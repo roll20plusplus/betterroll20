@@ -38,12 +38,13 @@ function sendSocketMessage(type, username, contents) {
                     action: type,
                     data : {'sender': username, 'contents': contents}};
                 console.log("Broadcasting an action to other users: " + contents.toString());
+                console.log(contents);
                 break;
             case MessageType.InaraConnect:
                 msg = {
                     action: type,
                     data : {'sender': username, 'contents': contents}};
-                console.log("Broadcasting an action to other users");
+                console.log("Connecting to Inara");
                 break;
             default:
                 console.log("No case statement in sendsocketmessage to handle this message: " + type);
