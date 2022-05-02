@@ -255,8 +255,9 @@ function sendChatMessage() {
                 })});
                 const myJson = await response.json(); //extract JSON from the http response
                 console.log(myJson);
+
                 var activeUserString = 'Online Users: \r\n';
-                for (const user of myJson) {
+                for (const user of myJson.body) {
                     activeUserString += user;
                     activeUserString += '\r\n';
                 }
