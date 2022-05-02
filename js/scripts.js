@@ -260,8 +260,8 @@ function sendChatMessage() {
             break;
 
         case ChatCommands.HelpCommands:
-            putChatMessage('Inara', '/help : Lists available command<br> /list : Lists users currently online<br> /roll (/r) : \
-                Rolls dice, ex. 1d20+2 <br> /w : Whispers a message to a user ex. /w Inara This is a whispered message')
+            putChatMessage('Inara', '/help : Lists available command\r\n /list : Lists users currently online\r\n /roll (/r) : \
+                Rolls dice, ex. 1d20+2 \r\n /w : Whispers a message to a user ex. /w Inara This is a whispered message')
             break;
 
         default:
