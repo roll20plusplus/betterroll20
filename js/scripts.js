@@ -1304,10 +1304,15 @@ canvas.on('mouse:move', function(opt) {
     if(Date.now() - rulerTimer > 200){
         console.log("Moving cursor end of ruler");
         rulerTimer = Date.now();
+        console.log(rulerLine.x2 + " " + rulerLine.y2);
+        originalLine = {'x2':rulerLine.x2, 'y2': rulerLine.y2};
+        originalText = {'left': rulerText.left, 'top':rulerText.top, 'text'rulerText.text}
         rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
         rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
-        rulerLine.setCoords();
-        rulerText.setCoords();
+        canvas.trigger('object:modified', {'target': rulerLine, 'transform':{'original':original}});
+        canvas.trigger('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
+//            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": e.target, "transform":e.transform.original});
+
 //        canvas.renderAll();
     }
   }
@@ -1340,7 +1345,8 @@ canvas.on('mouse:up', function(opt) {
   else if (rulerMode) {
     console.log("Make ruler invisble");
     canvas.selection = true;
-    canvas.remove(rulerLine, rulerText);
+    canvas.remove(rulerLine);
+    canvas.remove(rulerText);
 
 //    rulerLine.visible = false;
 //    rulerText.visible = false;
