@@ -1345,8 +1345,8 @@ canvas.on('mouse:up', function(opt) {
   else if (rulerMode) {
     console.log("Make ruler invisble");
     canvas.selection = true;
-    canvas.removeWithUpdate(rulerLine);
-    canvas.removeWithUpdate(rulerText);
+    canvas.remove(rulerLine);
+    canvas.remove(rulerText);
 
 //    rulerLine.visible = false;
 //    rulerText.visible = false;
