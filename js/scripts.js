@@ -254,8 +254,13 @@ function sendChatMessage() {
                         'Authorization': idt
                 })});
                 const myJson = await response.json(); //extract JSON from the http response
-
                 console.log(myJson);
+                var activeUserString = 'Online Users: \r\n';
+                for (const user of myJson) {
+                    activeUserString += user;
+                    activeUserString += '\r\n';
+                }
+                putChatMessage('Inara', activeUserString);
             }
             getUsers();
             break;
