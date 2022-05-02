@@ -36,8 +36,8 @@ function sendSocketMessage(type, username, contents) {
             case MessageType.BroadcastAction:
                 msg = {
                     action: type,
-                    data : {'sender': username, 'contents': contents}};
-                console.log("Broadcasting an action to other users: " + contents.toString());
+                    data : {'sender': username, 'contents': JSON.stringify(contents)}};
+                console.log("Broadcasting an action to other users: " + JSON.stringify(contents);
                 console.log(contents);
                 break;
             case MessageType.InaraConnect:
