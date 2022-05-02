@@ -1309,8 +1309,8 @@ canvas.on('mouse:move', function(opt) {
         originalText = {'left': rulerText.left, 'top':rulerText.top, 'text':rulerText.text}
         rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
         rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
-        canvas.trigger('object:modified', {'target': rulerLine, 'transform':{'original':originalLine}});
-        canvas.trigger('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
+        canvas.fire('object:modified', {'target': rulerLine, 'transform':{'original':originalLine}});
+        canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
 //            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": e.target, "transform":e.transform.original});
 
 //        canvas.renderAll();
