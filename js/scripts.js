@@ -220,6 +220,7 @@ function loadCanvasState() {
 function setCanvasState() {
     console.log('setting canvas state with REST API')
     var idt = getIDToken();
+
     const setState = async () => {
       const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
         method: 'post',
@@ -245,6 +246,7 @@ function sendChatMessage() {
     var text = document.getElementById("message").value;
     switch(text) {
         case ChatCommands.ListUsers:
+            var idt = getIDToken();
             const getUsers = async () => {
                 const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod/inara',{ 
                     method: 'get',
@@ -258,8 +260,8 @@ function sendChatMessage() {
             break;
 
         case ChatCommands.HelpCommands:
-            putChatMessage('Inara', '/help : Lists available commands\n /list : Lists users currently online\n /roll (/r) : \
-                Rolls dice, ex. 1d20+2\n /w : Whispers a message to a user ex. /w Inara This is a whispered message')
+            putChatMessage('Inara', '/help : Lists available command<br> /list : Lists users currently online<br> /roll (/r) : \
+                Rolls dice, ex. 1d20+2 <br> /w : Whispers a message to a user ex. /w Inara This is a whispered message')
             break;
 
         default:
