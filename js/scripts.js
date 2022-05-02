@@ -312,10 +312,12 @@ function receiveSocketMessage(socketMessage) {
                     if (o !=null && o.owner != username) {
                         switch (messageAction) {
                             case "add":
+                                console.log("adding an object");
                                 canvasAction = new AddCommand(o);
                                 canvasAction.execute(canvas);
                                 break;
                             case "transform":
+                                console.log("transforming an object");
                                 canvasAction = new TransformCommand(o, msgcontents.transform);
                                 canvasAction.execute(canvas);
                                 break;
@@ -1300,6 +1302,8 @@ canvas.on('mouse:down', function(opt) {
     origX = pointer.x;
     origY = pointer.y;
     rulerLine = new fabric.Line([origX, origY, origX, origY], {
+      top: origY,
+      left: origX,
       fill: 'green',
       stroke: 'green',
       strokeWidth: 5
