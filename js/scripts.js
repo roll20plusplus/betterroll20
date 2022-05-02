@@ -1253,7 +1253,8 @@ canvas.on('mouse:down', function(opt) {
     var pointer = canvas.getPointer(opt.e);
     origX = pointer.x;
     origY = pointer.y;
-    rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true, 'owner' : null});
+    rulerLine = new fabric.Line([origX, origY, origX, origY]);
+    rulerLine.owner = null;
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
 
     rulerTimer = Date.now();
