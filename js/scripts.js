@@ -283,7 +283,7 @@ function receiveSocketMessage(socketMessage) {
                                 canvasAction = new TransformCommand(o, msgcontents.transform);
                                 canvasAction.execute(canvas);
                                 break;
-                            case "add":
+                            case "remove":
                                 canvasAction = new RemoveCommand(o);
                                 canvasAction.execute(canvas);
                                 break;
