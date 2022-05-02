@@ -188,7 +188,7 @@ function saveSocketConnection() {
 function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
-    console.log(jwt_decode(idt));
+    console.log(parseJwt(idt));
     const loadState = async () => {
         const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
             method: 'get', 
@@ -1571,3 +1571,13 @@ function animatePointer(animatePoint) {
 function genID() {
     return  Math.floor(Math.random() * 1000000000000).toString()
 }
+
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+};
