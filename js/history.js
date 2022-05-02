@@ -75,8 +75,8 @@ class RemoveCommand {
   }
   execute(canvas) {
     canvas.getObjects().forEach((obj) => {
-        console.log(this.target.translationX == obj.translationX && this.target.translationY == obj.translationY);
-          if(this.target == obj) {
+        console.log(this.target.id == obj.id);
+          if(this.target.id == obj.id) {
             console.log(obj);
             console.log(canvas.remove(obj));
         }

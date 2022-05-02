@@ -284,6 +284,7 @@ function receiveSocketMessage(socketMessage) {
                                 canvasAction.execute(canvas);
                                 break;
                             case "remove":
+                                console.log("removing an object")
                                 canvasAction = new RemoveCommand(o);
                                 canvasAction.execute(canvas);
                                 break;
