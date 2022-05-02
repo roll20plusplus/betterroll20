@@ -188,6 +188,7 @@ function saveSocketConnection() {
 function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
+    console.log(idt);
     console.log(jwt_decode(idt));
     const loadState = async () => {
         const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
