@@ -621,9 +621,9 @@ function assignUserAttributes() {
                     break;
             }
         }
+        group = jwt['cognito:groups'];
+        console.log(group);
     });
-    group = jwt['cognito:groups'];
-    console.log(group);
 }
 
 /**
