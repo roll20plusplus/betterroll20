@@ -1,6 +1,8 @@
 /*global WildRydes _config AmazonCognitoIdentity AWSCognito*/
 
 var WildRydes = window.WildRydes || {};
+var userPool;
+var jwt;
 
 (function scopeWrapper($) {
     var signinUrl = '/signin.html';
@@ -10,7 +12,6 @@ var WildRydes = window.WildRydes || {};
         ClientId: _config.cognito.userPoolClientId
     };
 
-    var userPool;
 
     if (!(_config.cognito.userPoolId &&
           _config.cognito.userPoolClientId &&
@@ -190,7 +191,7 @@ function getUserProfile(_callback) {
                 console.log('session validity: ' + session.isValid());
                 // console.log('session token: ' + session.getIdToken().getJwtToken());
                 sessionToken = session.getIdToken().getJwtToken();
-
+                jwt = sessionToken;
                 AWS.config.region = _config.cognito.region;
                 //var loginKey = 'cognito-idp.'.concat(${AWS.config.region}, '.amazonaws.com/', ${data.UserPoolId});
                 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -224,29 +225,30 @@ function getUserProfile(_callback) {
 }
 
 function getIDToken() {
-    var data = {
-        UserPoolId: _config.cognito.userPoolId,
-        ClientId: _config.cognito.userPoolClientId,
-    };
-    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
-    var cognitoUser = userPool.getCurrentUser();
-    console.log('Loading Cognito User');
-    try {
-        if (cognitoUser != null) {
-            cognitoUser.getSession(function(err, session) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                console.log('session validity: ' + session.isValid());
-//                console.log('session token: ' + session.getIdToken().getJwtToken());
-                return session.getIdToken().getJwtToken();
-            });
-        } else {console.log("error loading credentials"); return null;}
-    } catch (e) {
-        console.log(e);
-        return null;
-    }
+//    var data = {
+//        UserPoolId: _config.cognito.userPoolId,
+//        ClientId: _config.cognito.userPoolClientId,
+//    };
+//    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
+//    var cognitoUser = userPool.getCurrentUser();
+//    console.log('Loading Cognito User');
+//    try {
+//        if (cognitoUser != null) {
+//            cognitoUser.getSession(function(err, session) {
+//                if (err) {
+//                    console.log(err);
+//                    return;
+//                }
+//                console.log('session validity: ' + session.isValid());
+////                console.log('session token: ' + session.getIdToken().getJwtToken());
+//                return session.getIdToken().getJwtToken();
+//            });
+//        } else {console.log("error loading credentials"); return null;}
+//    } catch (e) {
+//        console.log(e);
+//        return null;
+//    }
+    return jwt;
 }
 
 async function updateUserAttributes(attributeList) {
