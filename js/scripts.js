@@ -1306,7 +1306,6 @@ canvas.on('mouse:move', function(opt) {
   }
   else if (rulerMode && isDown) {
     console.log("Moving cursor end of ruler");
-    rulerTimer = Date.now();
     console.log(rulerLine.x2 + " " + rulerLine.y2);
     originalLine = {'x1': 0, 'y1': 0, 'x2':rulerLine.x2, 'y2': rulerLine.y2};
     originalText = {'left': rulerText.left, 'top':rulerText.top, 'text':rulerText.text}
@@ -1315,6 +1314,7 @@ canvas.on('mouse:move', function(opt) {
     canvas.renderAll();
 
     if(Date.now() - rulerTimer > 200){
+        rulerTimer = Date.now();
         canvas.fire('object:modified', {'target': rulerLine, 'transform':{'original':originalLine}});
         canvas.fire('object:modified', {'target': rulerText, 'transform':{'original':originalText}});
 //            sendSocketMessage(MessageType.BroadcastAction, "canvasupdate", {"command":"transform", "target": e.target, "transform":e.transform.original});
