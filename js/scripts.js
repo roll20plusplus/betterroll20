@@ -1364,7 +1364,7 @@ canvas.on('mouse:move', function(opt) {
   else if (rulerMode && isDown) {
     // console.log("Moving cursor end of ruler");
     // console.log(rulerLine.x2 + " " + rulerLine.y2);
-    originalLine = {'x1': rulerLine.x1, 'y1': rulerLine.y1, 'x2':rulerLine.x2, 'y2': rulerLine.y2};
+    originalLine = {'x1': rulerLine.x1, 'y1': rulerLine.y1, 'x2':rulerLine.x2, 'y2': rulerLine.y2, 'top': rulerLine.top, 'left': rulerLine.left};
     originalText = {'left': rulerText.left, 'top':rulerText.top, 'text':rulerText.text}
     rulerLine.set({ 'x2': pointer.x, 'y2': pointer.y});
     rulerText.set({ 'left': pointer.x, 'top': pointer.y-30, 'text': (getLineLengthFeet(rulerLine)).toString()});
