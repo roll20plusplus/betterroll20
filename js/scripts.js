@@ -1250,6 +1250,9 @@ canvas.on('mouse:down', function(opt) {
   else if (rulerMode) {
     console.log("Beginning to draw ruler");
     canvas.selection = false;
+    var pointer = canvas.getPointer(opt.e);
+    origX = pointer.x;
+    origY = pointer.y;
     rulerLine.set({ 'x1': origX, 'x2': origX, 'y1': origY, 'y2': origY, 'visible':true, 'owner' : null});
     rulerText.set({ 'left': origX, 'top': origY-30, 'text': '0', 'visible':true, 'owner' : null});
 
