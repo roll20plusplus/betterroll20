@@ -94,6 +94,11 @@ const UserProfileAttributes = {
     FullName: "name"
 }
 
+const ChatCommands = {
+    ListUsers: "/list",
+    HelpCommands: "/help"
+}
+
 /**
  * Initialize app after page is loaded
  */
@@ -237,9 +242,31 @@ function setCanvasState() {
  */
 
 function sendChatMessage() {
-    //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
-    sendSocketMessage(MessageType.ChatMessage, username, document.getElementById("message").value);
+    var text = document.getElementById("message").value;
+    switch(text) {
+        case ChatCommands.ListUsers:
+            const getUsers = async () => {
+                const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod/inara',{ 
+                    method: 'get',
+                    headers: new Headers({
+                        'Authorization': idt
+                })});
+                const myJson = await response.json(); //extract JSON from the http response
+                console.log(myJson);
+            }
+            getUsers();
+            break;
 
+        case ChatCommands.HelpCommands:
+            putChatMessage('Inara', '/help : Lists available commands\n /list : Lists users currently online\n /roll (/r) : \
+                Rolls dice, ex. 1d20+2\n /w : Whispers a message to a user ex. /w Inara This is a whispered message')
+            break;
+
+        default:
+            //console.log("Sending a chat message " + MessageType.ChatMessage + " " + document.getElementById("message").value);
+            sendSocketMessage(MessageType.ChatMessage, username, text);
+            break;
+    }
     // Blank the text input element, ready to receive the next line of text from the user.
     document.getElementById("message").value = "";
 }
@@ -512,12 +539,22 @@ function chatInputConfig() {
       }
     });
 
+    putChatMessage('Inara', 'Welcome to Better Roll20');
+}
+
+
+/**
+ * Puts a chat message into the chat window. Mostly used for local messages
+ * like /help and /list
+ * 
+ */
+function putChatMessage(sender, contents) {
     // Puts a message in the chat on initialization
     var _chatMessageList = document.querySelector(".chatlist");
     var _template = document.querySelector('#chatMessageTemplate');
     var _clone = _template.content.cloneNode(true);
-    _clone.querySelector('.messageSender').textContent = 'Inara';
-    _clone.querySelector('.messageContents').textContent = 'Welcome to Better Roll20';
+    _clone.querySelector('.messageSender').textContent = sender;
+    _clone.querySelector('.messageContents').textContent = contents;
     _chatMessageList.appendChild(_clone);
 }
 
