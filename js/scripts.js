@@ -91,7 +91,8 @@ const UserProfileAttributes = {
     UserName: "preferred_username",
     Email: "email",
     EmailVerified: "email_verified",
-    FullName: "name"
+    FullName: "name",
+    Group: "usergroup"
 }
 
 const ChatCommands = {
@@ -188,6 +189,7 @@ function saveSocketConnection() {
 function loadCanvasState() {
     console.log('loading canvas state from REST API')
     var idt = getIDToken();
+    console.log(idt);
     const loadState = async () => {
         const response = await fetch('https://wrj9st3ceb.execute-api.us-west-1.amazonaws.com/prod',{ 
             method: 'get', 
@@ -593,8 +595,9 @@ charSheetButtonEl.onclick = function () {
  * 
  */
 function assignUserAttributes() {
-    console.log("Getting and assigning user attribute values")
+    console.log("Getting and assigning user attribute values");
     getUserProfile(function(result) {
+        var jwt = jwt_decode(getIDToken());
         if (result == null) {
             console.log('Couldnt get user attributes');
             return;
@@ -618,6 +621,8 @@ function assignUserAttributes() {
                     break;
             }
         }
+        group = jwt['cognito:groups'][0];
+        console.log(group);
     });
 }
 
@@ -1586,3 +1591,13 @@ function animatePointer(animatePoint) {
 function genID() {
     return  Math.floor(Math.random() * 1000000000000).toString()
 }
+
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+};
