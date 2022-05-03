@@ -1097,6 +1097,18 @@ function getMousePos(evt) {
   };
 }
 
+/**
+ * Finds an object on the canvas with by its ID.
+ * @param {String} id  The ID of the object to be found
+ */
+function findObjectById(id) {
+    for (const co of canvas.getObjects()) {
+        if (co.id == id){
+            return co;
+        }
+    }
+}
+
 //History State functions
 
 /**
@@ -1109,7 +1121,7 @@ canvas.on('object:added', function (e) {
         if (e.target.owner == null) {
             let target;
             for (const co of canvas.getObjects()) {
-                if (co==e.target){
+                if (co.id == e.target.id){
                     co.toObject = (function(toObject) {
                       return function() {
                         return fabric.util.object.extend(toObject.call(this), {
@@ -1140,6 +1152,10 @@ canvas.on('object:added', function (e) {
             var acommand = new AddCommand(target);
             stateHistory.add(acommand);
             updateModifications();
+        }
+        else if (e.target.owner != username) {
+            let target = findObjectById(e.target.id);
+            target.selectable = false;
         }
     }
 });
