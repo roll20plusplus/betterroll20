@@ -150,7 +150,7 @@ function init() {
     // Lazy way of setting the character sheet and drawing mode elements
     document.getElementById("defaultOpen").click();
     drawingModeEl.click();
-    charSheetButtonEl.click();
+    // charSheetButtonEl.click();
     action=true;
 }
 
