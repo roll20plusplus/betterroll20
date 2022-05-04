@@ -1,5 +1,7 @@
 <head>        
-        <link href="css/spellcard.css" rel="stylesheet" />
+    <link href="css/spellcard.css" rel="stylesheet" />
+    <script src="js/spellcard.js"></script>
+    <script src="js/vendor/jquery-3.1.0.js"></script>
 </head>
 <div class="background">
     <div class="title-row l t b r">
@@ -34,7 +36,7 @@
         <div class="property-row">
             <div class="property r2">
                 <div class="r10 icon"></div>
-                <div class="property-text black-text" id="spell-components">
+                <div class="property-text2 black-text" id="spell-components">
                 V, S
                 </div>
             </div>
@@ -59,8 +61,7 @@
         <b>At Higher Levels</b>. The damage increases by 1d6 for each slot level above 1st.
     </div>
     <div class="footer white-text">
-        <div class="l footer-left" id="spell-class">Wizard</div>
+        <div class="l footer-left" id="spell-class"></div>
         <div class="r footer-right" id="spell-level">Evocation 1</div>
     </div>
 </div>
-    

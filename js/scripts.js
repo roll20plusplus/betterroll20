@@ -1658,7 +1658,7 @@ function addSRDItem(item) {
     var template = document.querySelector('#srdItemTemplate');
     var clone = template.content.cloneNode(true);
     clone.querySelector('.list-group-item').textContent = item;
-    clone.onClick = displaySpell(item);
+    clone.querySelector('.list-group-item').onclick = function() { console.log('Spell clicked'); displaySpell(item); };
     srdList.appendChild(clone);
 }
 
@@ -1668,7 +1668,12 @@ function addSRDItem(item) {
  */
 
 function displaySpell(spellName) {
-    var formattedName = spellName.replace(/\s/g, '-')
+    console.log('Displaying spell: ' + spellName);
+    var formattedName = spellName.replace(/\s/g, '-');
+    formattedName = formattedName.toLowerCase();
     var spellCardEl = document.getElementById("panel1 dragspellcard");
-    spellCardEl.style.visibility = 'visible';
+    var spelliFrame = document.getElementById("spellcard-iframe");
+    spellCardEl.style.display = 'block';
+    spelliFrame.contentWindow.postMessage(formattedName, '*');
+
 }

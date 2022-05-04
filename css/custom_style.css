@@ -122,16 +122,22 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
 
 }
 
-#dragcharsheet {
+.dragcharsheet {
   position: relative;
   left: 1000px;
   top:  1000px;
+  width: 819px;
+  height: 700px;
   z-index: 9;
   background-color: #f1f1f1;
   border: 1px solid #d3d3d3;
   text-align: center;
 }
 
+.dragspellcard {
+  width: 400px;
+  height: 500px;
+}
 /*#dragcharsheetheader {
   padding: 10px;
   cursor: move;
@@ -141,8 +147,6 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
 }*/
 
 .panel{
-  width: 819px;
-  height: 500px;
   background-color: #ffffff;
 }
 

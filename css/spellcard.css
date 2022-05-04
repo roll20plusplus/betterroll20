@@ -19,8 +19,8 @@
 .l10 {margin-left: 10px;}
 
 .background {
-    width:375px;
-    height:525px;  
+    /*width:375px;*/
+    /*height:525px;  */
     background-color: red;
     display: flex;
     flex-direction: column;

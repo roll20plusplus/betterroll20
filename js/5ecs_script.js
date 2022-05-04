@@ -193,6 +193,7 @@ function load_character_json(contents) {
       }
     }
 }
+
 // Functions for reading character from disk
 function load_character(e) {
   // Autosave character
