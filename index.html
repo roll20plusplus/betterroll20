@@ -28,8 +28,12 @@
         <div class="d-flex" id="wrapper">
             <div class="border-end bg-white" id="sidebar-wrapper">
                 <div class="sidebar-heading border-bottom bg-light">Better Roll20</div>
-                <div class="list-group list-group-flush m-2">
-                <button id="open-character-sheet" class="btn btn-secondary">Open Character Sheet</button><br>
+                <div class="tab">
+                  <button class="tablinks" onclick="openTab(event, 'tab-map')" id="defaultOpen"><img src="img/paint-brush.png" alt="Edit Map" class="tab-icon"></button>
+                  <button class="tablinks" onclick="openTab(event, 'tab-srd')"><img src="img/loupe.png" alt="5e SRD" class="tab-icon"></button>
+                  <button class="tablinks" onclick="openTab(event, 'tab-library')"><img src="img/book.png" alt="Edit Map" class="tab-icon"></button>
+                </div>
+                <div class="list-group list-group-flush tabcontent" id="tab-map">
                     <button id="drawing-mode" class="btn btn-secondary">Cancel drawing mode</button><br>
                     <div id="fowmenu">
                         <button id="edit-fow" class="btn btn-secondary">Edit Fog of War</button><br>
@@ -76,6 +80,12 @@
                         <label for="drawing-shadow-offset">Shadow offset:</label>
                         <span class="info">0</span><input type="range" value="0" min="0" max="50" id="drawing-shadow-offset"><br>
                     </div>
+                </div>
+                <div class="list-group list-group-flush m-2 tabcontent" id="tab-srd">
+
+                </div>
+                <div class="list-group list-group-flush m-2 tabcontent" id="tab-library">
+                    <button id="open-character-sheet" class="btn btn-secondary">Open Character Sheet</button><br>
                 </div>
             </div>
             <!-- Page content wrapper-->
