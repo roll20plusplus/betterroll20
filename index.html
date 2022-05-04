@@ -18,16 +18,16 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     </head>
-    <div id="panel1 dragcharsheet" class="panel panel-warning resizable draggable border border-dark rounded" style="top:100px; left:200px" visibility="hidden">
+    <div id="panel1 dragcharsheet" class="panel panel-warning resizable draggable border border-dark rounded" style="top:100px; left:200px">
         <div class="panel-heading draggable-handler border-bottom border-5 border-dark p-1">Character Sheet</div>
         <div class="panel-body" style="height:98%;">
             <iframe id="serviceFrameSend" src="5ecs.html" width="2000" frameborder="0"></iframe>
         </div>
     </div>
-    <div id="panel1 dragspellcard" class="panel panel-warning resizable draggable border border-dark rounded" style="top:100px; left:200px" visibility="hidden">
-        <div class="panel-heading draggable-handler border-bottom border-5 border-dark p-1">Character Sheet</div>
+    <div id="panel1 dragspellcard" class="panel panel-warning resizable draggable border border-dark rounded" style="top:100px; left:200px">
+        <div class="panel-heading draggable-handler border-bottom border-5 border-dark p-1">Spell Card</div>
         <div class="panel-body" style="height:98%;">
-            <iframe id="serviceFrameSend" src="5ecs.html" width="2000" frameborder="0"></iframe>
+            <iframe id="serviceFrameSend" src="spellcard_template.html" width="2000" frameborder="0"></iframe>
         </div>
     </div>
     <body>
@@ -87,8 +87,7 @@
                         <span class="info">0</span><input type="range" value="0" min="0" max="50" id="drawing-shadow-offset"><br>
                     </div>
                 </div>
-                <div class="list-group list-group-flush m-2 tabcontent" id="tab-srd">
-
+                <div class="list-group tabcontent" id="tab-srd">
                 </div>
                 <div class="list-group list-group-flush m-2 tabcontent" id="tab-library">
                     <button id="open-character-sheet" class="btn btn-secondary">Open Character Sheet</button><br>
@@ -188,3 +187,7 @@
         </div>
     </li>
 </template>
+
+<template id="srdTemplate">
+  <button type="button" class="list-group-item list-group-item-action"> This is a test message</button>
+</template> 

@@ -224,3 +224,7 @@ li.messageItem {
 .btn-secondary {
   margin-top:  10px;
 }
+
+.srd-list {
+  list-style-type: none;
+}

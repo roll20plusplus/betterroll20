@@ -52,6 +52,8 @@ var newleft = 0;
 canvas.selection = false;
 
 var backgroundURL = 'https://betterroll20s3.s3.us-west-1.amazonaws.com/img/map_15x14.png';
+var srdurl = 'https://www.dnd5eapi.co/api/';
+var spellurl = 'https://www.dnd5eapi.co/api/spells/'
 
 fabric.Object.prototype.transparentCorners = false;
 
@@ -149,8 +151,9 @@ function init() {
 
     // Lazy way of setting the character sheet and drawing mode elements
     document.getElementById("defaultOpen").click();
+    document.getElementById("panel1 dragspellcard").style.display = "none";
     drawingModeEl.click();
-    // charSheetButtonEl.click();
+    charSheetButtonEl.click();
     action=true;
 }
 
