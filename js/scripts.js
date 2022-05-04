@@ -1597,15 +1597,6 @@ function genID() {
     return  Math.floor(Math.random() * 1000000000000).toString()
 }
 
-// function parseJwt (token) {
-//     var base64Url = token.split('.')[1];
-//     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-//     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-//         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-//     }).join(''));
-
-//     return JSON.parse(jsonPayload);
-// };
 
 /**
  * Function that switches the tabs in the left sidebar
@@ -1667,5 +1658,17 @@ function addSRDItem(item) {
     var template = document.querySelector('#srdItemTemplate');
     var clone = template.content.cloneNode(true);
     clone.querySelector('.list-group-item').textContent = item;
+    clone.onClick = displaySpell(item);
     srdList.appendChild(clone);
+}
+
+/**
+ * Displays the spellcard iframe, pulling the data from the SRD API
+ * @param {String} spellName  The unformatted spell name fetched from the button pressed
+ */
+
+function displaySpell(spellName) {
+    var formattedName = spellName.replace(/\s/g, '-')
+    var spellCardEl = document.getElementById("panel1 dragspellcard");
+    spellCardEl.style.visibility = 'visible';
 }
