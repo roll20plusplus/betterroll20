@@ -15,7 +15,12 @@
 }
 
 #sidebar-wrapper .list-group {
-  width: 10rem;
+  /*width: 10rem;*/
+}
+
+#tab-srd {
+  height: 100vh;
+  overflow-y:auto;
 }
 
 #page-content-wrapper {

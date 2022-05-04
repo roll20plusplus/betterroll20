@@ -148,6 +148,7 @@ function init() {
     initFowCanvas(false);
     console.log("Initializing Ruler");
     initRuler();
+    fetchSRDSpells();
 
     // Lazy way of setting the character sheet and drawing mode elements
     document.getElementById("defaultOpen").click();
@@ -1590,21 +1591,26 @@ function animatePointer(animatePoint) {
 }
 
 /**
-  * Generates an string id, used
+  * Generates an string id using Math.Random
   */
 function genID() {
     return  Math.floor(Math.random() * 1000000000000).toString()
 }
 
-function parseJwt (token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+// function parseJwt (token) {
+//     var base64Url = token.split('.')[1];
+//     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+//     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+//         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+//     }).join(''));
 
-    return JSON.parse(jsonPayload);
-};
+//     return JSON.parse(jsonPayload);
+// };
+
+/**
+ * Function that switches the tabs in the left sidebar
+ * 
+ */
 
 function openTab(evt, tabName) {
   // Declare all variables
@@ -1625,4 +1631,41 @@ function openTab(evt, tabName) {
   // Show the current tab, and add an "active" class to the button that opened the tab
   document.getElementById(tabName).style.display = "block";
   evt.currentTarget.className += " active";
+}
+
+/**
+ * Fetch spells from SRD API, https://www.dnd5eapi.co/api
+ * 
+ */
+
+function fetchSRDSpells() {
+    const loadSpells = async () => {
+        const response = await fetch('https://www.dnd5eapi.co/api/spells/');
+        const spellsJson = await response.json(); //extract JSON from the http response
+        console.log(spellsJson);
+
+        for (const item of spellsJson.results) {
+            addSRDItem(item.name);
+            // console.log(item);
+        }
+      // do something with myJson
+    }
+    loadSpells();
+}
+
+/**
+ * Adds item to SRD Sidebar
+ * @param {String} item  The item string to use for the SRD Item
+ */
+function addSRDItem(item) {
+    if (item == null || item == '') {
+        console.log('Item to be added to SRD list was empty or null');
+        return;
+    }
+    var srdList = document.getElementById('tab-srd');
+    // Messages with rolls need to be parsed into the rollMessageTemplate
+    var template = document.querySelector('#srdItemTemplate');
+    var clone = template.content.cloneNode(true);
+    clone.querySelector('.list-group-item').textContent = item;
+    srdList.appendChild(clone);
 }
